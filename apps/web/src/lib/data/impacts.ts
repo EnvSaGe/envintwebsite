@@ -5,11 +5,22 @@ import localImpacts from '@/data/impacts.json';
 function sanitizeImpact(item: any) {
   if (!item) return null;
   const local = (localImpacts as any[]).find((l: any) => l.slug === item.slug);
+  const heroImage =
+    item.coverImageUrl ||
+    item.coverImage?.url ||
+    local?.heroImage ||
+    local?.coverImage?.url ||
+    '/images/services-sustainability.webp';
+
   return {
+    ...local,
     ...item,
-    title: item.title ? String(item.title).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '',
-    summary: item.summary ? String(item.summary).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : '',
-    cardExcerpt: item.cardExcerpt || local?.cardExcerpt || item.summary || '',
+    title: item.title ? String(item.title).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : (local?.title || ''),
+    summary: item.summary ? String(item.summary).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : (local?.summary || ''),
+    cardExcerpt: item.cardExcerpt || local?.cardExcerpt || item.summary || local?.summary || '',
+    heroImage,
+    coverImage: item.coverImage || { url: heroImage },
+    categories: (item.categories && item.categories.length > 0) ? item.categories : (local?.categories || []),
   };
 }
 
@@ -30,7 +41,7 @@ export async function getImpacts() {
       }
       return (localImpacts as any[]).map(sanitizeImpact);
     },
-    ['impacts-list-clean'],
+    ['impacts-list-clean-v3'],
     { tags: ['impacts:list'] }
   )();
 }
@@ -43,14 +54,14 @@ export async function getImpact(slug: string) {
           where: and(eq(impactCaseStudies.slug, slug), eq(impactCaseStudies.status, 'PUBLISHED')),
           with: { service: true, sector: true, theme: true, coverImage: true },
         });
-        if (record) return record;
+        if (record) return sanitizeImpact(record);
       } catch {
         // Fallback to local canonical data
       }
       const found = localImpacts.find((item: any) => item.slug === slug);
-      return found ?? null;
+      return found ? sanitizeImpact(found) : null;
     },
-    [`impact-${slug}`],
+    [`impact-clean-v3-${slug}`],
     { tags: [`impact:${slug}`] }
   )();
 }

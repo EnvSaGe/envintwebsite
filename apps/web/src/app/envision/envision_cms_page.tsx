@@ -75,7 +75,7 @@ export default async function EnvisionPage() {
                 }}>
                   <div style={{ height: '260px', position: 'relative', backgroundColor: '#e2e8f0' }}>
                     <Image
-                      src={article.coverImage?.url || article.heroImage || '/images/services-climate.webp'}
+                      src={article.coverImage?.url || article.heroImage || article.coverImageUrl || '/images/services-climate.webp'}
                       alt={article.title}
                       fill
                       loading="eager"

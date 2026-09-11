@@ -123,6 +123,7 @@ export default function ImpactFilterGrid({ impacts }: ImpactFilterGridProps) {
           const coverUrl =
             item.heroImage ||
             item.coverImage?.url ||
+            (item as any).coverImageUrl ||
             '/images/services-sustainability.webp';
 
           return (

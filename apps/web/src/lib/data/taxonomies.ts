@@ -64,7 +64,7 @@ function mapImpactItem(imp: any, termName: string) {
     title: imp.title,
     slug: `impact/${imp.slug}`,
     date: imp.publishedAt ? new Date(imp.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '',
-    coverImage: imp.heroImage || '/images/services-sustainability.webp',
+    coverImage: imp.heroImage || imp.coverImage?.url || imp.coverImageUrl || '/images/services-sustainability.webp',
     category: termName,
   };
 }
@@ -146,7 +146,7 @@ export async function getTaxonomyArchive(type: string, slug: string) {
         title: imp.title,
         slug: `impact/${imp.slug}`,
         date: imp.publishedAt ? new Date(imp.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '',
-        coverImage: imp.heroImage || '/images/services-sustainability.webp',
+        coverImage: imp.heroImage || imp.coverImage?.url || imp.coverImageUrl || '/images/services-sustainability.webp',
         category: termName,
       }));
 
@@ -159,7 +159,7 @@ export async function getTaxonomyArchive(type: string, slug: string) {
         title: ins.title,
         slug: ins.slug,
         date: ins.publishedAt ? new Date(ins.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '',
-        coverImage: ins.coverImage?.url || '/images/services-climate.webp',
+        coverImage: ins.coverImage?.url || ins.heroImage || ins.coverImageUrl || '/images/services-climate.webp',
         category: termName,
       }));
 
@@ -172,7 +172,7 @@ export async function getTaxonomyArchive(type: string, slug: string) {
           title: imp.title,
           slug: `impact/${imp.slug}`,
           date: imp.publishedAt ? new Date(imp.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '',
-          coverImage: imp.heroImage || '/images/services-sustainability.webp',
+          coverImage: imp.heroImage || imp.coverImage?.url || imp.coverImageUrl || '/images/services-sustainability.webp',
           category: termName,
         }));
       }

@@ -98,7 +98,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const { previous, next } = await getInsightAdjacentSlugs(joined);
-  const coverUrl = (article.coverImage as any)?.url || '/images/hero-wetland.webp';
+  const coverUrl = (article.coverImage as any)?.url || (article as any).heroImage || (article as any).coverImageUrl || '/images/hero-wetland.webp';
   const pubDateStr = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;

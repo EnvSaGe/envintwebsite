@@ -27,10 +27,10 @@ const themesList = [
 ];
 
 const toolsList = [
-  { name: 'EnvSaGe', tag: 'ESG Data', desc: 'Integrated ESG performance tracking and materiality intelligence platform', href: null, img: '/images/tool-envsage-v2.webp' },
-  { name: 'EmCal', tag: 'GHG Assessment', desc: 'Automated GHG emissions calculator and carbon footprinting tool', href: null, img: '/images/tool-emcal-v2.webp' },
-  { name: 'ADD', tag: 'Automated DD', desc: 'Automated due diligence screening across E&S risk areas', href: null, img: '/images/tool-add-v2.webp' },
-  { name: 'MapSense', tag: 'Ecosystem Scan', desc: 'Spatial environmental & social risk screening tool', href: '/mapsense/', img: '/images/tool-mapsense-v2.webp' },
+  { name: 'EnvSaGe', tag: 'ESG Data', href: null, img: '/images/tool-envsage-v2.webp' },
+  { name: 'EmCal', tag: 'GHG Assessment', href: null, img: '/images/tool-emcal-v2.webp' },
+  { name: 'ADD', tag: 'Automated DD', href: null, img: '/images/tool-add-v2.webp' },
+  { name: 'MapSense', tag: 'Ecosystem Scan', href: '/mapsense/', img: '/images/tool-mapsense-v2.webp' },
 ];
 
 const pillars = [
@@ -350,41 +350,43 @@ export default function ServicesPageFallback() {
               const cardContent = (
                 <div
                   style={{
+                    position: 'relative',
+                    height: '240px',
                     borderRadius: '20px',
-                    border: '1px solid #e2e8f0',
                     overflow: 'hidden',
-                    backgroundColor: '#ffffff',
-                    transition: 'box-shadow 0.25s ease',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '20px',
+                    transition: 'transform 0.25s ease',
                   }}
                 >
-                  <div style={{ position: 'relative', height: '180px' }}>
-                    <Image
-                      src={tool.img}
-                      alt={tool.name}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                    />
-                  </div>
-                  <div style={{ padding: '24px' }}>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        letterSpacing: '1.5px',
-                        color: '#10b981',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      {tool.tag}
-                    </span>
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1e293b', margin: '8px 0' }}>
-                      {tool.name}
-                    </h4>
-                    <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: '1.5', margin: 0 }}>
-                      {tool.desc}
-                    </p>
-                  </div>
+                  <Image
+                    src={tool.img}
+                    alt={`${tool.name} (${tool.tag})`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    style={{ objectFit: 'cover', zIndex: 0 }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%)',
+                      zIndex: 1,
+                    }}
+                  />
+                  <p
+                    style={{
+                      position: 'relative',
+                      zIndex: 2,
+                      fontSize: '18px',
+                      fontWeight: 500,
+                      color: '#ffffff',
+                      margin: 0,
+                    }}
+                  >
+                    {tool.name} ({tool.tag})
+                  </p>
                 </div>
               );
 

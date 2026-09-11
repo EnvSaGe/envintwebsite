@@ -22,7 +22,11 @@ export default function ArticleCardGrid({ articles }: { articles: Article[] }) {
       }}
     >
       {articles.map((article) => {
-        const coverUrl = article.coverImage?.url || article.heroImage || '/images/services-sustainability.webp';
+        const coverUrl =
+          article.coverImage?.url ||
+          article.heroImage ||
+          (article as any).coverImageUrl ||
+          '/images/services-sustainability.webp';
         return (
           <Link
             key={article.slug}
