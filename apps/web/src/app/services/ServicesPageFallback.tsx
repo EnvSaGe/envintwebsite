@@ -1,11 +1,5 @@
 'use client';
-/**
- * ServicesPageFallback.tsx
- *
- * Hard-coded fallback for /services rendered when no DB content blocks exist.
- * Once the seed script populates the DB and publishes /services blocks,
- * this component is bypassed by the CMS-first page.tsx.
- */
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,114 +34,442 @@ const toolsList = [
 ];
 
 const pillars = [
-  { title: 'Sustainability Integration', slug: '/sustainability-integration', desc: 'Embedding ESG into corporate strategy, governance, reporting and supply chains.', img: '/images/services-sustainability.webp' },
-  { title: 'Climate Action & Decarbonization', slug: '/climate-action', desc: 'Net-zero pathways, GHG accounting, science-based targets, and climate risk.', img: '/images/services-climate.webp' },
-  { title: 'Responsible Investment', slug: '/responsible-investment', desc: 'Pre-investment ESG due diligence, ESAP, and portfolio monitoring for institutional investors.', img: '/images/services-responsible.webp' },
+  {
+    title: 'Sustainability Integration',
+    subtitle: 'A new way of doing business',
+    slug: '/sustainability-integration',
+    desc: 'Embedding ESG into corporate strategy, governance, reporting and supply chains.',
+    img: '/images/services-sustainability.webp',
+  },
+  {
+    title: 'Responsible Investment',
+    subtitle: 'Green makes sense beyond conscience',
+    slug: '/responsible-investment',
+    desc: 'Pre-investment ESG due diligence, ESAP, and portfolio monitoring for institutional investors.',
+    img: '/images/services-responsible.webp',
+  },
+  {
+    title: 'Climate Action',
+    subtitle: 'Futureproofing with low-carbon transitions',
+    slug: '/climate-action',
+    desc: 'Net-zero pathways, GHG accounting, science-based targets, and climate risk.',
+    img: '/images/services-climate.webp',
+  },
 ];
 
 export default function ServicesPageFallback() {
   return (
-    <div style={{ backgroundColor: '#ffffff', minHeight: '80vh', fontFamily: '"Neue Montreal", sans-serif' }}>
-      {/* Hero */}
-      <section style={{ position: 'relative', height: '60vh', minHeight: '400px', background: 'linear-gradient(135deg, #004E35 0%, #1a7a52 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <div style={{ textAlign: 'center', color: '#fff', padding: '0 24px', maxWidth: '900px' }}>
-          <p style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', color: 'rgba(255,255,255,0.7)', marginBottom: '16px', textTransform: 'uppercase' }}>Advisory Capabilities</p>
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 400, lineHeight: 1.15, marginBottom: '20px', color: '#FBF4EB' }}>Comprehensive ESG &amp; Climate Solutions</h1>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.85)', maxWidth: '620px', margin: '0 auto' }}>Combining strategic insight with rigorous technical analysis to create measurable sustainability impact.</p>
+    <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', fontFamily: '"Neue Montreal", sans-serif' }}>
+      {/* 1. Hero Section */}
+      <section
+        style={{
+          position: 'relative',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          paddingBottom: '80px',
+          paddingLeft: '24px',
+          paddingRight: '24px',
+          overflow: 'hidden',
+        }}
+      >
+        <Image
+          src="/images/main-services.webp"
+          alt="Helping businesses progress on sustainability goals"
+          fill
+          priority
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center', zIndex: 0 }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(0, 46, 32, 0.85) 0%, rgba(0, 46, 32, 0.25) 60%, transparent 100%)',
+            zIndex: 1,
+          }}
+        />
+        <div style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          <h1
+            style={{
+              fontFamily: '"Neue Montreal", sans-serif',
+              fontSize: 'clamp(38px, 5.5vw, 76px)',
+              fontWeight: 400,
+              lineHeight: 1.15,
+              color: '#ffffff',
+              maxWidth: '1000px',
+              textShadow: '0 2px 14px rgba(0, 0, 0, 0.4)',
+              margin: 0,
+            }}
+          >
+            Helping businesses progress on sustainability goals
+          </h1>
         </div>
       </section>
 
-      {/* Practice Pillars */}
-      <section style={{ padding: '80px 24px', maxWidth: '1200px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: '#004E35', marginBottom: '12px', textAlign: 'center' }}>Our Practice Areas</h2>
-        <p style={{ color: '#555', fontSize: '1.05rem', textAlign: 'center', marginBottom: '48px' }}>Three specialized practices delivering end-to-end sustainability advisory.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
-          {pillars.map((p) => (
-            <Link key={p.slug} href={p.slug} style={{ textDecoration: 'none', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', transition: 'box-shadow 0.2s', display: 'block' }}>
-              <div style={{ position: 'relative', height: '200px', background: '#f0f4ef' }}>
-                <Image src={p.img} alt={p.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
-              </div>
-              <div style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: '#004E35', marginBottom: '8px' }}>{p.title}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5' }}>{p.desc}</p>
-                <span style={{ display: 'inline-block', marginTop: '16px', fontSize: '0.85rem', fontWeight: 600, color: '#10b981' }}>Learn more →</span>
-              </div>
-            </Link>
-          ))}
+      {/* 2. Value Proposition Section */}
+      <section style={{ paddingTop: '60px', paddingBottom: '60px', paddingLeft: '24px', paddingRight: '24px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <p style={{ fontSize: 'clamp(18px, 1.8vw, 24px)', lineHeight: '35px', color: '#393939', margin: '0 0 24px 0' }}>
+            We partner with businesses in their sustainability journeys and help them in getting things done. Proudly homegrown, we bring a unique mix of value and pragmatism to solving client problems.
+          </p>
+          <h2 style={{ fontSize: 'clamp(18px, 1.8vw, 24px)', lineHeight: '35px', color: '#393939', fontWeight: 400, margin: 0 }}>
+            Our success stems from expertise in global sustainability &amp; ESG frameworks, understanding of region-specific ESG regulations, knowledge of industry-specific issues and pragmatism backed by on-field experience.
+          </h2>
         </div>
       </section>
 
-      {/* Sectors */}
-      <section style={{ padding: '80px 24px', backgroundColor: '#f8faf8', maxWidth: '1200px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: '#004E35', marginBottom: '12px', textAlign: 'center' }}>Sectors We Serve</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginTop: '40px' }}>
-          {sectorsList.map((s) => {
-            const inner = (
-              <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', textAlign: 'center' }}>
-                <div style={{ position: 'relative', height: '120px' }}>
-                  <Image src={s.img} alt={s.name} fill style={{ objectFit: 'cover' }} sizes="200px" />
-                </div>
-                <p style={{ padding: '12px', fontSize: '0.9rem', fontWeight: 500, color: '#1e293b' }}>{s.name}</p>
-              </div>
-            );
-            return s.slug
-              ? <Link key={s.name} href={`/sector/${s.slug}`} style={{ textDecoration: 'none' }}>{inner}</Link>
-              : <div key={s.name}>{inner}</div>;
-          })}
-        </div>
-      </section>
+      {/* 3. Capability Model & Services */}
+      <section style={{ paddingTop: '20px', paddingBottom: '100px', paddingLeft: '24px', paddingRight: '24px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <h2 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 16px 0' }}>
+            Our Capability Model
+          </h2>
+          <p style={{ fontSize: 'clamp(18px, 1.8vw, 24px)', lineHeight: '35px', color: '#393939', marginBottom: '48px' }}>
+            The challenges and opportunities in sustainability are unique, emerging and complex. They not only require interdisciplinary skills but a highly collaborative approach to finding solutions and implementing them. Our tiered capability model brings together service lines, sector and thematic expertise, and proprietary tools for effective delivery.
+          </p>
 
-      {/* Themes */}
-      <section style={{ padding: '80px 24px', maxWidth: '1200px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: '#004E35', marginBottom: '12px', textAlign: 'center' }}>ESG Themes</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginTop: '40px' }}>
-          {themesList.map((t) => {
-            const inner = (
-              <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff', textAlign: 'center' }}>
-                <div style={{ position: 'relative', height: '120px' }}>
-                  <Image src={t.img} alt={t.name} fill style={{ objectFit: 'cover' }} sizes="200px" />
-                </div>
-                <p style={{ padding: '12px', fontSize: '0.9rem', fontWeight: 500, color: '#1e293b' }}>{t.name}</p>
-              </div>
-            );
-            return t.slug
-              ? <Link key={t.name} href={`/theme/${t.slug}`} style={{ textDecoration: 'none' }}>{inner}</Link>
-              : <div key={t.name}>{inner}</div>;
-          })}
-        </div>
-      </section>
+          {/* Subheading: Services */}
+          <h3 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 28px 0' }}>
+            Services
+          </h3>
 
-      {/* Proprietary Tools */}
-      <section style={{ padding: '80px 24px', backgroundColor: '#f8faf8' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: '#004E35', marginBottom: '12px', textAlign: 'center' }}>Proprietary Tools & Platforms</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '24px', marginTop: '40px' }}>
-            {toolsList.map((tool) => {
-              const inner = (
-                <div style={{ borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', background: '#fff' }}>
-                  <div style={{ position: 'relative', height: '160px' }}>
-                    <Image src={tool.img} alt={tool.name} fill style={{ objectFit: 'cover' }} sizes="280px" />
+          {/* 3 Large Service Feature Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '80px' }}>
+            {pillars.map((p) => (
+              <Link
+                key={p.slug}
+                href={p.slug}
+                style={{
+                  textDecoration: 'none',
+                  position: 'relative',
+                  minHeight: '428px',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  padding: '40px',
+                  transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                }}
+              >
+                <Image
+                  src={p.img}
+                  alt={p.title}
+                  fill
+                  sizes="100vw"
+                  style={{ objectFit: 'cover', objectPosition: 'center', zIndex: 0 }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%)',
+                    zIndex: 1,
+                  }}
+                />
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <div>
+                    <h4 style={{ fontSize: 'clamp(24px, 2.5vw, 32px)', fontWeight: 500, color: '#ffffff', margin: '0 0 8px 0' }}>
+                      {p.title}
+                    </h4>
+                    <p style={{ fontSize: 'clamp(18px, 1.8vw, 24px)', fontWeight: 400, color: '#ffffff', margin: 0 }}>
+                      {p.subtitle}
+                    </p>
                   </div>
-                  <div style={{ padding: '20px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '1.5px', color: '#10b981', textTransform: 'uppercase' }}>{tool.tag}</span>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1e293b', margin: '8px 0' }}>{tool.name}</h3>
-                    <p style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>{tool.desc}</p>
+                  <div
+                    style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(8px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      color: '#ffffff',
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Subheading: Sectors */}
+          <h3 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 28px 0' }}>
+            Sectors
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '24px',
+              marginBottom: '80px',
+            }}
+          >
+            {sectorsList.map((s) => {
+              const cardContent = (
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '240px',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '20px',
+                    transition: 'transform 0.25s ease',
+                  }}
+                >
+                  <Image
+                    src={s.img}
+                    alt={s.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    style={{ objectFit: 'cover', zIndex: 0 }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%)',
+                      zIndex: 1,
+                    }}
+                  />
+                  <p
+                    style={{
+                      position: 'relative',
+                      zIndex: 2,
+                      fontSize: '18px',
+                      fontWeight: 500,
+                      color: '#ffffff',
+                      margin: 0,
+                    }}
+                  >
+                    {s.name}
+                  </p>
+                </div>
+              );
+
+              return s.slug ? (
+                <Link key={s.name} href={`/sector/${s.slug}`} style={{ textDecoration: 'none' }}>
+                  {cardContent}
+                </Link>
+              ) : (
+                <div key={s.name}>{cardContent}</div>
+              );
+            })}
+          </div>
+
+          {/* Subheading: Themes */}
+          <h3 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 28px 0' }}>
+            Themes
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '24px',
+              marginBottom: '80px',
+            }}
+          >
+            {themesList.map((t) => {
+              const cardContent = (
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '240px',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '20px',
+                    transition: 'transform 0.25s ease',
+                  }}
+                >
+                  <Image
+                    src={t.img}
+                    alt={t.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    style={{ objectFit: 'cover', zIndex: 0 }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%)',
+                      zIndex: 1,
+                    }}
+                  />
+                  <p
+                    style={{
+                      position: 'relative',
+                      zIndex: 2,
+                      fontSize: '18px',
+                      fontWeight: 500,
+                      color: '#ffffff',
+                      margin: 0,
+                    }}
+                  >
+                    {t.name}
+                  </p>
+                </div>
+              );
+
+              return t.slug ? (
+                <Link key={t.name} href={`/theme/${t.slug}`} style={{ textDecoration: 'none' }}>
+                  {cardContent}
+                </Link>
+              ) : (
+                <div key={t.name}>{cardContent}</div>
+              );
+            })}
+          </div>
+
+          {/* Subheading: Prop Tools */}
+          <h3 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 28px 0' }}>
+            Prop Tools
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '24px',
+              marginBottom: '80px',
+            }}
+          >
+            {toolsList.map((tool) => {
+              const cardContent = (
+                <div
+                  style={{
+                    borderRadius: '20px',
+                    border: '1px solid #e2e8f0',
+                    overflow: 'hidden',
+                    backgroundColor: '#ffffff',
+                    transition: 'box-shadow 0.25s ease',
+                  }}
+                >
+                  <div style={{ position: 'relative', height: '180px' }}>
+                    <Image
+                      src={tool.img}
+                      alt={tool.name}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                    />
+                  </div>
+                  <div style={{ padding: '24px' }}>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        letterSpacing: '1.5px',
+                        color: '#10b981',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {tool.tag}
+                    </span>
+                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1e293b', margin: '8px 0' }}>
+                      {tool.name}
+                    </h4>
+                    <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: '1.5', margin: 0 }}>
+                      {tool.desc}
+                    </p>
                   </div>
                 </div>
               );
-              return tool.href
-                ? <Link key={tool.name} href={tool.href} style={{ textDecoration: 'none' }}>{inner}</Link>
-                : <div key={tool.name}>{inner}</div>;
+
+              return tool.href ? (
+                <Link key={tool.name} href={tool.href} style={{ textDecoration: 'none' }}>
+                  {cardContent}
+                </Link>
+              ) : (
+                <div key={tool.name}>{cardContent}</div>
+              );
             })}
           </div>
-        </div>
-      </section>
 
-      {/* CTA */}
-      <section style={{ padding: '80px 24px', textAlign: 'center', background: 'linear-gradient(135deg, #004E35 0%, #1a7a52 100%)' }}>
-        <h2 style={{ color: '#fff', fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 400, marginBottom: '16px' }}>Partner With Our Senior Advisory Leaders</h2>
-        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', marginBottom: '32px', maxWidth: '560px', margin: '0 auto 32px' }}>Schedule an initial consultation to review your sustainability roadmap and disclosure goals.</p>
-        <Link href="/connect" style={{ display: 'inline-block', padding: '14px 32px', backgroundColor: '#fff', color: '#004E35', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', fontSize: '1rem' }}>Initiate Scoping Discussion</Link>
+          {/* 4. Engage with us */}
+          <div style={{ marginTop: '40px', marginBottom: '80px' }}>
+            <h3 style={{ fontSize: 'clamp(32px, 3.8vw, 48px)', fontWeight: 400, color: '#004E35', margin: '0 0 20px 0' }}>
+              Engage with us
+            </h3>
+            <p style={{ fontSize: 'clamp(18px, 1.8vw, 24px)', lineHeight: '35px', color: '#393939', margin: 0 }}>
+              Our flexible modes of engagement provide clients with multiple options to meet their requirements. These include short to medium term project-based work, master service agreements / retainers for recurring requirements, offshoring, and &apos;Enabl&apos; - sustainability/ ESG teams dedicated for long-term client support.
+            </p>
+          </div>
+
+          {/* 5. Call to Action Banner */}
+          <div
+            style={{
+              position: 'relative',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              padding: '80px 24px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Image
+              src="/images/footer-cta.webp"
+              alt="Let us move towards a greener future"
+              fill
+              sizes="100vw"
+              style={{ objectFit: 'cover', objectPosition: 'center', zIndex: 0 }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(0, 46, 32, 0.75)',
+                zIndex: 1,
+              }}
+            />
+            <div style={{ position: 'relative', zIndex: 2, maxWidth: '800px' }}>
+              <h2
+                style={{
+                  fontFamily: '"Neue Montreal", sans-serif',
+                  fontSize: 'clamp(32px, 4vw, 48px)',
+                  fontWeight: 400,
+                  color: '#ffffff',
+                  margin: '0 0 32px 0',
+                }}
+              >
+                Let us move towards a greener future
+              </h2>
+              <Link
+                href="/connect/"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#ffffff',
+                  color: '#282828',
+                  padding: '17px 36px',
+                  borderRadius: '10px',
+                  fontFamily: '"Neue Montreal", sans-serif',
+                  fontSize: '18px',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+                  transition: 'transform 0.2s ease',
+                }}
+              >
+                Connect With Us
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );
