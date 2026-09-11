@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -19,6 +19,7 @@ export default async function EnvisionPage() {
   const filtered = articles.filter((a: any) =>
     (a.categories || []).some((c: string) => c.toLowerCase().includes('envision'))
   );
+  const displayArticles = filtered.length > 0 ? filtered : articles;
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '80vh' }}>
@@ -58,7 +59,7 @@ export default async function EnvisionPage() {
       <section style={{ paddingTop: '80px', paddingBottom: '70px', backgroundColor: '#ffffff' }}>
         <div className="container hero-stretch">
           <div className="envision-articles-grid">
-            {filtered.map((article: any) => (
+            {displayArticles.map((article: any) => (
               <Link
                 key={article.slug}
                 href={`/${article.slug}/`}
