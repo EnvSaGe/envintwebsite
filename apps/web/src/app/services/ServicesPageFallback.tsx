@@ -40,9 +40,9 @@ const toolsList = [
 ];
 
 const pillars = [
-  { title: 'Sustainability Integration', slug: '/sustainability-integration', desc: 'Embedding ESG into corporate strategy, governance, reporting and supply chains.', img: '/images/service-si.webp' },
-  { title: 'Climate Action & Decarbonization', slug: '/climate-action', desc: 'Net-zero pathways, GHG accounting, science-based targets, and climate risk.', img: '/images/service-ca.webp' },
-  { title: 'Responsible Investment', slug: '/responsible-investment', desc: 'Pre-investment ESG due diligence, ESAP, and portfolio monitoring for institutional investors.', img: '/images/service-ri.webp' },
+  { title: 'Sustainability Integration', slug: '/sustainability-integration', desc: 'Embedding ESG into corporate strategy, governance, reporting and supply chains.', img: '/images/services-sustainability.webp' },
+  { title: 'Climate Action & Decarbonization', slug: '/climate-action', desc: 'Net-zero pathways, GHG accounting, science-based targets, and climate risk.', img: '/images/services-climate.webp' },
+  { title: 'Responsible Investment', slug: '/responsible-investment', desc: 'Pre-investment ESG due diligence, ESAP, and portfolio monitoring for institutional investors.', img: '/images/services-responsible.webp' },
 ];
 
 export default function ServicesPageFallback() {
@@ -52,7 +52,7 @@ export default function ServicesPageFallback() {
       <section style={{ position: 'relative', height: '60vh', minHeight: '400px', background: 'linear-gradient(135deg, #004E35 0%, #1a7a52 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <div style={{ textAlign: 'center', color: '#fff', padding: '0 24px', maxWidth: '900px' }}>
           <p style={{ fontSize: '14px', fontWeight: 600, letterSpacing: '3px', color: 'rgba(255,255,255,0.7)', marginBottom: '16px', textTransform: 'uppercase' }}>Advisory Capabilities</p>
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 300, lineHeight: 1.15, marginBottom: '20px' }}>Comprehensive ESG &amp; Climate Solutions</h1>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 400, lineHeight: 1.15, marginBottom: '20px', color: '#FBF4EB' }}>Comprehensive ESG &amp; Climate Solutions</h1>
           <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.85)', maxWidth: '620px', margin: '0 auto' }}>Combining strategic insight with rigorous technical analysis to create measurable sustainability impact.</p>
         </div>
       </section>
