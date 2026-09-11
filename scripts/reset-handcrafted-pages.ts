@@ -10,6 +10,7 @@ import { pages } from '../packages/db/src/schema';
 // /about is our Schema v2 pilot page, so we keep its rich Schema v2 published tree intact!
 const HANDCRAFTED_PAGES = [
   '/',
+  '/about',
   '/services',
   '/careers-at-envint',
   '/sustainability-integration',
