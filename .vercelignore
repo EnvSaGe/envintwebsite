@@ -1,0 +1,62 @@
+# Version Control
+.git
+.github
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js and build outputs
+.next
+out
+dist
+build
+.turbo
+*.tsbuildinfo
+
+# Env & Secrets
+.env
+.env*.local
+.env.production
+.env.staging
+.env.preview
+.env.development
+!.env.example
+
+# Large Data & Backups (Crucial to prevent 2 GiB upload limit)
+envintmigration
+envintmigration/**
+migration-output
+migration-output/**
+catcss
+catcss/**
+sicss
+sicss/**
+srvcss
+srvcss/**
+livecss_export
+livecss_export/**
+.freebuff
+.freebuff/**
+docs
+docs/**
+scripts
+scripts/**
+
+# Archives & DB dumps
+*.sql
+*.sql.gz
+*.tar.gz
+*.zip
+*.log
+
+# Python scripts and temp files
+*.py
+__pycache__
+*.txt
+*.html
+
+
+
+# Vercel local cache
+.vercel

@@ -1,0 +1,38 @@
+:root {
+  --font-primary: 'Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Brand Colors from live site evidence */
+  --color-brand-green-dark: #003D32;
+  --color-brand-green: #004D40;
+  --color-brand-teal: #00695C;
+  --color-brand-blue: #2F7ABE;
+  --color-brand-blue-hover: #045CB4;
+  --color-brand-blue-light: #F0F5FA;
+  --color-brand-orange: #E65100;
+  --color-brand-amber: #D97706;
+
+  /* Text & Surface Neutrals */
+  --color-text-main: #111111;
+  --color-text-body: #404040;
+  --color-text-muted: #6B7280;
+  --color-bg-white: #FFFFFF;
+  --color-bg-subtle: #F8FAFC;
+  --color-bg-light-blue: #F0F5FA;
+  --color-bg-footer: #EEF2F6;
+  --color-border-subtle: #E2E8F0;
+  --color-border-card: #E5E7EB;
+
+  /* Dimensions */
+  --max-width: 1280px;
+  --header-height: 80px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-floating: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}

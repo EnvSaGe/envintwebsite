@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_yLjsWtwJIf5tYOLAbSat44jeR8Cu",
+  "orgId": "team_PZvxhmvrabErvMFwCIlVObMR",
+  "projectName": "envint-admin",
+  "settings": {
+    "createdAt": 1788875496265,
+    "framework": "nextjs",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": "apps/admin",
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}

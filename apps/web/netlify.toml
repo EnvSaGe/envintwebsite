@@ -1,0 +1,28 @@
+# Netlify configuration for envint-web app
+
+[build]
+  base = "apps/web"
+  publish = ".next"
+  command = "pnpm build"
+
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Scheduled function — publishes content with scheduledAt <= now() every 5 minutes
+[[scheduled_functions]]
+  function = "publish-scheduled"
+  schedule  = "*/5 * * * *"
+
+# Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Caching static assets
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

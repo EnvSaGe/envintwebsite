@@ -1,0 +1,158 @@
+[
+ {
+  "type": "category",
+  "slug": "all-categories"
+ },
+ {
+  "type": "category",
+  "slug": "enviki"
+ },
+ {
+  "type": "category",
+  "slug": "enviki/glossary-zone"
+ },
+ {
+  "type": "category",
+  "slug": "enviki/how-to-articles"
+ },
+ {
+  "type": "category",
+  "slug": "envision"
+ },
+ {
+  "type": "category",
+  "slug": "featured"
+ },
+ {
+  "type": "category",
+  "slug": "sustainability-featured"
+ },
+ {
+  "type": "category",
+  "slug": "uncategorized"
+ },
+ {
+  "type": "sector",
+  "slug": "agriculture"
+ },
+ {
+  "type": "sector",
+  "slug": "automotive"
+ },
+ {
+  "type": "sector",
+  "slug": "bfsi"
+ },
+ {
+  "type": "sector",
+  "slug": "consumer"
+ },
+ {
+  "type": "sector",
+  "slug": "energy"
+ },
+ {
+  "type": "sector",
+  "slug": "healthcare"
+ },
+ {
+  "type": "sector",
+  "slug": "infra-real-estate"
+ },
+ {
+  "type": "sector",
+  "slug": "metals-mining"
+ },
+ {
+  "type": "sector",
+  "slug": "multiple"
+ },
+ {
+  "type": "sector",
+  "slug": "technology"
+ },
+ {
+  "type": "service",
+  "slug": "climate-action"
+ },
+ {
+  "type": "service",
+  "slug": "responsible-investment"
+ },
+ {
+  "type": "service",
+  "slug": "sustainability-integration"
+ },
+ {
+  "type": "sub-service",
+  "slug": "bhr-assessment"
+ },
+ {
+  "type": "sub-service",
+  "slug": "capacity-building"
+ },
+ {
+  "type": "sub-service",
+  "slug": "esap"
+ },
+ {
+  "type": "sub-service",
+  "slug": "esg-dd"
+ },
+ {
+  "type": "sub-service",
+  "slug": "footprinting"
+ },
+ {
+  "type": "sub-service",
+  "slug": "market-assessment"
+ },
+ {
+  "type": "sub-service",
+  "slug": "materiality"
+ },
+ {
+  "type": "sub-service",
+  "slug": "reporting-disclosure"
+ },
+ {
+  "type": "tag",
+  "slug": "explainer"
+ },
+ {
+  "type": "tag",
+  "slug": "glossary-zone"
+ },
+ {
+  "type": "tag",
+  "slug": "how-to-article"
+ },
+ {
+  "type": "theme",
+  "slug": "bhr"
+ },
+ {
+  "type": "theme",
+  "slug": "circular-economy"
+ },
+ {
+  "type": "theme",
+  "slug": "decarbonization"
+ },
+ {
+  "type": "theme",
+  "slug": "electric-mobility"
+ },
+ {
+  "type": "theme",
+  "slug": "esg-data"
+ },
+ {
+  "type": "theme",
+  "slug": "sustainable-supply-chain"
+ },
+ {
+  "type": "theme",
+  "slug": "water"
+ }
+]

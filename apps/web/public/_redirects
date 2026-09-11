@@ -1,0 +1,31 @@
+# ==========================================================
+# ENVINT GLOBAL - AUTO-GENERATED FROM 02-url-migration.csv
+# DO NOT EDIT MANUALLY - Run: pnpm generate:redirects
+# Total Redirect Rules: 14
+# Total 410 Gone Rules: 2
+# ==========================================================
+
+# 1. Explicit 301 Permanent Redirects (14 rules)
+/member/                                           /about/                                       301!
+/envision                                          /envision/                                    301!
+/careers/                                          /careers-at-envint/                           301!
+/understanding-emissions/                          /ghg-emissions-explained-a-clear-guide/       301!
+/a-practical-guide-to-carbon-accounting/           /carbon-accounting-a-practical-guide/         301!
+/eu-taxonomy-framework-a-clear-guide/              /the-eu-taxonomy-demystified/                 301!
+/brsr-compliance-for-the-top-1000-listed-entities-and-their-value-chain-partners/ /brsr-compliance-for-the-top-1000-listed-entities/ 301!
+/esg-compliance-in-india/                          /esg-compliance-in-india-key-guidelines/      301!
+/esg-reporting-in-india/                           /esg-reporting-in-india-past-and-present/     301!
+/choosing-the-right-esg-consulting-firm-in-india-a-strategic-guide/ /choosing-the-right-esg-consulting-firm/      301!
+/minimizing-impact-utilizing-lca-pcf-and-epd-for-product-sustainability/ /lca-pcf-and-epd-for-product-sustainability/  301!
+/v3/corporate-sustainability/                      /sustainability-integration/                  301!
+/v3/responsible-investment/                        /responsible-investment/                      301!
+/v3/climate-action/                                /climate-action/                              301!
+
+# 2. Obsolete Implementation Endpoints (2 rules)
+/elementor-hf/header/                              /                                             410!
+/elementor-hf/footer/                              /                                             410!
+
+# 3. Security & WordPress Cleanup (404 Not Found)
+/wp-admin/*                                        /                                             404!
+/wp-login.php                                      /                                             404!
+/xmlrpc.php                                        /                                             404!

@@ -1,0 +1,32 @@
+{
+  "name": "envint-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "build": "pnpm --recursive build",
+    "dev:web": "pnpm --filter @envint/web dev",
+    "dev:admin": "pnpm --filter @envint/admin dev",
+    "check:all": "pnpm --recursive typecheck && pnpm --recursive lint",
+    "lint": "pnpm --recursive lint",
+    "typecheck": "pnpm --recursive typecheck",
+    "audit": "pnpm audit",
+    "generate:redirects": "tsx scripts/generate-redirects.ts",
+    "migration:analyze": "tsx scripts/migration-analyze.ts",
+    "migration:dry-run": "tsx scripts/migration-dry-run.ts",
+    "test:all": "tsx scripts/test-all-168-urls.ts",
+    "seed": "tsx scripts/seed-all-content.ts",
+    "migrate": "tsx scripts/migrate.ts",
+    "db:push": "pnpm --filter @envint/db db:push",
+    "db:generate": "pnpm --filter @envint/db db:generate"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "dotenv": "^17.4.2",
+    "eslint": "^9.20.1",
+    "prettier": "^3.5.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.68.0"
+  }
+}

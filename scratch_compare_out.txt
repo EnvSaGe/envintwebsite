@@ -1,0 +1,28 @@
+===== impact: capture 152 vs live 154
+  only-in-CAPTURE (0):
+  only-in-LIVE (0):
+===== careers: capture 33 vs live 35
+  only-in-CAPTURE (0):
+  only-in-LIVE (0):
+===== services: capture 36 vs live 43
+  only-in-CAPTURE (0):
+  only-in-LIVE (0):
+===== connect: capture 19 vs live 19
+  only-in-CAPTURE (0):
+  only-in-LIVE (0):
+===== mapsense: capture 33 vs live 35
+  only-in-CAPTURE (0):
+  only-in-LIVE (0):
+===== about: capture 102 vs live 126
+  only-in-CAPTURE (0):
+  only-in-LIVE (10):
+   L: [p] Envint starts in Mumbai with two founding Partners
+   L: [p] Few ESG engagements and knowledge partnerships
+   L: [p] COVID, lockdowns, changed world, first ESG due diligence
+   L: [p] RI Head joins, first client on sustainability, team crosses double
+   L: digits, first off-site
+   L: [p] Expands to four offices across India, team crosses 20, number of clients
+   L: touch 50
+   L: [p] New themes in ESG, multiple DFI mandates, seeds of international
+   L: expansion
+   L: [p] 6 years of creating impact, client roster crosses 100 with 300+
