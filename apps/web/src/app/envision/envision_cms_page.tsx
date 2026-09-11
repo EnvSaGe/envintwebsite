@@ -130,66 +130,7 @@ export default async function EnvisionPage() {
         </div>
       </section>
 
-      {/* 3. PRE-FOOTER CTA CARD */}
-      <section style={{ paddingBottom: '80px', backgroundColor: '#ffffff' }}>
-        <div className="container" style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-          <div style={{
-            position: 'relative',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            minHeight: '380px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            textAlign: 'center',
-            padding: '40px 20px',
-          }}>
-            <Image
-              src="/images/footer-cta.webp"
-              alt="Let us move towards a greener future"
-              fill
-              loading="eager"
-              sizes="(max-width: 1200px) 100vw, 1280px"
-              style={{ objectFit: 'cover' }}
-            />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.25)',
-            }} />
-            <div style={{ position: 'relative', zIndex: 2, maxWidth: '750px' }}>
-              <h3 style={{
-                fontFamily: '"Neue Montreal", sans-serif',
-                fontSize: 'clamp(32px, 3.5vw, 48px)',
-                fontWeight: 400,
-                color: '#FFFFFF',
-                lineHeight: 1.2,
-                margin: '0 0 28px 0',
-              }}>
-                Let us move towards a greener future
-              </h3>
-              <Link
-                href="/connect/"
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: '#FFFFFF',
-                  color: '#004E35',
-                  fontFamily: '"Neue Montreal", sans-serif',
-                  fontSize: '20px',
-                  fontWeight: 500,
-                  padding: '12px 38px',
-                  borderRadius: '9999px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.12)',
-                }}
-              >
-                Connect
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       <style dangerouslySetInnerHTML={{ __html: `
         .envision-articles-grid {

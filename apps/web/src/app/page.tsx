@@ -307,16 +307,6 @@ export default async function HomePage() {
                 }}>
                   We help you with ...
                 </h2>
-                <p style={{
-                  fontFamily: '"Neue Montreal", sans-serif',
-                  fontSize: '24px',
-                  color: '#ffffff',
-                  fontWeight: 400,
-                  margin: '16px 0 0 0',
-                  textShadow: '0 1px 8px rgba(0, 0, 0, 0.4)',
-                }}>
-                  A new way of living sustainably
-                </p>
               </div>
             </div>
 
@@ -652,7 +642,7 @@ export default async function HomePage() {
               fontWeight: 400,
               margin: 0,
             }}>
-              From India&rsquo;s leading companies to global MNCs, from DFIs to PE and VC funds, from startups to not-for-profits &ndash; we work with organizations at various stages of their sustainability journey.
+              From India&rsquo;s leading companies to global MNCs, from DFIs to PE and VC funds, we work with a diverse clientele across multiple geographies.
             </p>
           </div>
 
