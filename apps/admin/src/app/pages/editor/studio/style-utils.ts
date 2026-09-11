@@ -57,7 +57,10 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
 
   // Background
   if (styles.backgroundColor) css.backgroundColor = styles.backgroundColor;
-  if (styles.backgroundImage) css.backgroundImage = `url(${styles.backgroundImage})`;
+  if (styles.backgroundImage) {
+    const bg = styles.backgroundImage.trim();
+    css.backgroundImage = bg.startsWith('url(') || bg.startsWith('linear-gradient') ? bg : `url(${bg})`;
+  }
   if (styles.backgroundSize) css.backgroundSize = styles.backgroundSize;
   if (styles.backgroundPosition) css.backgroundPosition = styles.backgroundPosition;
   if (styles.backgroundRepeat) css.backgroundRepeat = styles.backgroundRepeat;

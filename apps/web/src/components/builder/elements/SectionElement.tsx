@@ -10,7 +10,7 @@ export function SectionElement({
   children: React.ReactNode;
 }) {
   const inlineStyles = elementStylesToCss(node.styles);
-  const backgroundOverlay = node.styles.backgroundOverlay;
+  const backgroundOverlay = node.styles?.backgroundOverlay || (node.styles as any)?.overlayGradient;
 
   return (
     <section

@@ -306,12 +306,12 @@ function CanvasNodeRenderer({
             const hasChildren = node.children && node.children.length > 0;
             return (
               <>
-                {node.styles?.backgroundOverlay && (
+                {(node.styles?.backgroundOverlay || (node.styles as any)?.overlayGradient) && (
                   <div
                     style={{
                       position: 'absolute',
                       inset: 0,
-                      background: node.styles.backgroundOverlay,
+                      background: node.styles.backgroundOverlay || (node.styles as any)?.overlayGradient,
                       pointerEvents: 'none',
                     }}
                   />
