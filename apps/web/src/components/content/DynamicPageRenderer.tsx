@@ -72,20 +72,8 @@ export function resolveMediaUrl(url?: string | null): string {
   if (url.startsWith('/images/climate-hero.webp')) {
     return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/services-climate.webp';
   }
-  if (url.startsWith('/images/investment-hero.webp') || url.startsWith('/images/services-investment.webp')) {
+  if (url.startsWith('/images/investment-hero.webp')) {
     return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/services-responsible.webp';
-  }
-  if (url.startsWith('/images/mapsense-banner.jpg')) {
-    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/mapsense-hero.webp';
-  }
-  if (url.startsWith('/images/careers-polo.webp')) {
-    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-polo-people.webp';
-  }
-  if (url.startsWith('/images/careers-footer.webp')) {
-    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-footer.jpg';
-  }
-  if (url.startsWith('/images/careers-wifu-3.webp') || url.startsWith('/images/careers-wifu-4.webp')) {
-    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-typical-day.webp';
   }
   if (url.startsWith('/images/')) {
     return `https://envintcms.s3.ap-south-1.amazonaws.com${url}`;

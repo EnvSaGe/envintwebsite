@@ -1,12 +1,11 @@
 import React from 'react';
 import Image from 'next/image';
-import { BuilderNode, resolveCmsImage } from '@envint/shared';
+import { BuilderNode } from '@envint/shared';
 import { elementStylesToCss } from '../style-utils';
 
 export function ImageElement({ node }: { node: BuilderNode }) {
   const content = node.content || {};
-  const rawSrc = content.src || 'https://envintcms.s3.ap-south-1.amazonaws.com/images/placeholder.webp';
-  const src = resolveCmsImage(rawSrc);
+  const src = content.src || 'https://envintcms.s3.ap-south-1.amazonaws.com/images/placeholder.webp';
   const alt = content.alt || '';
   const isDecorative = content.isDecorative || false;
   const objectFit = (content.objectFit || 'cover') as React.CSSProperties['objectFit'];

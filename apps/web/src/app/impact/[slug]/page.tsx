@@ -4,9 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getImpact, getImpactAdjacentSlugs, getImpacts } from '@/lib/data/impacts';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
 import { JsonLd, articleSchema, breadcrumbSchema } from '@/components/seo/JsonLd';
-import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 
 interface ImpactPageProps {
   params: Promise<{
@@ -21,26 +19,6 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ImpactPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const cmsPage = await getPage(`/impact/${slug}`);
-
-  if (cmsPage) {
-    const title = cmsPage.seoTitle || `${cmsPage.title} - Envint Impact Case Study`;
-    const desc = cmsPage.seoDescription || '';
-    return {
-      title,
-      description: desc,
-      alternates: {
-        canonical: `https://envintglobal.com/impact/${slug}/`,
-      },
-      openGraph: {
-        title,
-        description: desc,
-        url: `https://envintglobal.com/impact/${slug}/`,
-        type: 'article',
-      },
-    };
-  }
-
   const impact = await getImpact(slug);
 
   if (!impact) {
@@ -68,23 +46,6 @@ export async function generateMetadata({ params }: ImpactPageProps): Promise<Met
 
 export default async function ImpactDetailPage({ params }: ImpactPageProps) {
   const { slug } = await params;
-  const cmsPage = await getPage(`/impact/${slug}`);
-
-  if (pageHasRenderableContent(cmsPage)) {
-    return (
-      <main style={{ minHeight: '80vh' }}>
-        <JsonLd
-          data={breadcrumbSchema([
-            { name: 'Home', path: '/' },
-            { name: 'Impact', path: '/impact/' },
-            { name: cmsPage.title, path: `/impact/${slug}/` },
-          ])}
-        />
-        <DynamicPageRenderer page={cmsPage} />
-      </main>
-    );
-  }
-
   const impact = await getImpact(slug);
 
   if (!impact) {

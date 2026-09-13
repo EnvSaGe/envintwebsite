@@ -41,15 +41,8 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   if (styles.gap) css.gap = styles.gap;
   if (styles.columnGap) css.columnGap = styles.columnGap;
   if (styles.rowGap) css.rowGap = styles.rowGap;
-  if (styles.gridColumns || styles.gridTemplateColumns) {
-    css.gridTemplateColumns = styles.gridColumns || styles.gridTemplateColumns;
-  }
-  if (styles.gridRows || styles.gridTemplateRows) {
-    css.gridTemplateRows = styles.gridRows || styles.gridTemplateRows;
-  }
-  if (styles.aspectRatio) {
-    css.aspectRatio = styles.aspectRatio;
-  }
+  if (styles.gridColumns) css.gridTemplateColumns = styles.gridColumns;
+  if (styles.gridRows) css.gridTemplateRows = styles.gridRows;
 
   // Typography
   if (styles.fontFamily) css.fontFamily = styles.fontFamily;
@@ -65,12 +58,7 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   // Background
   if (styles.backgroundColor) css.backgroundColor = styles.backgroundColor;
   if (styles.backgroundImage) {
-    let bg = styles.backgroundImage.trim();
-    if (bg.startsWith('/images/')) {
-      bg = `https://envintcms.s3.ap-south-1.amazonaws.com${bg}`;
-    } else if (bg.startsWith('/media/uploads/')) {
-      bg = `https://envintcms.s3.ap-south-1.amazonaws.com${bg}`;
-    }
+    const bg = styles.backgroundImage.trim();
     css.backgroundImage = bg.startsWith('url(') || bg.startsWith('linear-gradient') ? bg : `url(${bg})`;
   }
   if (styles.backgroundSize) css.backgroundSize = styles.backgroundSize;
@@ -83,37 +71,7 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   if (styles.borderColor) css.borderColor = styles.borderColor;
   if (styles.borderRadius) css.borderRadius = styles.borderRadius;
 
-  // Side-specific borders
-  if (styles.borderLeftWidth) {
-    css.borderLeftWidth = styles.borderLeftWidth;
-    css.borderLeftStyle = (styles.borderLeftStyle as any) || 'solid';
-    if (styles.borderLeftColor) css.borderLeftColor = styles.borderLeftColor;
-  }
-  if (styles.borderRightWidth) {
-    css.borderRightWidth = styles.borderRightWidth;
-    css.borderRightStyle = (styles.borderRightStyle as any) || 'solid';
-    if (styles.borderRightColor) css.borderRightColor = styles.borderRightColor;
-  }
-  if (styles.borderTopWidth) {
-    css.borderTopWidth = styles.borderTopWidth;
-    css.borderTopStyle = (styles.borderTopStyle as any) || 'solid';
-    if (styles.borderTopColor) css.borderTopColor = styles.borderTopColor;
-  }
-  if (styles.borderBottomWidth) {
-    css.borderBottomWidth = styles.borderBottomWidth;
-    css.borderBottomStyle = (styles.borderBottomStyle as any) || 'solid';
-    if (styles.borderBottomColor) css.borderBottomColor = styles.borderBottomColor;
-  }
-
-  // Minimal positioning
-  if (styles.position) css.position = styles.position as any;
-  if (styles.top) css.top = styles.top;
-  if (styles.right) css.right = styles.right;
-  if (styles.bottom) css.bottom = styles.bottom;
-  if (styles.left) css.left = styles.left;
-
   // Effects
-  if (styles.textShadow) css.textShadow = styles.textShadow;
   if (styles.boxShadow) css.boxShadow = styles.boxShadow;
   if (typeof styles.opacity === 'number') css.opacity = styles.opacity;
   if (styles.overflow) css.overflow = styles.overflow;
