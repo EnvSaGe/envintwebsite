@@ -14,6 +14,8 @@
     "generate:redirects": "tsx scripts/generate-redirects.ts",
     "migration:analyze": "tsx scripts/migration-analyze.ts",
     "migration:dry-run": "tsx scripts/migration-dry-run.ts",
+    "audit:inventory": "tsx scripts/verify-public-route-inventory.ts",
+    "audit:capture-live": "tsx scripts/capture-live-fidelity.ts",
     "test:all": "tsx scripts/test-all-168-urls.ts",
     "seed": "tsx scripts/seed-all-content.ts",
     "migrate": "tsx scripts/migrate.ts",

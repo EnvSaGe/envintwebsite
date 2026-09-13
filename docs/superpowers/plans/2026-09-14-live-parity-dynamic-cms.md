@@ -39,7 +39,7 @@
 - Produces: `PublicRouteInventory` with `routes`, `sourceSitemaps`, and `capturedAt`.
 - Produces: live HTML and viewport screenshots under `envintmigration/site-capture/` without changing the live site.
 
-- [ ] **Step 1: Write the failing route-inventory verification**
+- [x] **Step 1: Write the failing route-inventory verification**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -52,13 +52,13 @@ assert.equal(classifyPublicPath('/category/enviki/'), 'taxonomy');
 assert.equal(classifyPublicPath('/'), 'unique-page');
 ```
 
-- [ ] **Step 2: Run the verification and confirm the missing module failure**
+- [x] **Step 2: Run the verification and confirm the missing module failure**
 
 Run: `pnpm exec tsx scripts/verify-public-route-inventory.ts`
 
 Expected: FAIL because `scripts/lib/public-route-inventory.ts` does not exist.
 
-- [ ] **Step 3: Implement sitemap discovery, normalization, classification, and JSON output**
+- [x] **Step 3: Implement sitemap discovery, normalization, classification, and JSON output**
 
 ```ts
 export type PublicRouteKind =
@@ -83,7 +83,7 @@ export function normalizePublicPath(input: string): string {
 
 The loader must read the live sitemap index, traverse only `envintglobal.com` child sitemaps, de-duplicate normalized paths, and write `envintmigration/site-capture/public-route-inventory.json`.
 
-- [ ] **Step 4: Add a read-only capture command**
+- [x] **Step 4: Add a read-only capture command**
 
 Add scripts:
 
@@ -96,7 +96,7 @@ Add scripts:
 
 The capture script records live HTML plus screenshots at `1440x1000`, `768x1024`, and `390x844`, with bounded concurrency and no form submissions.
 
-- [ ] **Step 5: Run inventory and capture smoke tests**
+- [x] **Step 5: Run inventory and capture smoke tests**
 
 Run: `pnpm audit:inventory`
 
@@ -106,7 +106,7 @@ Run: `pnpm audit:capture-live -- --limit 3`
 
 Expected: PASS with HTML and three viewport screenshots for each sampled route.
 
-- [ ] **Step 6: Commit the baseline tooling**
+- [x] **Step 6: Commit the baseline tooling**
 
 ```bash
 git add package.json scripts/lib/public-route-inventory.ts scripts/verify-public-route-inventory.ts scripts/capture-live-fidelity.ts docs/migration/10-fidelity-audit.md
