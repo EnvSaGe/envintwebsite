@@ -7,44 +7,63 @@ import {
   makeParagraph,
   makeImage,
   makeButton,
-  makeCounter,
+  makeDivider,
   makeDynamicModule,
   assembleTree,
   resolveCmsImage,
 } from './utils';
 
-const HELP_CARDS = [
+/*
+ * Home page tree — mirrors envintglobal.com exactly:
+ *   1. Hero: 100vh, content anchored to the BOTTOM (justify-end), 96px tagline
+ *   2. Philosophy statement: 3 paragraphs + underlined "Explore more" link
+ *   3. Vantage spotlight: #F7F7F7, cover left + info right, underlined links
+ *   4. "We help you with ...": 2x2 grid (heading TL, cards SI TR / RI BL / CA BR),
+ *      white cards with gray-logo watermark, no per-card button
+ *   5. #TheEnvintWay: 48px title + 24px mission, 3 pillars (image, title, divider, text)
+ *   6. Our Impact: 48px title + 24px desc, 4 stat columns (icon, 64px number, label, left border)
+ *   7. Read news and insights: heading + "View all" underlined link + insights grid module
+ *   8. Pre-footer CTA banner: footer-cta bg, 48px white text, white pill "Connect"
+ */
+
+const SERVICE_CARDS = [
   {
+    id: 'card_help_1',
     title: 'Sustainability Integration',
     desc: 'Integrate sustainability in your core strategy & operations',
     url: '/sustainability-integration/',
   },
   {
+    id: 'card_help_2',
     title: 'Responsible Investment',
     desc: 'Build ESG principles to channelize funds into responsible businesses',
     url: '/responsible-investment/',
   },
   {
+    id: 'card_help_3',
     title: 'Climate Action',
     desc: 'Futureproof your organization with low-carbon transition plans',
     url: '/climate-action/',
   },
 ];
 
-const ENVINT_WAY_PILLARS = [
+const PILLARS = [
   {
+    id: 'pillar_1',
     title: 'Focused',
     img: '/images/envintway-focused.webp',
     alt: 'Focused - Magnifying glass on forest trees',
     desc: 'We are sharply focused on sustainability & ESG giving us the edge to understand the complexities associated with this domain.',
   },
   {
+    id: 'pillar_2',
     title: 'Balanced',
     img: '/images/envintway-balanced.webp',
     alt: 'Balanced - Stacked balancing pebbles in nature',
     desc: 'Our approach is calibrated to be balanced and pragmatic, built on understanding of policy, regulation, markets and ground realities.',
   },
   {
+    id: 'pillar_3',
     title: 'Committed',
     img: '/images/envintway-committed.webp',
     alt: 'Committed - Handshake in partnership',
@@ -52,11 +71,11 @@ const ENVINT_WAY_PILLARS = [
   },
 ];
 
-const IMPACT_STATS = [
-  { value: '525+', label: 'Engagements', img: '/images/stat-engagements.webp' },
-  { value: '150+', label: 'Clients', img: '/images/stat-clients-clean.webp' },
-  { value: '10+', label: 'Countries', img: '/images/stat-countries-clean.webp' },
-  { value: '6', label: 'Offices', img: '/images/stat-offices.webp' },
+const STATS = [
+  { id: 'stat_1', value: '525+', label: 'Engagements', img: '/images/stat-engagements.webp' },
+  { id: 'stat_2', value: '150+', label: 'Clients', img: '/images/stat-clients-clean.webp' },
+  { id: 'stat_3', value: '10+', label: 'Countries', img: '/images/stat-countries-clean.webp' },
+  { id: 'stat_4', value: '6', label: 'Offices', img: '/images/stat-offices.webp' },
 ];
 
 export function createHomePageTree(): PageBlockTree {
@@ -72,23 +91,22 @@ export function createHomePageTree(): PageBlockTree {
   ];
 
   const nodes: Record<string, BuilderNode> = {
-    // ─── 1. Hero Section ────────────────────────────────────────────────────────
+    // ─── 1. Hero: 100vh, bottom-anchored (live: --min-height:100vh, justify-content:flex-end) ──
     sec_home_hero: makeSection(
       'sec_home_hero',
       ['cont_home_hero'],
       {
-        minHeight: '85vh',
+        minHeight: '100vh',
         display: 'flex',
-        alignItems: 'flex-end',
-        paddingTop: '180px',
-        paddingBottom: '100px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        paddingTop: '150px',
+        paddingBottom: '60px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         backgroundImage: resolveCmsImage('/images/hero-wetland.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundOverlay:
-          'linear-gradient(to top, rgba(0, 20, 15, 0.55) 0%, rgba(0, 20, 15, 0.15) 100%)',
       },
       'Hero Banner'
     ),
@@ -99,7 +117,6 @@ export function createHomePageTree(): PageBlockTree {
       {
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
         maxWidth: '1280px',
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -113,14 +130,16 @@ export function createHomePageTree(): PageBlockTree {
       '<p>Business for Better.<br/>Making it happen</p>',
       {
         fontFamily: 'Neue Montreal, sans-serif',
-        fontSize: '76px',
+        fontSize: '96px',
+        fontWeight: 400,
         lineHeight: '1.08',
         textColor: '#FFFFFF',
+        textShadow: '0 2px 14px rgba(0, 0, 0, 0.4)',
         marginBottom: '0',
       },
       {
-        tablet: { fontSize: '52px' },
-        mobile: { fontSize: '32px' },
+        tablet: { fontSize: '64px' },
+        mobile: { fontSize: '32px', lineHeight: '1.1' },
       },
       'Hero Tagline'
     ),
@@ -135,12 +154,14 @@ export function createHomePageTree(): PageBlockTree {
         fontWeight: 400,
         lineHeight: '1.25',
         textColor: '#FFFFFF',
+        textShadow: '0 1px 8px rgba(0, 0, 0, 0.4)',
+        marginTop: '20px',
         marginBottom: '0',
         maxWidth: '980px',
       },
       {
         tablet: { fontSize: '24px' },
-        mobile: { fontSize: '16px' },
+        mobile: { fontSize: '16px', lineHeight: '1.35', marginTop: '14px' },
       },
       'Hero Headline'
     ),
@@ -153,15 +174,15 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#FFFFFF',
         paddingTop: '80px',
         paddingBottom: '60px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
       },
       'Philosophy Statement'
     ),
     cont_home_philosophy: makeContainer(
       'cont_home_philosophy',
       'sec_home_philosophy',
-      ['phil_p1', 'phil_p2', 'phil_p3', 'phil_link'],
+      ['phil_p1', 'phil_p2', 'phil_p3', 'phil_link_wrap'],
       {
         maxWidth: '1280px',
         marginLeft: 'auto',
@@ -212,22 +233,29 @@ export function createHomePageTree(): PageBlockTree {
         fontSize: '24px',
         lineHeight: '35px',
         textColor: '#393939',
-        marginBottom: '20px',
+        marginBottom: '10px',
       },
       {
-        mobile: { fontSize: '17px', lineHeight: '25px' },
+        mobile: { fontSize: '17px', lineHeight: '25px', marginBottom: '20px' },
       },
       'Philosophy Line 3'
     ),
+    phil_link_wrap: makeContainer(
+      'phil_link_wrap',
+      'cont_home_philosophy',
+      ['phil_link'],
+      { paddingTop: '10px', maxWidth: '100%' },
+      'Philosophy Link Wrap'
+    ),
     phil_link: makeButton(
       'phil_link',
-      'cont_home_philosophy',
+      'phil_link_wrap',
       'Explore more',
       '/services/',
       'primary',
       {
         backgroundColor: 'transparent',
-        textColor: '#8C8C8C',
+        textColor: '#BCBCBC',
         fontSize: '24px',
         fontWeight: 400,
         paddingTop: '0',
@@ -235,12 +263,15 @@ export function createHomePageTree(): PageBlockTree {
         paddingLeft: '0',
         paddingRight: '0',
         borderRadius: '0',
+        borderBottomWidth: '1.152px',
+        borderBottomStyle: 'solid',
+        borderBottomColor: '#8C8C8C',
         width: 'fit-content',
       },
       'Explore More Link'
     ),
 
-    // ─── 3. Featured Publication Spotlight (Vantage 2026) ───────────────────────
+    // ─── 3. Vantage Spotlight (#F7F7F7, image left / info right) ────────────────
     sec_home_vantage: makeSection(
       'sec_home_vantage',
       ['cont_home_vantage'],
@@ -248,8 +279,8 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#F7F7F7',
         paddingTop: '70px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
       },
       'Featured Publication Spotlight'
     ),
@@ -268,27 +299,30 @@ export function createHomePageTree(): PageBlockTree {
     grid_home_vantage: makeGrid(
       'grid_home_vantage',
       'cont_home_vantage',
-      '2',
-      '86px',
       ['img_vantage', 'col_vantage_info'],
-      { gridColumns: 'minmax(0, 635fr) minmax(0, 465fr)', alignItems: 'center' },
       {
-        tablet: { gridColumns: '1fr' },
-      }
+        gridColumns: 'minmax(0, 635fr) minmax(0, 465fr)',
+        gap: '86px',
+        alignItems: 'center',
+      },
+      {
+        tablet: { gridColumns: '1fr', gap: '40px' },
+      },
+      'Vantage Grid'
     ),
     img_vantage: makeImage(
       'img_vantage',
       'grid_home_vantage',
       resolveCmsImage('/images/vantage-2026.webp'),
       'Vantage 2026: Navigating the ESG Reset - Envint Publication',
-      { width: '100%', borderRadius: '20px' },
+      { width: '100%', maxWidth: '635px', borderRadius: '20px' },
       'Vantage Report Cover'
     ),
     col_vantage_info: makeContainer(
       'col_vantage_info',
       'grid_home_vantage',
       ['h2_vantage', 'p_vantage', 'vantage_links'],
-      { display: 'flex', flexDirection: 'column' },
+      { display: 'flex', flexDirection: 'column', maxWidth: '100%' },
       'Vantage Info Column'
     ),
     h2_vantage: makeHeading(
@@ -300,6 +334,7 @@ export function createHomePageTree(): PageBlockTree {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '48px',
         fontWeight: 400,
+        lineHeight: 'normal',
         textColor: '#004E35',
         marginBottom: '20px',
       },
@@ -334,6 +369,7 @@ export function createHomePageTree(): PageBlockTree {
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '24px',
+        maxWidth: '100%',
       },
       'Vantage Links Row'
     ),
@@ -345,7 +381,7 @@ export function createHomePageTree(): PageBlockTree {
       'primary',
       {
         backgroundColor: 'transparent',
-        textColor: '#1E88D2',
+        textColor: '#2F7ABE',
         fontSize: '24px',
         fontWeight: 400,
         paddingTop: '0',
@@ -353,6 +389,9 @@ export function createHomePageTree(): PageBlockTree {
         paddingLeft: '0',
         paddingRight: '0',
         borderRadius: '0',
+        borderBottomWidth: '1.152px',
+        borderBottomStyle: 'solid',
+        borderBottomColor: '#8C8C8C',
         width: 'fit-content',
       },
       'Read Now Link'
@@ -365,7 +404,7 @@ export function createHomePageTree(): PageBlockTree {
       'primary',
       {
         backgroundColor: 'transparent',
-        textColor: '#1E88D2',
+        textColor: '#2F7ABE',
         fontSize: '24px',
         fontWeight: 400,
         paddingTop: '0',
@@ -373,20 +412,23 @@ export function createHomePageTree(): PageBlockTree {
         paddingLeft: '0',
         paddingRight: '0',
         borderRadius: '0',
+        borderBottomWidth: '1.152px',
+        borderBottomStyle: 'solid',
+        borderBottomColor: '#8C8C8C',
         width: 'fit-content',
       },
       'Vantage 2025 Link'
     ),
 
-    // ─── 4. We help you with ... ────────────────────────────────────────────────
+    // ─── 4. "We help you with ..." — 2x2 serviceboxes grid (live layout) ────────
     sec_home_services: makeSection(
       'sec_home_services',
       ['cont_home_services'],
       {
         paddingTop: '120px',
         paddingBottom: '120px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         backgroundImage: resolveCmsImage('/images/polo-mountain-bg.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -398,7 +440,7 @@ export function createHomePageTree(): PageBlockTree {
     cont_home_services: makeContainer(
       'cont_home_services',
       'sec_home_services',
-      ['h2_home_services', 'grid_home_services'],
+      ['grid_home_services'],
       {
         maxWidth: '1280px',
         marginLeft: 'auto',
@@ -407,35 +449,52 @@ export function createHomePageTree(): PageBlockTree {
       },
       'Services Container'
     ),
-    h2_home_services: makeHeading(
-      'h2_home_services',
+    grid_home_services: makeGrid(
+      'grid_home_services',
       'cont_home_services',
+      ['h2_home_services', 'card_help_1', 'card_help_2', 'card_help_3'],
+      {
+        gridColumns: 'repeat(2, minmax(0, 1fr))',
+        gap: '36px',
+        alignItems: 'stretch',
+      },
+      {
+        tablet: { gridColumns: '1fr', gap: '24px' },
+      },
+      'Serviceboxes Grid (2x2)'
+    ),
+    h2_home_services: makeContainer(
+      'h2_home_services',
+      'grid_home_services',
+      ['h2_home_services_text'],
+      {
+        display: 'flex',
+        alignItems: 'center',
+        minHeight: '210px',
+        maxWidth: '100%',
+        padding: '10px',
+      },
+      'Services Heading Cell'
+    ),
+    h2_home_services_text: makeHeading(
+      'h2_home_services_text',
+      'h2_home_services',
       'We help you with ...',
       'h2',
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '60px',
         fontWeight: 400,
+        lineHeight: '1.12',
         textColor: '#FFFFFF',
-        marginBottom: '48px',
         textShadow: '0 2px 14px rgba(0, 0, 0, 0.45)',
+        marginBottom: '0',
       },
       {
         tablet: { fontSize: '44px' },
         mobile: { fontSize: '32px' },
       },
       'Services Heading'
-    ),
-    grid_home_services: makeGrid(
-      'grid_home_services',
-      'cont_home_services',
-      '3',
-      '24px',
-      HELP_CARDS.map((_, i) => `card_help_${i + 1}`),
-      {},
-      {
-        tablet: { gridColumns: '1fr' },
-      }
     ),
 
     // ─── 5. #TheEnvintWay ───────────────────────────────────────────────────────
@@ -446,8 +505,8 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#FFFFFF',
         paddingTop: '70px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
       },
       'The Envint Way Section'
     ),
@@ -472,6 +531,7 @@ export function createHomePageTree(): PageBlockTree {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '48px',
         fontWeight: 400,
+        lineHeight: 'normal',
         textColor: '#004E35',
         marginBottom: '16px',
       },
@@ -499,13 +559,16 @@ export function createHomePageTree(): PageBlockTree {
     grid_envint_way: makeGrid(
       'grid_envint_way',
       'cont_home_envint_way',
-      '3',
-      '24px',
-      ENVINT_WAY_PILLARS.map((_, i) => `pillar_${i + 1}`),
-      { justifyContent: 'space-between' },
+      PILLARS.map((p) => p.id),
       {
-        tablet: { gridColumns: '1fr' },
-      }
+        gridColumns: 'repeat(3, minmax(0, 341px))',
+        justifyContent: 'space-between',
+        gap: '24px',
+      },
+      {
+        tablet: { gridColumns: '1fr', gap: '40px' },
+      },
+      'Pillars Grid'
     ),
 
     // ─── 6. Our Impact & Stats ──────────────────────────────────────────────────
@@ -516,8 +579,8 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#FFFFFF',
         paddingTop: '70px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         borderTopWidth: '1px',
         borderTopStyle: 'solid',
         borderTopColor: '#F1F5F9',
@@ -545,6 +608,7 @@ export function createHomePageTree(): PageBlockTree {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '48px',
         fontWeight: 400,
+        lineHeight: 'normal',
         textColor: '#004E35',
         marginBottom: '16px',
       },
@@ -572,14 +636,17 @@ export function createHomePageTree(): PageBlockTree {
     grid_stats: makeGrid(
       'grid_stats',
       'cont_home_impact',
-      '4',
-      '24px',
-      IMPACT_STATS.map((_, i) => `stat_${i + 1}`),
-      {},
+      STATS.map((s) => s.id),
+      {
+        gridColumns: 'repeat(4, minmax(0, 1fr))',
+        gap: '24px',
+        marginBottom: '70px',
+      },
       {
         tablet: { gridColumns: 'repeat(2, 1fr)' },
         mobile: { gridColumns: '1fr' },
-      }
+      },
+      'Stats Grid'
     ),
 
     // ─── 7. Read News and Insights ──────────────────────────────────────────────
@@ -590,8 +657,8 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#F8FAFC',
         paddingTop: '70px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         borderTopWidth: '1px',
         borderTopStyle: 'solid',
         borderTopColor: '#EEF2F6',
@@ -601,7 +668,7 @@ export function createHomePageTree(): PageBlockTree {
     cont_home_insights: makeContainer(
       'cont_home_insights',
       'sec_home_insights',
-      ['h2_insights', 'mod_insights'],
+      ['row_insights_head', 'mod_insights'],
       {
         maxWidth: '1280px',
         marginLeft: 'auto',
@@ -610,22 +677,61 @@ export function createHomePageTree(): PageBlockTree {
       },
       'Insights Container'
     ),
+    row_insights_head: makeContainer(
+      'row_insights_head',
+      'cont_home_insights',
+      ['h2_insights', 'link_view_all'],
+      {
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: '16px',
+        marginBottom: '40px',
+        maxWidth: '100%',
+      },
+      'Insights Heading Row'
+    ),
     h2_insights: makeHeading(
       'h2_insights',
-      'cont_home_insights',
+      'row_insights_head',
       'Read news and insights',
       'h2',
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '48px',
         fontWeight: 400,
+        lineHeight: 'normal',
         textColor: '#004E35',
-        marginBottom: '40px',
+        marginBottom: '0',
       },
       {
         mobile: { fontSize: '28px' },
       },
       'Insights Headline'
+    ),
+    link_view_all: makeButton(
+      'link_view_all',
+      'row_insights_head',
+      'View all',
+      '/envision/',
+      'primary',
+      {
+        backgroundColor: 'transparent',
+        textColor: '#1E1E1E',
+        fontSize: '24px',
+        fontWeight: 400,
+        paddingTop: '0',
+        paddingBottom: '5px',
+        paddingLeft: '0',
+        paddingRight: '0',
+        borderRadius: '0',
+        borderBottomWidth: '1.152px',
+        borderBottomStyle: 'solid',
+        borderBottomColor: '#8C8C8C',
+        width: 'fit-content',
+      },
+      'View All Link'
     ),
     mod_insights: makeDynamicModule(
       'mod_insights',
@@ -635,7 +741,7 @@ export function createHomePageTree(): PageBlockTree {
       'Latest Insights Grid'
     ),
 
-    // ─── 8. Pre-Footer CTA ──────────────────────────────────────────────────────
+    // ─── 8. Pre-Footer CTA Banner ───────────────────────────────────────────────
     sec_home_cta: makeSection(
       'sec_home_cta',
       ['cont_home_cta'],
@@ -643,8 +749,8 @@ export function createHomePageTree(): PageBlockTree {
         backgroundColor: '#FFFFFF',
         paddingTop: '50px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
       },
       'Bottom Call to Action'
     ),
@@ -663,40 +769,81 @@ export function createHomePageTree(): PageBlockTree {
     card_home_cta: makeContainer(
       'card_home_cta',
       'cont_home_cta',
-      ['h2_cta', 'btn_cta'],
+      ['cta_inner', 'img_cta_bg', 'cta_overlay'],
       {
-        backgroundImage: resolveCmsImage('/images/footer-cta.webp'),
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundOverlay: 'rgba(0, 0, 0, 0.25)',
+        position: 'relative',
         borderRadius: '20px',
-        paddingTop: '60px',
-        paddingBottom: '60px',
-        paddingLeft: '30px',
-        paddingRight: '30px',
-        textAlign: 'center',
+        overflow: 'hidden',
+        minHeight: '360px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
         justifyContent: 'center',
-        gap: '32px',
-        minHeight: '360px',
+        alignItems: 'center',
+        padding: '60px 30px',
       },
       'CTA Banner Card'
     ),
+    img_cta_bg: makeImage(
+      'img_cta_bg',
+      'card_home_cta',
+      resolveCmsImage('/images/footer-cta.webp'),
+      'Lush green mountain ridges',
+      {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        borderRadius: '0',
+        zIndex: 0,
+      },
+      'CTA Background'
+    ),
+    cta_overlay: makeContainer(
+      'cta_overlay',
+      'card_home_cta',
+      [],
+      {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'transparent',
+        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25))',
+        maxWidth: '100%',
+        zIndex: 1,
+      },
+      'CTA Overlay'
+    ),
+    cta_inner: makeContainer(
+      'cta_inner',
+      'card_home_cta',
+      ['h2_cta', 'btn_cta'],
+      {
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        maxWidth: '800px',
+        zIndex: 2,
+      },
+      'CTA Content'
+    ),
     h2_cta: makeHeading(
       'h2_cta',
-      'card_home_cta',
+      'cta_inner',
       'Let us move towards a greener future',
       'h2',
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '48px',
         fontWeight: 400,
-        textColor: '#FFFFFF',
         lineHeight: '1.25',
+        textColor: '#FFFFFF',
         textShadow: '0 2px 12px rgba(0, 0, 0, 0.4)',
-        marginBottom: '0',
+        marginBottom: '32px',
+        textAlign: 'center',
       },
       {
         mobile: { fontSize: '28px' },
@@ -705,7 +852,7 @@ export function createHomePageTree(): PageBlockTree {
     ),
     btn_cta: makeButton(
       'btn_cta',
-      'card_home_cta',
+      'cta_inner',
       'Connect',
       '/connect/',
       'primary',
@@ -719,59 +866,85 @@ export function createHomePageTree(): PageBlockTree {
         paddingLeft: '36px',
         paddingRight: '36px',
         borderRadius: '9999px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
         width: 'fit-content',
       },
       'CTA Connect Button'
     ),
   };
 
-  // Populate "We help you with ..." cards
-  HELP_CARDS.forEach((c, idx) => {
-    const cardId = `card_help_${idx + 1}`;
-    const titleId = `help_title_${idx + 1}`;
-    const descId = `help_desc_${idx + 1}`;
-    const btnId = `help_btn_${idx + 1}`;
+  // Populate "We help you with ..." servicebox cards (top-right, bottom-left, bottom-right)
+  SERVICE_CARDS.forEach((c) => {
+    const titleId = `${c.id}_title`;
+    const descId = `${c.id}_desc`;
+    const watermarkId = `${c.id}_watermark`;
 
-    nodes[cardId] = makeContainer(
-      cardId,
+    nodes[c.id] = makeContainer(
+      c.id,
       'grid_home_services',
-      [titleId, descId, btnId],
+      [`${c.id}_content`, watermarkId],
       {
+        position: 'relative',
         backgroundColor: '#FFFFFF',
         borderRadius: '16px',
-        paddingTop: '32px',
-        paddingBottom: '28px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        minHeight: '210px',
+        paddingTop: '44px',
+        paddingBottom: '36px',
+        paddingLeft: '40px',
+        paddingRight: '40px',
+        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.16)',
       },
       `${c.title} Card`
     );
 
+    nodes[`${c.id}_content`] = makeContainer(
+      `${c.id}_content`,
+      c.id,
+      [titleId, descId],
+      {
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        maxWidth: '100%',
+        zIndex: 2,
+      },
+      `${c.title} Content`
+    );
+
     nodes[titleId] = makeHeading(
       titleId,
-      cardId,
+      `${c.id}_content`,
       c.title,
       'h3',
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '28px',
         fontWeight: 500,
+        lineHeight: '1.2',
         textColor: '#C65102',
         marginBottom: '12px',
+      },
+      {
+        mobile: { fontSize: '24px' },
       },
       `${c.title} Title`
     );
 
     nodes[descId] = makeParagraph(
       descId,
-      cardId,
+      `${c.id}_content`,
       `<p>${c.desc}</p>`,
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '24px',
         lineHeight: '30px',
         textColor: '#484848',
-        marginBottom: '16px',
+        marginBottom: '0',
+        maxWidth: '440px',
       },
       {
         mobile: { fontSize: '18px', lineHeight: '24px' },
@@ -779,43 +952,42 @@ export function createHomePageTree(): PageBlockTree {
       `${c.title} Description`
     );
 
-    nodes[btnId] = makeButton(
-      btnId,
-      cardId,
-      'Explore',
-      c.url,
-      'primary',
+    // Gray Envint logo watermark, bottom-right corner (live: 140px, 35% opacity)
+    nodes[watermarkId] = makeImage(
+      watermarkId,
+      c.id,
+      resolveCmsImage('/images/gray-logo.webp'),
+      '',
       {
-        backgroundColor: 'transparent',
-        textColor: '#1E88D2',
-        fontSize: '18px',
-        fontWeight: 500,
-        paddingTop: '0',
-        paddingBottom: '6px',
-        paddingLeft: '0',
-        paddingRight: '0',
+        position: 'absolute',
+        right: '18px',
+        bottom: '-14px',
+        width: '140px',
+        height: '140px',
+        opacity: 0.35,
         borderRadius: '0',
-        width: 'fit-content',
+        zIndex: 1,
       },
-      `${c.title} Link`
+      `${c.title} Watermark`
     );
   });
 
-  // Populate #TheEnvintWay pillars
-  ENVINT_WAY_PILLARS.forEach((p, idx) => {
-    const cardId = `pillar_${idx + 1}`;
-    const imgId = `pillar_img_${idx + 1}`;
-    const titleId = `pillar_title_${idx + 1}`;
-    const descId = `pillar_desc_${idx + 1}`;
+  // Populate #TheEnvintWay pillars (image, title, divider line, description)
+  PILLARS.forEach((p) => {
+    const imgId = `${p.id}_img`;
+    const titleId = `${p.id}_title`;
+    const divId = `${p.id}_divider`;
+    const descId = `${p.id}_desc`;
 
-    nodes[cardId] = makeContainer(
-      cardId,
+    nodes[p.id] = makeContainer(
+      p.id,
       'grid_envint_way',
-      [imgId, titleId, descId],
+      [imgId, titleId, divId, descId],
       {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        maxWidth: '341px',
         textAlign: 'center',
       },
       `${p.title} Pillar`
@@ -823,7 +995,7 @@ export function createHomePageTree(): PageBlockTree {
 
     nodes[imgId] = makeImage(
       imgId,
-      cardId,
+      p.id,
       resolveCmsImage(p.img),
       p.alt,
       {
@@ -831,7 +1003,6 @@ export function createHomePageTree(): PageBlockTree {
         maxWidth: '310px',
         aspectRatio: '1/1',
         borderRadius: '20px',
-        objectFit: 'cover',
         marginBottom: '20px',
       },
       `${p.title} Image`
@@ -839,22 +1010,31 @@ export function createHomePageTree(): PageBlockTree {
 
     nodes[titleId] = makeHeading(
       titleId,
-      cardId,
+      p.id,
       p.title,
       'h3',
       {
         fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '24px',
         fontWeight: 400,
+        lineHeight: 'normal',
         textColor: '#5A5A5A',
-        marginBottom: '14px',
+        marginBottom: '0',
       },
       `${p.title} Title`
     );
 
+    nodes[divId] = makeDivider(divId, p.id, {
+      width: '100%',
+      maxWidth: '310px',
+      borderTopColor: '#D5D5D5',
+      marginTop: '14px',
+      marginBottom: '20px',
+    }, `${p.title} Divider`);
+
     nodes[descId] = makeParagraph(
       descId,
-      cardId,
+      p.id,
       `<p>${p.desc}</p>`,
       {
         fontFamily: 'Neue Montreal, sans-serif',
@@ -862,20 +1042,85 @@ export function createHomePageTree(): PageBlockTree {
         lineHeight: '26px',
         textColor: '#5A5A5A',
         marginBottom: '0',
+        maxWidth: '341px',
       },
       `${p.title} Description`
     );
   });
 
-  // Populate Impact stats counters
-  IMPACT_STATS.forEach((s, idx) => {
-    const statId = `stat_${idx + 1}`;
-    nodes[statId] = makeCounter(statId, `Stat ${idx + 1}`, 'grid_stats', s.value, s.label, {
-      borderLeftWidth: '1px',
-      borderLeftStyle: 'solid',
-      borderLeftColor: '#D9D9D9',
-      paddingLeft: '18px',
-    });
+  // Populate Impact stats columns (icon, 64px number, label, left border)
+  STATS.forEach((s) => {
+    const imgId = `${s.id}_img`;
+    const valId = `${s.id}_value`;
+    const labelId = `${s.id}_label`;
+
+    nodes[s.id] = makeContainer(
+      s.id,
+      'grid_stats',
+      [imgId, valId, labelId],
+      {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        borderLeftWidth: '1px',
+        borderLeftStyle: 'solid',
+        borderLeftColor: '#D9D9D9',
+        paddingLeft: '18px',
+      },
+      `${s.label} Stat`
+    );
+
+    nodes[imgId] = makeImage(
+      imgId,
+      s.id,
+      resolveCmsImage(s.img),
+      '',
+      {
+        width: '40px',
+        height: '40px',
+        borderRadius: '0',
+        marginBottom: '10px',
+      },
+      `${s.label} Icon`
+    );
+
+    nodes[valId] = makeHeading(
+      valId,
+      s.id,
+      s.value,
+      'h3',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '64px',
+        fontWeight: 400,
+        lineHeight: '1',
+        textColor: '#06573D',
+        marginBottom: '0',
+      },
+      {
+        tablet: { fontSize: '48px' },
+        mobile: { fontSize: '40px' },
+      },
+      `${s.label} Value`
+    );
+
+    nodes[labelId] = makeParagraph(
+      labelId,
+      s.id,
+      `<p>${s.label}</p>`,
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '1.3',
+        textColor: '#484848',
+        marginTop: '8px',
+        marginBottom: '0',
+      },
+      {
+        mobile: { fontSize: '18px' },
+      },
+      `${s.label} Label`
+    );
   });
 
   return assembleTree(rootIds, nodes);

@@ -203,7 +203,7 @@ export async function unpublishPageAction(slug: string) {
 
   await db
     .update(pages)
-    .set({ status: 'DRAFT', updatedAt: new Date() })
+    .set({ status: 'DRAFT', scheduledAt: null, updatedAt: new Date() })
     .where(eq(pages.slug, slug));
 
   await dispatchRevalidation({
@@ -490,6 +490,7 @@ export async function fetchPageTreeAction(slug: string) {
     seoTitle: pageSeoTitle || record?.seoTitle || pageTitle || pathSlug,
     seoDescription: pageSeoDescription || record?.seoDescription || '',
     status: record?.status || 'PUBLISHED',
+    scheduledAt: record?.scheduledAt ? new Date(record.scheduledAt).toISOString() : null,
     schemaVersion: record?.schemaVersion || 2,
     tree,
     hasDraft: Boolean(record?.draftBlocks && (record.draftBlocks as any).rootIds),
@@ -514,6 +515,9 @@ export async function saveDraftTreeAction(
       title: meta?.title || cleanSlug.replace(/-/g, ' '),
       seoTitle: meta?.seoTitle,
       seoDescription: meta?.seoDescription,
+      // Explicit defaults: the live DB column has NOT NULL without a DB-level default
+      layoutTemplate: 'standard',
+      contentBlocks: [],
       draftBlocks: tree,
       schemaVersion: 2,
       status: 'DRAFT',
@@ -555,6 +559,9 @@ export async function publishTreeAction(pageData: {
       title: pageData.title,
       seoTitle: pageData.seoTitle,
       seoDescription: pageData.seoDescription,
+      // Explicit defaults: the live DB column has NOT NULL without a DB-level default
+      layoutTemplate: 'standard',
+      contentBlocks: [],
       publishedBlocks: pageData.tree,
       draftBlocks: pageData.tree,
       schemaVersion: 2,
@@ -574,6 +581,7 @@ export async function publishTreeAction(pageData: {
         status: 'PUBLISHED',
         publishedAt: new Date(),
         updatedAt: new Date(),
+        scheduledAt: null, // a direct publish supersedes any pending schedule
       },
     });
 
@@ -634,6 +642,94 @@ export async function publishTreeAction(pageData: {
     tags: [`page:${pathSlug}`, `page:${cleanSlug}`],
     paths: [pathSlug === '/' ? '/' : pathSlug, `/${cleanSlug}`],
   });
+
+  return { success: true };
+}
+
+/* ─── Scheduled publishing ─────────────────────────────────────────────────
+
+   Design: scheduling never touches `status`, so a live page stays live
+   (rendering the current publishedBlocks) while the new draft waits.
+   The cron endpoint /api/cron/publish-scheduled (web app) promotes
+   draftBlocks → publishedBlocks when scheduledAt is due.
+
+   ─────────────────────────────────────────────────────────────────────── */
+
+export async function scheduleTreePublishAction(pageData: {
+  slug: string;
+  title: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  tree: PageBlockTree;
+  scheduledAt: string; // ISO timestamp — must be in the future
+}) {
+  await requireRole(['super_admin', 'editor']);
+
+  const when = new Date(pageData.scheduledAt);
+  if (Number.isNaN(when.getTime())) throw new Error('Invalid schedule date.');
+  if (when.getTime() <= Date.now()) throw new Error('Schedule time must be in the future.');
+
+  const userInfo = await getCurrentUserInfo();
+  const pathSlug = pageData.slug.startsWith('/') ? pageData.slug : `/${pageData.slug}`;
+  const cleanSlug = pageData.slug.startsWith('/') ? pageData.slug.slice(1) : pageData.slug;
+
+  await db
+    .insert(pages)
+    .values({
+      slug: pathSlug,
+      title: pageData.title,
+      seoTitle: pageData.seoTitle,
+      seoDescription: pageData.seoDescription,
+      // Explicit defaults: the live DB column has NOT NULL without a DB-level default
+      layoutTemplate: 'standard',
+      contentBlocks: [],
+      draftBlocks: pageData.tree,
+      schemaVersion: 2,
+      status: 'DRAFT',
+      scheduledAt: when,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: pages.slug,
+      set: {
+        title: pageData.title,
+        seoTitle: pageData.seoTitle,
+        seoDescription: pageData.seoDescription,
+        draftBlocks: pageData.tree,
+        schemaVersion: 2,
+        scheduledAt: when,
+        updatedAt: new Date(),
+        // Note: `status` intentionally NOT set — keep live pages live.
+      },
+    });
+
+  await db.insert(pageRevisions).values({
+    pageSlug: pathSlug,
+    contentBlocks: pageData.tree as any,
+    schemaVersion: 2,
+    status: 'DRAFT',
+    savedByClerkId: userInfo?.clerkId ?? null,
+    savedByName: userInfo?.name ?? null,
+    note: `Scheduled publish for ${when.toISOString()}`,
+    savedAt: new Date(),
+  });
+
+  await dispatchRevalidation({
+    tags: [`page:${pathSlug}`, `page:${cleanSlug}`],
+  });
+
+  return { success: true, scheduledAt: when.toISOString() };
+}
+
+export async function cancelScheduledPublishAction(slug: string) {
+  await requireRole(['super_admin', 'editor']);
+
+  const pathSlug = slug.startsWith('/') ? slug : `/${slug}`;
+
+  await db
+    .update(pages)
+    .set({ scheduledAt: null, updatedAt: new Date() })
+    .where(eq(pages.slug, pathSlug));
 
   return { success: true };
 }

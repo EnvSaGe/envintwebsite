@@ -9,7 +9,14 @@ import { StudioCanvas, ZoomLevel } from './StudioCanvas';
 import { InspectorSidebar } from './InspectorSidebar';
 import { QuickPalette } from './QuickPalette';
 import { VersionHistoryModal } from './VersionHistoryModal';
-import { saveDraftTreeAction, publishTreeAction, restorePageRevision } from '../../actions';
+import {
+  saveDraftTreeAction,
+  publishTreeAction,
+  restorePageRevision,
+  scheduleTreePublishAction,
+  cancelScheduledPublishAction,
+} from '../../actions';
+import { SchedulePublishModal } from './SchedulePublishModal';
 
 interface VisualStudioEditorProps {
   initialTree: PageBlockTree;
@@ -18,6 +25,7 @@ interface VisualStudioEditorProps {
   pageTitle: string;
   seoTitle?: string;
   seoDescription?: string;
+  scheduledAt?: string | null;
   onSwitchToLegacy?: () => void;
 }
 
@@ -62,6 +70,7 @@ export function VisualStudioEditor({
   pageTitle,
   seoTitle,
   seoDescription,
+  scheduledAt: initialScheduledAt = null,
 }: VisualStudioEditorProps) {
   const [state, dispatch] = useReducer(studioReducer, {
     tree: initialTree,
@@ -84,6 +93,12 @@ export function VisualStudioEditor({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [zoom, setZoom] = useState<ZoomLevel>('fit');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  /* Scheduled publishing state */
+  const [scheduledIso, setScheduledIso] = useState<string | null>(initialScheduledAt);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   /* Panel UI state */
   const [prefs, setPrefs] = useState<PanelPrefs>(loadPanelPrefs);
@@ -198,6 +213,48 @@ export function VisualStudioEditor({
     },
     []
   );
+
+  const handleConfirmSchedule = useCallback(
+    async (isoLocal: string) => {
+      setIsScheduling(true);
+      setScheduleError(null);
+      try {
+        // Persist the current draft first so the cron promotes exactly what
+        // the editor is showing (draftBlocks is the source of truth for the
+        // scheduled promotion).
+        await saveDraftTreeAction(slug, stateRef.current.tree);
+        const res = await scheduleTreePublishAction({
+          slug,
+          title: pageTitle,
+          seoTitle,
+          seoDescription,
+          tree: stateRef.current.tree,
+          scheduledAt: new Date(isoLocal).toISOString(),
+        });
+        setScheduledIso(res.scheduledAt);
+        setIsScheduleOpen(false);
+        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        const when = new Date(res.scheduledAt).toLocaleString();
+        showNotification(`Publish scheduled for ${when}. The live page is unchanged until then.`, 'success');
+      } catch (err: any) {
+        setScheduleError(err.message || 'Failed to schedule publish.');
+      } finally {
+        setIsScheduling(false);
+      }
+    },
+    [slug, pageTitle, seoTitle, seoDescription]
+  );
+
+  const handleCancelSchedule = useCallback(async () => {
+    try {
+      await cancelScheduledPublishAction(slug);
+      setScheduledIso(null);
+      setIsScheduleOpen(false);
+      showNotification('Scheduled publish cancelled.', 'info');
+    } catch (err: any) {
+      showNotification(`Failed to cancel schedule: ${err.message}`, 'error');
+    }
+  }, [slug]);
 
   const handleRestoreRevision = async (revisionId: string) => {
     setIsHistoryOpen(false);
@@ -361,6 +418,12 @@ export function VisualStudioEditor({
         onOpenHistory={() => setIsHistoryOpen(true)}
         onSaveDraft={handleSaveDraft}
         onPublish={handlePublish}
+        onOpenSchedule={() => {
+          setScheduleError(null);
+          setIsScheduleOpen(true);
+        }}
+        onCancelSchedule={handleCancelSchedule}
+        scheduledIso={scheduledIso}
         isSaving={isSaving}
         isPublishing={isPublishing}
         leftCollapsed={leftCollapsed}
@@ -527,6 +590,18 @@ export function VisualStudioEditor({
       {isHistoryOpen && (
         <VersionHistoryModal slug={slug} onClose={() => setIsHistoryOpen(false)} onRestore={handleRestoreRevision} />
       )}
+
+      {/* Schedule Publish Modal */}
+      <SchedulePublishModal
+        open={isScheduleOpen}
+        slug={slug}
+        existingIso={scheduledIso}
+        isScheduling={isScheduling}
+        error={scheduleError}
+        onClose={() => setIsScheduleOpen(false)}
+        onConfirm={handleConfirmSchedule}
+        onCancelSchedule={handleCancelSchedule}
+      />
     </div>
   );
 }

@@ -190,10 +190,10 @@ export function createConnectPageTree(): PageBlockTree {
     ),
     form_conn: makeForm(
       'form_conn',
-      'Contact Inquiry Form',
       'col_conn_form',
       { formType: 'contact', action: '/api/forms/contact' },
-      { width: '100%' }
+      { width: '100%' },
+      'Contact Inquiry Form'
     ),
 
     // ─── 4. Office Locations ────────────────────────────────────────────────────

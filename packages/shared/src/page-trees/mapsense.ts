@@ -14,10 +14,11 @@ import {
 
 const FEATURES = [
   { icon: '🖥️', title: 'Screening of Sensitive Receptors', desc: 'Desk-based tool covering 10+ E&S receptor categories' },
-  { icon: '⏱️', title: '48 Hours Turnaround Time', desc: 'For any project size or area, no exceptions' },
   { icon: '🇮🇳', title: 'Pan India Coverage', desc: 'Uniform spatial data across all States' },
-  { icon: '🔄', title: 'Continuously Updated', desc: 'Receptor datasets updated regularly for accuracy' },
+  { icon: '⏱️', title: '48 Hours Turnaround Time', desc: 'For any project size or area, no exceptions' },
   { icon: '🎯', title: 'Customizable Buffer Pricing', desc: 'Pay only for the distance buffer you need' },
+  { icon: '🔒', title: 'Verified Data Sources', desc: 'Data only from authenticated government & regulatory sources' },
+  { icon: '🔄', title: 'Continuously Updated', desc: 'Receptor datasets updated regularly for accuracy' },
 ];
 
 const STEPS = [
@@ -53,7 +54,7 @@ const RECEPTORS = [
 const SECTORS = [
   { name: '⛏️ Extractives & Natural Resources' },
   { name: '🏭 Industrial / Processing Zones' },
-  { name: 'Infrastructure' },
+  { name: '🏗️ Infrastructure' },
   { name: '🏢 Real Estate' },
   { name: '🏨 Hospitality (Hotels & Resorts)' },
   { name: '📦 Logistic Parks & Warehousing' },
@@ -64,8 +65,6 @@ const SECTORS = [
 export function createMapSensePageTree(): PageBlockTree {
   const rootIds: string[] = [
     'sec_map_hero',
-    'sec_map_intro',
-    'sec_map_features',
     'sec_map_steps',
     'sec_map_reports',
     'sec_map_receptors',
@@ -75,108 +74,85 @@ export function createMapSensePageTree(): PageBlockTree {
   ];
 
   const nodes: Record<string, BuilderNode> = {
-    // ─── 1. Hero Banner ─────────────────────────────────────────────────────────
+    // ─── 1. Hero: full background section (live: 52vh bg, 48% overlay, content bottom) ──
     sec_map_hero: makeSection(
       'sec_map_hero',
       ['cont_map_hero'],
       {
-        paddingTop: '0',
-        paddingBottom: '0',
-        paddingLeft: '0',
-        paddingRight: '0',
-        minHeight: '380px',
-        overflow: 'hidden',
+        minHeight: '52vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        paddingTop: '120px',
+        paddingBottom: '48px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
+        backgroundImage: 'https://envintglobal.com/wp-content/uploads/2026/05/pexels-radoslaw-sikorski-36097686-27568070-1.webp',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundOverlay: 'rgba(0, 0, 0, 0.48)',
       },
-      'Hero Banner Section'
+      {
+        tablet: { minHeight: '80vh' },
+        mobile: { minHeight: '65vh' },
+      },
+      'MapSense Hero Section'
     ),
     cont_map_hero: makeContainer(
       'cont_map_hero',
       'sec_map_hero',
-      ['img_map_hero'],
-      { maxWidth: '100%', width: '100%' },
-      'Hero Container'
+      ['h2_map_headline', 'p_map_desc'],
+      { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+      'Hero Content'
     ),
-    img_map_hero: makeImage(
-      'img_map_hero',
+    h2_map_headline: makeHeading(
+      'h2_map_headline',
       'cont_map_hero',
-      resolveCmsImage('/images/mapsense-hero.webp'),
-      'River through lush green forest - Envint MapSense',
-      { width: '100%', height: '380px', objectFit: 'cover' },
-      'Hero Banner Image'
-    ),
-
-    // ─── 2. Intro Section ───────────────────────────────────────────────────────
-    sec_map_intro: makeSection(
-      'sec_map_intro',
-      ['cont_map_intro'],
+      'Ecosystem Screening made Quick | Scalable | Bespoke',
+      'h2',
       {
-        paddingTop: '70px',
-        paddingBottom: '60px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
-        backgroundColor: '#FFFFFF',
-      },
-      'MapSense Intro Section'
-    ),
-    cont_map_intro: makeContainer(
-      'cont_map_intro',
-      'sec_map_intro',
-      ['h1_map_title', 'sub_map_sub', 'p_map_desc'],
-      { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%', textAlign: 'center' },
-      'Intro Container'
-    ),
-    h1_map_title: makeHeading(
-      'h1_map_title',
-      'cont_map_intro',
-      'MapSense',
-      'h1',
-      {
-        fontSize: '64px',
-        fontWeight: 400,
-        textColor: '#004E35',
-        marginBottom: '10px',
+        fontSize: '40px',
+        fontWeight: 500,
+        textColor: '#FFFFFF',
+        lineHeight: '1.25',
         fontFamily: 'Neue Montreal, sans-serif',
+        textShadow: '0 2px 12px rgba(0, 0, 0, 0.45)',
+        marginBottom: '16px',
       },
-      'Page Title'
-    ),
-    sub_map_sub: makeParagraph(
-      'sub_map_sub',
-      'cont_map_intro',
-      '<p><strong>Ecosystem Screening made Quick | Scalable | Bespoke</strong></p>',
       {
-        fontSize: '24px',
-        textColor: '#393939',
-        fontFamily: 'Neue Montreal, sans-serif',
-        marginBottom: '20px',
+        mobile: { fontSize: '21px' },
       },
-      'Subtitle'
+      'Hero Headline'
     ),
     p_map_desc: makeParagraph(
       'p_map_desc',
-      'cont_map_intro',
+      'cont_map_hero',
       '<p>An environment and social screening tool that screens project sites for sensitive receptors.</p>',
       {
         fontSize: '20px',
         lineHeight: '1.6',
-        textColor: '#555555',
+        textColor: '#F5F5F0',
         maxWidth: '900px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        marginBottom: '0',
+        textShadow: '0 1px 8px rgba(0, 0, 0, 0.45)',
         fontFamily: 'Neue Montreal, sans-serif',
+      },
+      {
+        mobile: { fontSize: '16px' },
       },
       'Description'
     ),
 
-    // ─── 3. Features Section ────────────────────────────────────────────────────
+    // ─── 2. Features Section (own white section after the hero, as on live) ─────
     sec_map_features: makeSection(
       'sec_map_features',
       ['cont_map_features'],
       {
-        paddingTop: '40px',
+        paddingTop: '60px',
         paddingBottom: '70px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
-        backgroundColor: '#F8FAF7',
+        paddingLeft: '20px',
+        paddingRight: '20px',
+        backgroundColor: '#FFFFFF',
       },
       'Features Section'
     ),
@@ -193,23 +169,27 @@ export function createMapSensePageTree(): PageBlockTree {
       'Features',
       'h2',
       {
-        fontSize: '44px',
-        fontWeight: 400,
+        fontSize: '40px',
+        fontWeight: 500,
         textColor: '#004E35',
-        textAlign: 'center',
         marginBottom: '40px',
         fontFamily: 'Neue Montreal, sans-serif',
+      },
+      {
+        mobile: { fontSize: '21px' },
       },
       'Features Title'
     ),
     grid_map_features: makeGrid(
       'grid_map_features',
+      'Features Grid',
       'cont_map_features',
-      '3',
-      '24px',
       FEATURES.map((_, i) => `card_feat_${i + 1}`),
-      {},
-      'Features Grid'
+      { gridColumns: 'repeat(3, minmax(0, 1fr))', gap: '24px' },
+      {
+        tablet: { gridColumns: 'repeat(2, 1fr)' },
+        mobile: { gridColumns: '1fr' },
+      }
     ),
 
     // ─── 4. 4-Step Process Section ──────────────────────────────────────────────

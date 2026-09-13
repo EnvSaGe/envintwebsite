@@ -373,6 +373,7 @@ function PageBuilderContent() {
   const [studioTeamMembers, setStudioTeamMembers] = useState<
     Array<{ name: string; role?: string | null; imageUrl?: string | null }>
   >([]);
+  const [studioScheduledAt, setStudioScheduledAt] = useState<string | null>(null);
   const [editorEngine, setEditorEngine] = useState<'studio' | 'legacy'>('studio');
 
   const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
@@ -409,6 +410,7 @@ function PageBuilderContent() {
           setPageTitle(treeData.title || slug);
           setSeoTitle(treeData.seoTitle || '');
           setSeoDescription(treeData.seoDescription || '');
+          setStudioScheduledAt((treeData as any).scheduledAt || null);
           if (Array.isArray(treeData.teamMembers)) {
             setStudioTeamMembers(treeData.teamMembers);
           }
@@ -616,6 +618,7 @@ function PageBuilderContent() {
         pageTitle={pageTitle || (slug === '/about' ? 'About Envint' : slug)}
         seoTitle={seoTitle}
         seoDescription={seoDescription}
+        scheduledAt={studioScheduledAt}
         onSwitchToLegacy={() => setEditorEngine('legacy')}
       />
     );

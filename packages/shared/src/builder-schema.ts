@@ -218,8 +218,29 @@ export const ElementStylesSchema = z.object({
   borderStyle: z.enum(['none', 'solid', 'dashed', 'dotted']).optional(),
   borderColor: z.string().optional(),
   borderRadius: z.string().optional(),
+  // Side-specific borders (e.g. stat columns use only a left border)
+  borderLeftWidth: z.string().optional(),
+  borderLeftStyle: z.enum(['none', 'solid', 'dashed', 'dotted']).optional(),
+  borderLeftColor: z.string().optional(),
+  borderRightWidth: z.string().optional(),
+  borderRightStyle: z.enum(['none', 'solid', 'dashed', 'dotted']).optional(),
+  borderRightColor: z.string().optional(),
+  borderTopWidth: z.string().optional(),
+  borderTopStyle: z.enum(['none', 'solid', 'dashed', 'dotted']).optional(),
+  borderTopColor: z.string().optional(),
+  borderBottomWidth: z.string().optional(),
+  borderBottomStyle: z.enum(['none', 'solid', 'dashed', 'dotted']).optional(),
+  borderBottomColor: z.string().optional(),
+
+  // Minimal positioning (decorative watermarks, offset badges)
+  position: z.enum(['static', 'relative', 'absolute']).optional(),
+  top: z.string().optional(),
+  right: z.string().optional(),
+  bottom: z.string().optional(),
+  left: z.string().optional(),
 
   // Effects & Shadows
+  textShadow: z.string().optional(),
   boxShadow: z.string().optional(),
   opacity: z.number().min(0).max(1).optional(),
   overflow: z.enum(['visible', 'hidden', 'auto', 'scroll']).optional(),

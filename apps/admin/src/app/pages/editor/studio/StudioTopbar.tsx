@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -15,6 +15,9 @@ import {
   Loader2,
   Rocket,
   Save,
+  CalendarClock,
+  ChevronDown,
+  X,
   PanelLeftClose,
   PanelRightClose,
   PanelLeftOpen,
@@ -34,6 +37,9 @@ interface StudioTopbarProps {
   onOpenHistory: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
+  onOpenSchedule: () => void;
+  onCancelSchedule: () => void;
+  scheduledIso: string | null;
   isSaving: boolean;
   isPublishing: boolean;
   leftCollapsed: boolean;
@@ -60,6 +66,9 @@ export function StudioTopbar({
   onOpenHistory,
   onSaveDraft,
   onPublish,
+  onOpenSchedule,
+  onCancelSchedule,
+  scheduledIso,
   isSaving,
   isPublishing,
   leftCollapsed,
@@ -71,6 +80,30 @@ export function StudioTopbar({
 }: StudioTopbarProps) {
   const canUndo = state.history.past.length > 0;
   const canRedo = state.history.future.length > 0;
+
+  /* Publish split-button dropdown */
+  const [publishMenuOpen, setPublishMenuOpen] = useState(false);
+  const publishMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!publishMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (publishMenuRef.current && !publishMenuRef.current.contains(e.target as Node)) {
+        setPublishMenuOpen(false);
+      }
+    };
+    window.addEventListener('mousedown', onDown);
+    return () => window.removeEventListener('mousedown', onDown);
+  }, [publishMenuOpen]);
+
+  const formattedSchedule = scheduledIso
+    ? new Date(scheduledIso).toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      })
+    : null;
 
   return (
     <header className="z-30 flex h-12 shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-slate-800/90 bg-[#0D1220] px-3 shadow-sm select-none">
@@ -99,6 +132,25 @@ export function StudioTopbar({
           <span className="hidden rounded-md border border-slate-800 bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 md:inline">
             {slug}
           </span>
+          {formattedSchedule && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-sky-400/25 bg-sky-400/10 px-2 py-0.5 text-[10px] font-medium text-sky-300"
+              title={`Scheduled to publish ${new Date(scheduledIso!).toLocaleString()} — click ✕ to cancel`}
+            >
+              <CalendarClock size={10} />
+              <span className="hidden md:inline">Scheduled {formattedSchedule}</span>
+              <span className="md:hidden">Scheduled</span>
+              <button
+                type="button"
+                onClick={onCancelSchedule}
+                className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-sky-400/20"
+                aria-label="Cancel scheduled publish"
+                title="Cancel scheduled publish"
+              >
+                <X size={10} />
+              </button>
+            </span>
+          )}
           {state.saveStatus === 'saving' ? (
             <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
               <Loader2 size={10} className="animate-spin" />
@@ -216,19 +268,83 @@ export function StudioTopbar({
           <span>Save</span>
         </button>
 
-        <button
-          type="button"
-          onClick={onPublish}
-          disabled={isPublishing}
-          className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-slate-950 shadow-md shadow-emerald-500/20 transition-all hover:scale-[1.02] hover:bg-emerald-400 active:scale-[0.98]"
-        >
-          {isPublishing ? (
-            <Loader2 size={13} className="animate-spin text-slate-950" />
-          ) : (
-            <Rocket size={13} className="text-slate-950" />
+        {/* Publish split button: main click = publish now; caret = schedule menu */}
+        <div ref={publishMenuRef} className="relative flex items-center">
+          <button
+            type="button"
+            onClick={onPublish}
+            disabled={isPublishing}
+            className={`flex items-center gap-1.5 rounded-l-lg bg-emerald-500 py-1.5 pl-3 pr-2.5 text-[11px] font-semibold text-slate-950 shadow-md shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-[0.98] ${
+              isPublishing ? 'cursor-wait opacity-80' : ''
+            } ${publishMenuOpen ? 'rounded-r-none' : 'rounded-r-lg'}`}
+          >
+            {isPublishing ? (
+              <Loader2 size={13} className="animate-spin text-slate-950" />
+            ) : (
+              <Rocket size={13} className="text-slate-950" />
+            )}
+            <span>Publish</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPublishMenuOpen((o) => !o)}
+            disabled={isPublishing}
+            aria-expanded={publishMenuOpen}
+            aria-haspopup="menu"
+            title="Schedule publish"
+            className={`flex items-center rounded-r-lg border-l border-emerald-600/40 bg-emerald-500 px-1.5 py-1.5 text-slate-950 transition-all hover:bg-emerald-400 ${
+              publishMenuOpen ? 'rounded-l-none' : ''
+            }`}
+          >
+            <ChevronDown size={12} />
+          </button>
+
+          {publishMenuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-xl border border-slate-800 bg-[#0D1220] py-1 shadow-2xl"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setPublishMenuOpen(false);
+                  onOpenSchedule();
+                }}
+                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-xs text-slate-200 transition-colors hover:bg-slate-800/80"
+              >
+                <CalendarClock size={14} className="text-emerald-400" />
+                <span className="flex flex-col">
+                  <span className="font-medium">
+                    {scheduledIso ? 'Reschedule publish…' : 'Schedule publish…'}
+                  </span>
+                  <span className="mt-0.5 text-[10px] text-slate-500">
+                    Publish this draft automatically
+                  </span>
+                </span>
+              </button>
+              {scheduledIso && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setPublishMenuOpen(false);
+                    onCancelSchedule();
+                  }}
+                  className="flex w-full items-center gap-2.5 border-t border-slate-800/70 px-3.5 py-2.5 text-left text-xs text-rose-300 transition-colors hover:bg-rose-500/10"
+                >
+                  <X size={14} />
+                  <span className="flex flex-col">
+                    <span className="font-medium">Cancel scheduled publish</span>
+                    <span className="mt-0.5 text-[10px] text-slate-500">
+                      Currently set for {formattedSchedule}
+                    </span>
+                  </span>
+                </button>
+              )}
+            </div>
           )}
-          <span>Publish</span>
-        </button>
+        </div>
       </div>
     </header>
   );

@@ -29,12 +29,13 @@ export function createAboutPageTree(): PageBlockTree {
       'Hero Section',
       ['cont_about_hero'],
       {
-        minHeight: '65vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        paddingTop: '160px',
-        paddingBottom: '90px',
+        paddingBottom: '80px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         backgroundImage: `url(${resolveCmsImage('/images/about-hero.webp')})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -45,21 +46,11 @@ export function createAboutPageTree(): PageBlockTree {
       'cont_about_hero',
       'Hero Content',
       'sec_about_hero',
-      ['badge_about_hero', 'h1_about_hero'],
+      ['h1_about_hero'],
       {
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
-      }
-    ),
-    badge_about_hero: makeBadge(
-      'badge_about_hero',
-      'Hero Tagline',
-      'cont_about_hero',
-      'ABOUT ENVINT',
-      {
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        textColor: '#FBF4EB',
       }
     ),
     h1_about_hero: makeHeading(
@@ -69,14 +60,14 @@ export function createAboutPageTree(): PageBlockTree {
       'Our vision for the future is one that’s better',
       'h1',
       {
-        fontSize: '76px',
+        fontSize: '64px',
         textColor: '#FBF4EB',
         lineHeight: '1.15',
         margin: '0',
       },
       {
         tablet: { fontSize: '52px' },
-        mobile: { fontSize: '34px', lineHeight: '1.25' },
+        mobile: { fontSize: '38px', lineHeight: '1.25' },
       }
     ),
 

@@ -79,11 +79,10 @@ export function createServicesPageTree(): PageBlockTree {
       'sec_srv_hero',
       ['cont_srv_hero'],
       {
-        minHeight: '85vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        paddingTop: '180px',
         paddingBottom: '80px',
         paddingLeft: '24px',
         paddingRight: '24px',
@@ -108,12 +107,18 @@ export function createServicesPageTree(): PageBlockTree {
       'Helping businesses progress on sustainability goals',
       'h1',
       {
-        fontSize: '64px',
+        fontSize: '76px',
         textColor: '#FFFFFF',
         fontWeight: 400,
         lineHeight: '1.15',
         fontFamily: 'Neue Montreal, sans-serif',
         maxWidth: '1000px',
+        textShadow: '0 2px 14px rgba(0, 0, 0, 0.4)',
+        marginBottom: '0',
+      },
+      {
+        tablet: { fontSize: '48px' },
+        mobile: { fontSize: '38px' },
       },
       'Hero Headline'
     ),

@@ -76,7 +76,27 @@ function Dropdown({ label, href, items, linkColor, open, onOpen, onClose }: Drop
           transition: 'color 0.2s ease',
         }}
       >
-        {label}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          {label}
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={linkColor}
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              transition: 'transform 0.2s ease',
+              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+              marginTop: 2,
+            }}
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </span>
       </Link>
 
       {open && (

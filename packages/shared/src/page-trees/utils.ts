@@ -591,6 +591,30 @@ export function makeCounter(
   };
 }
 
+export function makeDivider(
+  id: string,
+  parentId: string,
+  styles?: ElementStyles,
+  name?: string
+): BuilderNode {
+  return {
+    id,
+    type: 'divider',
+    name: name || id,
+    parentId,
+    children: [],
+    content: {},
+    styles: {
+      width: '100%',
+      borderTopWidth: '1px',
+      borderTopStyle: 'solid',
+      borderTopColor: '#E5E7EB',
+      ...styles,
+    },
+    visibility: { desktop: true, tablet: true, mobile: true },
+  };
+}
+
 export function makeAccordion(
   id: string,
   arg2: any,

@@ -17,7 +17,8 @@ import {
   Layers, 
   Globe, 
   ExternalLink,
-  Sparkles
+  Sparkles,
+  CalendarClock
 } from 'lucide-react';
 import { fetchPagesList, createPageAction, deletePageAction, publishPageAction, unpublishPageAction } from './actions';
 import { useRouter } from 'next/navigation';
@@ -523,6 +524,31 @@ export default function PagesListPage() {
                       >
                         ● {page.status || 'PUBLISHED'}
                       </button>
+                      {page.scheduledAt && (
+                        <span
+                          title={`Scheduled to publish ${new Date(page.scheduledAt).toLocaleString()}`}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            marginLeft: '6px',
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            color: '#0284c7',
+                            backgroundColor: '#e0f2fe',
+                            padding: '3px 8px',
+                            borderRadius: '20px'
+                          }}
+                        >
+                          <CalendarClock size={11} />
+                          {new Date(page.scheduledAt).toLocaleString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      )}
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

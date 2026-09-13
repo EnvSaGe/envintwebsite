@@ -51,14 +51,13 @@ export function createCareersPageTree(): PageBlockTree {
       'sec_car_hero',
       ['cont_car_hero'],
       {
-        minHeight: '85vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        paddingTop: '180px',
         paddingBottom: '80px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
+        paddingLeft: '20px',
+        paddingRight: '20px',
         backgroundImage: resolveCmsImage('/images/careers-hero.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -87,6 +86,9 @@ export function createCareersPageTree(): PageBlockTree {
         fontFamily: 'Neue Montreal, sans-serif',
         marginBottom: '16px',
         maxWidth: '1080px',
+      },
+      {
+        mobile: { fontSize: '36px' },
       },
       'Hero Headline'
     ),

@@ -83,7 +83,37 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   if (styles.borderColor) css.borderColor = styles.borderColor;
   if (styles.borderRadius) css.borderRadius = styles.borderRadius;
 
+  // Side-specific borders
+  if ((styles as any).borderLeftWidth) {
+    css.borderLeftWidth = (styles as any).borderLeftWidth;
+    css.borderLeftStyle = (styles as any).borderLeftStyle || 'solid';
+    if ((styles as any).borderLeftColor) css.borderLeftColor = (styles as any).borderLeftColor;
+  }
+  if ((styles as any).borderRightWidth) {
+    css.borderRightWidth = (styles as any).borderRightWidth;
+    css.borderRightStyle = (styles as any).borderRightStyle || 'solid';
+    if ((styles as any).borderRightColor) css.borderRightColor = (styles as any).borderRightColor;
+  }
+  if ((styles as any).borderTopWidth) {
+    css.borderTopWidth = (styles as any).borderTopWidth;
+    css.borderTopStyle = (styles as any).borderTopStyle || 'solid';
+    if ((styles as any).borderTopColor) css.borderTopColor = (styles as any).borderTopColor;
+  }
+  if ((styles as any).borderBottomWidth) {
+    css.borderBottomWidth = (styles as any).borderBottomWidth;
+    css.borderBottomStyle = (styles as any).borderBottomStyle || 'solid';
+    if ((styles as any).borderBottomColor) css.borderBottomColor = (styles as any).borderBottomColor;
+  }
+
+  // Minimal positioning
+  if ((styles as any).position) css.position = (styles as any).position;
+  if ((styles as any).top) css.top = (styles as any).top;
+  if ((styles as any).right) css.right = (styles as any).right;
+  if ((styles as any).bottom) css.bottom = (styles as any).bottom;
+  if ((styles as any).left) css.left = (styles as any).left;
+
   // Effects
+  if ((styles as any).textShadow) css.textShadow = (styles as any).textShadow;
   if (styles.boxShadow) css.boxShadow = styles.boxShadow;
   if (typeof styles.opacity === 'number') css.opacity = styles.opacity;
   if (styles.overflow) css.overflow = styles.overflow;
