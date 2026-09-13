@@ -507,55 +507,50 @@ export function createPracticePageTree(slug: string): PageBlockTree {
 
     nodes[cardId] = makeContainer(cardId, gridImpactId, [cardImgId, cardTitleId, cardExcerptId, cardLinkId], {
       backgroundColor: '#FFFFFF',
-      borderRadius: '16px',
+      borderRadius: '12px',
       overflow: 'hidden',
-      borderColor: 'rgba(0, 0, 0, 0.08)',
+      borderColor: 'rgba(0, 0, 0, 0.1)',
       borderWidth: '1px',
       borderStyle: 'solid',
-      paddingBottom: '24px',
+      paddingBottom: '20px',
     }, `Impact Case ${idx + 1}`);
 
     nodes[cardImgId] = makeImage(cardImgId, cardId, resolveCmsImage(item.img), item.alt, {
       width: '100%',
-      aspectRatio: '16/10',
-      height: '240px',
+      height: '260px',
       objectFit: 'cover',
-      marginBottom: '20px',
+      marginBottom: '16px',
     }, `${item.title} Image`);
 
     nodes[cardTitleId] = makeHeading(cardTitleId, cardId, item.title, 'h3', {
-      fontSize: '22px',
+      fontSize: '24px',
       fontWeight: 500,
-      textColor: '#0E0E2C',
-      paddingLeft: '24px',
-      paddingRight: '24px',
+      textColor: '#1E293B',
+      lineHeight: 'normal',
+      paddingLeft: '20px',
+      paddingRight: '20px',
       marginBottom: '10px',
+      fontFamily: 'Neue Montreal, sans-serif',
     }, `${item.title} Title`);
 
     nodes[cardExcerptId] = makeParagraph(cardExcerptId, cardId, `<p>${item.excerpt}</p>`, {
-      fontSize: '15px',
+      fontSize: '16px',
       lineHeight: '1.6',
-      textColor: 'rgba(0, 0, 0, 0.6)',
-      paddingLeft: '24px',
-      paddingRight: '24px',
-      marginBottom: '16px',
-    }, `${item.title} Excerpt`);
-
-    nodes[cardLinkId] = makeButton(cardLinkId, cardId, 'Read More →', item.href, 'outline', {
-      fontSize: '15px',
-      textColor: '#004E35',
-      backgroundColor: 'transparent',
-      borderColor: '#004E35',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      paddingTop: '8px',
-      paddingBottom: '8px',
+      textColor: 'rgba(0, 0, 0, 0.5)',
       paddingLeft: '20px',
       paddingRight: '20px',
-      borderRadius: '9999px',
-      marginLeft: '24px',
-      width: 'fit-content',
-    }, 'Read More Button');
+      marginBottom: '16px',
+      fontFamily: 'Neue Montreal, sans-serif',
+    }, `${item.title} Excerpt`);
+
+    nodes[cardLinkId] = makeButton(cardLinkId, cardId, 'Read More', item.href, 'link', {
+      fontSize: '18px',
+      textColor: '#2F7ABE',
+      backgroundColor: 'transparent',
+      paddingLeft: '20px',
+      paddingRight: '20px',
+      fontFamily: 'Neue Montreal, sans-serif',
+    }, 'Read More Link');
   });
 
   nodes[secImpactId] = makeSection(secImpactId, [contImpactId], {

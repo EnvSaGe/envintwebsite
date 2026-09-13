@@ -654,14 +654,11 @@ export function createHomePageTree(): PageBlockTree {
       'sec_home_insights',
       ['cont_home_insights'],
       {
-        backgroundColor: '#F8FAFC',
+        backgroundColor: '#FFFFFF',
         paddingTop: '70px',
         paddingBottom: '70px',
         paddingLeft: '20px',
         paddingRight: '20px',
-        borderTopWidth: '1px',
-        borderTopStyle: 'solid',
-        borderTopColor: '#EEF2F6',
       },
       'Read News and Insights Section'
     ),
@@ -737,6 +734,7 @@ export function createHomePageTree(): PageBlockTree {
       'mod_insights',
       'cont_home_insights',
       'insights-grid',
+      { limit: 3, showDate: true, showReadMore: false },
       {},
       'Latest Insights Grid'
     ),

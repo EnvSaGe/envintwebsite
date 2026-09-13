@@ -492,7 +492,7 @@ git commit -m "feat: revalidate CMS content without redeploying"
 - Produces: idempotent upserts for all unique pages, templates, global blocks, navigation, site settings, articles, impacts, team members, and archives.
 - Produces: a coverage report in `docs/migration/11-cms-route-coverage.md`.
 
-- [ ] **Step 1: Write a failing coverage verifier**
+- [x] **Step 1: Write a failing coverage verifier**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -505,25 +505,25 @@ assert.equal(coverage.unaccounted.length, 0, `Unaccounted routes:\n${coverage.un
 assert.equal(coverage.hardcodedOnly.length, 0, `Hard-coded routes:\n${coverage.hardcodedOnly.join('\n')}`);
 ```
 
-- [ ] **Step 2: Run the verifier and record the initial failures**
+- [x] **Step 2: Run the verifier and record the initial failures**
 
 Run: `pnpm exec tsx scripts/verify-all-cms-routes.ts`
 
 Expected: FAIL with the current routes that exist only as hard-coded implementations or lack editable templates.
 
-- [ ] **Step 3: Create live-faithful shared templates**
+- [x] **Step 3: Create live-faithful shared templates**
 
 Convert article, impact, team-member, and taxonomy layouts into normalized trees with bound fields. Convert header, footer, and shared CTA patterns into global templates. Preserve live copy, image selection, card order, and responsive styles captured in Task 1.
 
-- [ ] **Step 4: Convert unique hard-coded pages into migration trees**
+- [x] **Step 4: Convert unique hard-coded pages into migration trees**
 
 Use current page components and existing `packages/shared/src/page-trees` factories as inputs. Ensure every visible string, image, link, section order, style value, responsive override, and interaction is represented in editable nodes or an explicit CMS-configured module.
 
-- [ ] **Step 5: Implement idempotent migration upserts**
+- [x] **Step 5: Implement idempotent migration upserts**
 
 The migration defaults to dry-run. `--apply` inserts missing records and updates only records carrying this migration's provenance/version. It never overwrites an editor-modified draft or published tree without `--force`, and it writes an audit summary before exiting.
 
-- [ ] **Step 6: Run dry-run, apply against the development database, and verify coverage**
+- [x] **Step 6: Run dry-run, apply against the development database, and verify coverage**
 
 Run: `pnpm exec tsx scripts/migrate-live-parity-cms.ts`
 
@@ -537,7 +537,7 @@ Run: `pnpm exec tsx scripts/verify-all-cms-routes.ts`
 
 Expected: PASS with zero unaccounted or hard-coded-only public routes.
 
-- [ ] **Step 7: Commit CMS route migration**
+- [x] **Step 7: Commit CMS route migration**
 
 ```bash
 git add packages/shared/src/page-templates packages/shared/src/page-trees scripts/migrate-live-parity-cms.ts scripts/verify-all-cms-routes.ts apps/web/src/data/archive-routes.json docs/migration/11-cms-route-coverage.md

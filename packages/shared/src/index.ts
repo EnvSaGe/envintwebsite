@@ -5,3 +5,4 @@ export * from './builder-schema';
 export * from './content-bindings';
 export * from './legacy-converter';
 export * from './page-trees';
+export * from './page-templates';

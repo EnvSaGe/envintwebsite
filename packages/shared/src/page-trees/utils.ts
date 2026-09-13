@@ -711,24 +711,39 @@ export function makeDynamicModule(
   arg2: any,
   arg3?: any,
   arg4?: any,
-  arg5?: any
+  arg5?: any,
+  arg6?: any
 ): BuilderNode {
   const dynamicTypes = ['team-grid', 'insights-grid', 'article-reader', 'contact-form', 'impact-grid'];
   let type: ElementType = 'insights-grid';
   let name = id;
   let parentId = '';
   let styles: ElementStyles = {};
+  let content: Record<string, any> = {};
 
   if (dynamicTypes.includes(arg2 as any)) {
     type = arg2 as ElementType;
     name = typeof arg3 === 'string' ? arg3 : id;
     parentId = typeof arg4 === 'string' ? arg4 : '';
-    styles = safeStyles(arg5);
+    if (arg5 && (arg5.category !== undefined || arg5.limit !== undefined || arg5.filter !== undefined)) {
+      content = arg5;
+      styles = safeStyles(arg6);
+    } else {
+      styles = safeStyles(arg5);
+      content = typeof arg6 === 'object' && arg6 !== null ? arg6 : {};
+    }
   } else {
     parentId = typeof arg2 === 'string' ? arg2 : '';
     type = (dynamicTypes.includes(arg3 as any) ? arg3 : 'insights-grid') as ElementType;
-    styles = safeStyles(arg4);
-    name = typeof arg5 === 'string' ? arg5 : id;
+    if (arg4 && (arg4.category !== undefined || arg4.limit !== undefined || arg4.filter !== undefined)) {
+      content = arg4;
+      styles = safeStyles(arg6);
+      name = typeof arg5 === 'string' ? arg5 : id;
+    } else {
+      styles = safeStyles(arg4);
+      name = typeof arg5 === 'string' ? arg5 : id;
+      content = typeof arg6 === 'object' && arg6 !== null ? arg6 : {};
+    }
   }
 
   return {
@@ -737,7 +752,7 @@ export function makeDynamicModule(
     name,
     parentId,
     children: [],
-    content: {},
+    content,
     styles: {
       width: '100%',
       ...styles,

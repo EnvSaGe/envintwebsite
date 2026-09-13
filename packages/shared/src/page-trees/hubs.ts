@@ -85,7 +85,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           },
           'Impact Intro'
         ),
-        mod_impact_grid: makeDynamicModule('mod_impact_grid', 'impact-grid', 'Impact Case Studies Dynamic Grid', 'cont_imp_grid'),
+        mod_impact_grid: makeDynamicModule('mod_impact_grid', 'impact-grid', 'Impact Case Studies Dynamic Grid', 'cont_imp_grid', { limit: 50 }),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -159,7 +159,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           { fontSize: '42px', textColor: '#004E35', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif', marginBottom: '40px' },
           'Articles Title'
         ),
-        mod_wiki_grid: makeDynamicModule('mod_wiki_grid', 'insights-grid', 'Enviki Articles Grid', 'cont_wiki_articles'),
+        mod_wiki_grid: makeDynamicModule('mod_wiki_grid', 'insights-grid', 'Enviki Articles Grid', 'cont_wiki_articles', { category: 'enviki', limit: 30 }),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -179,7 +179,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
             paddingBottom: '80px',
             paddingLeft: '24px',
             paddingRight: '24px',
-            backgroundImage: resolveCmsImage('/images/envision-hero.webp'),
+            backgroundImage: resolveCmsImage('/images/Envision-header.webp'),
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundOverlay:
@@ -197,9 +197,9 @@ export function createHubPageTree(slug: string): PageBlockTree {
         h1_env_h: makeHeading(
           'h1_env_h',
           'cont_env_hero',
-          'News & Insights',
+          'Envision',
           'h1',
-          { fontSize: '64px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
           'Headline'
         ),
 
@@ -216,7 +216,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Articles Container'
         ),
-        mod_env_grid: makeDynamicModule('mod_env_grid', 'insights-grid', 'Envision Articles Dynamic Grid', 'cont_env_articles'),
+        mod_env_grid: makeDynamicModule('mod_env_grid', 'insights-grid', 'Envision Articles Dynamic Grid', 'cont_env_articles', { category: 'envision', limit: 50 }),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -255,7 +255,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'cont_btb_hero',
           'Behind the Buzz',
           'h1',
-          { fontSize: '64px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
           'Headline'
         ),
 
@@ -272,7 +272,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Articles Container'
         ),
-        mod_btb_grid: makeDynamicModule('mod_btb_grid', 'insights-grid', 'Behind the Buzz Dynamic Grid', 'cont_btb_articles'),
+        mod_btb_grid: makeDynamicModule('mod_btb_grid', 'insights-grid', 'Behind the Buzz Dynamic Grid', 'cont_btb_articles', { category: 'behind-the-buzz', limit: 20 }),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -311,7 +311,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'cont_hta_hero',
           'How to Articles',
           'h1',
-          { fontSize: '64px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
           'Headline'
         ),
 
@@ -328,7 +328,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Articles Container'
         ),
-        mod_hta_grid: makeDynamicModule('mod_hta_grid', 'insights-grid', 'How To Articles Dynamic Grid', 'cont_hta_articles'),
+        mod_hta_grid: makeDynamicModule('mod_hta_grid', 'insights-grid', 'How To Articles Dynamic Grid', 'cont_hta_articles', { category: 'how-to-articles', limit: 20 }),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -367,7 +367,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'cont_glo_hero',
           'Glossary Zone',
           'h1',
-          { fontSize: '64px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
           'Headline'
         ),
 
@@ -384,7 +384,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Articles Container'
         ),
-        mod_glo_grid: makeDynamicModule('mod_glo_grid', 'insights-grid', 'Glossary Articles Dynamic Grid', 'cont_glo_articles'),
+        mod_glo_grid: makeDynamicModule('mod_glo_grid', 'insights-grid', 'Glossary Articles Dynamic Grid', 'cont_glo_articles', { category: 'glossary-zone', limit: 20 }),
       };
       return assembleTree(rootIds, nodes);
     }
