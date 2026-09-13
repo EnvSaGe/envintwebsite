@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod';
+import { DynamicQueryConfigSchema } from './content-bindings';
 
 export const CURRENT_BLOCK_SCHEMA_VERSION = 1;
 
@@ -242,6 +243,7 @@ export const insightsGridBlockSchema = blockBase.extend({
     subtitle: z.string().optional(),
     filterCategory: z.string().optional(),
     limit: z.number().int().positive().optional(),
+    query: DynamicQueryConfigSchema.optional(),
   }).passthrough(),
 });
 
@@ -252,6 +254,7 @@ export const impactGridBlockSchema = blockBase.extend({
     title: z.string().optional(),
     subtitle: z.string().optional(),
     limit: z.number().int().positive().optional(),
+    query: DynamicQueryConfigSchema.optional(),
   }).passthrough(),
 });
 

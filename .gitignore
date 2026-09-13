@@ -38,6 +38,8 @@ wp-config.py
 wp-config.php
 *.sql
 *.sql.gz
+# Application schema migrations are source code, not database dumps.
+!packages/db/drizzle/*.sql
 *.tar.gz
 *.zip
 envintmigration/

@@ -75,6 +75,50 @@ export const reusableBlocks = pgTable('reusable_blocks', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// --- 2c. Shared Content Templates ---
+// Templates provide editable layouts for repeated record types such as
+// articles, impact studies, team members, and taxonomy archives.
+export const contentTemplates = pgTable('content_templates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(),
+  name: varchar('name', { length: 200 }).notNull(),
+  kind: varchar('kind', { length: 50 }).notNull(),
+  description: varchar('description', { length: 500 }),
+  draftBlocks: jsonb('draft_blocks'),
+  publishedBlocks: jsonb('published_blocks'),
+  schemaVersion: integer('schema_version').notNull().default(2),
+  status: contentStatusEnum('status').notNull().default('DRAFT'),
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+});
+
+// Reusable blocks already store their current tree. This table supplies the
+// same rollback/audit history available to pages and shared templates.
+export const globalBlockRevisions = pgTable('global_block_revisions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  globalBlockSlug: varchar('global_block_slug', { length: 100 }).notNull(),
+  blocks: jsonb('blocks').notNull(),
+  versionNumber: integer('version_number').notNull(),
+  status: contentStatusEnum('status').notNull().default('DRAFT'),
+  savedByClerkId: varchar('saved_by_clerk_id', { length: 255 }),
+  savedByName: varchar('saved_by_name', { length: 255 }),
+  note: varchar('note', { length: 500 }),
+  savedAt: timestamp('saved_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Maps a page, record, template, or global setting to every route that uses
+// it. Publication uses these rows to invalidate only affected Netlify caches.
+export const contentDependencies = pgTable('content_dependencies', {
+  sourceType: varchar('source_type', { length: 50 }).notNull(),
+  sourceKey: varchar('source_key', { length: 255 }).notNull(),
+  routePath: varchar('route_path', { length: 500 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  primaryKey({ columns: [table.sourceType, table.sourceKey, table.routePath] }),
+]);
+
 // --- 3. Media Assets ---
 export const mediaAssets = pgTable('media_assets', {
   id: uuid('id').primaryKey().defaultRandom(),

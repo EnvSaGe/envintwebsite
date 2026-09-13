@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  ContentBindingSchema,
+  DynamicQueryConfigSchema,
+} from './content-bindings';
 
 // ============================================================================
 // 1. Element Types & Hierarchical Classification
@@ -340,11 +344,24 @@ export const DynamicModuleContentSchema = z.object({
   title: z.string().optional(),
   subtitle: z.string().optional(),
   showFilterPills: z.boolean().default(true),
+  query: DynamicQueryConfigSchema.optional(),
 });
 
 // ============================================================================
 // 5. The Core Node Model (`BuilderNode`)
 // ============================================================================
+
+const BINDABLE_FIELDS: Partial<Record<ElementType, ReadonlySet<string>>> = {
+  heading: new Set(['text']),
+  paragraph: new Set(['html']),
+  'rich-text': new Set(['html']),
+  image: new Set(['src', 'alt', 'caption']),
+  button: new Set(['label', 'url']),
+  link: new Set(['label', 'url']),
+  badge: new Set(['text']),
+  quote: new Set(['quote', 'attribution', 'role']),
+  counter: new Set(['value', 'label', 'prefix', 'suffix']),
+};
 
 export const BuilderNodeSchema = z.object({
   id: z.string(),
@@ -371,6 +388,51 @@ export const BuilderNodeSchema = z.object({
   locked: z.boolean().optional(),
   isGlobal: z.boolean().optional(),
   globalBlockId: z.string().optional(),
+}).superRefine((node, context) => {
+  const bindings = node.content.bindings;
+  if (bindings !== undefined) {
+    if (!bindings || typeof bindings !== 'object' || Array.isArray(bindings)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['content', 'bindings'],
+        message: 'Bindings must be an object keyed by an editable content field',
+      });
+    } else {
+      const allowedFields = BINDABLE_FIELDS[node.type];
+      for (const [field, binding] of Object.entries(bindings)) {
+        if (!allowedFields?.has(field)) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['content', 'bindings', field],
+            message: `${field} cannot be bound on a ${node.type} element`,
+          });
+          continue;
+        }
+        const result = ContentBindingSchema.safeParse(binding);
+        if (!result.success) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['content', 'bindings', field],
+            message: result.error.issues.map((issue) => issue.message).join('; '),
+          });
+        }
+      }
+    }
+  }
+
+  if (['insights-grid', 'impact-grid', 'team-grid', 'service-cards'].includes(node.type)) {
+    const query = node.content.query;
+    if (query !== undefined) {
+      const result = DynamicQueryConfigSchema.safeParse(query);
+      if (!result.success) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['content', 'query'],
+          message: result.error.issues.map((issue) => issue.message).join('; '),
+        });
+      }
+    }
+  }
 });
 
 export type BuilderNode = z.infer<typeof BuilderNodeSchema>;
@@ -716,4 +778,3 @@ export function createStarterPageTree(title = 'Page Headline'): PageBlockTree {
     },
   };
 }
-

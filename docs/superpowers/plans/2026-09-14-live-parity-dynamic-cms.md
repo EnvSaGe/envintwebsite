@@ -129,7 +129,7 @@ git commit -m "test: establish live route parity baseline"
 - Produces: `ContentBinding`, `TemplateKind`, and `DynamicQueryConfig` types.
 - Produces: `resolveBinding(binding, context): unknown` with explicit missing-value behavior.
 
-- [ ] **Step 1: Write failing binding-contract tests**
+- [x] **Step 1: Write failing binding-contract tests**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -143,17 +143,17 @@ assert.deepEqual(validateDynamicQuery({ source: 'insights', limit: 3, sort: 'pub
 });
 ```
 
-- [ ] **Step 2: Run the contract test and confirm failure**
+- [x] **Step 2: Run the contract test and confirm failure**
 
 Run: `pnpm exec tsx scripts/verify-content-bindings.ts`
 
 Expected: FAIL because the binding module does not exist.
 
-- [ ] **Step 3: Add template and dependency storage**
+- [x] **Step 3: Add template and dependency storage**
 
 Add `contentTemplates` with `slug`, `name`, `kind`, `draftBlocks`, `publishedBlocks`, `schemaVersion`, status, scheduling, and timestamps. Add global-block revision history and a dependency table keyed by `sourceType`, `sourceKey`, and `routePath` so publication can invalidate affected routes.
 
-- [ ] **Step 4: Add typed binding and query configuration**
+- [x] **Step 4: Add typed binding and query configuration**
 
 ```ts
 export interface ContentBinding {
@@ -174,7 +174,7 @@ export interface DynamicQueryConfig {
 
 Extend `BuilderNode.content` schemas to allow bindings only on supported fields. Reject traversal keys such as `__proto__`, `prototype`, and `constructor`.
 
-- [ ] **Step 5: Run binding and package checks**
+- [x] **Step 5: Run binding and package checks**
 
 Run: `pnpm exec tsx scripts/verify-content-bindings.ts`
 
@@ -184,7 +184,7 @@ Run: `pnpm --filter @envint/shared typecheck && pnpm --filter @envint/db typeche
 
 Expected: both commands exit 0.
 
-- [ ] **Step 6: Commit the typed content model**
+- [x] **Step 6: Commit the typed content model**
 
 ```bash
 git add packages/db/src/schema/index.ts packages/db/drizzle/0001_cms_templates.sql packages/shared/src/builder-schema.ts packages/shared/src/block-schemas.ts packages/shared/src/content-bindings.ts scripts/verify-content-bindings.ts
