@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { getInsights } from '@/lib/data/insights';
-import { getPage } from '@/lib/data/pages';
+import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,7 +23,7 @@ export default async function HomePage() {
     getInsights(),
   ]);
 
-  if (page && Array.isArray(page.contentBlocks) && page.contentBlocks.length > 0) {
+  if (pageHasRenderableContent(page)) {
     return <DynamicPageRenderer page={page} />;
   }
 

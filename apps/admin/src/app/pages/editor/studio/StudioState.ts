@@ -18,6 +18,8 @@ export interface StudioState {
   };
   isDirty: boolean;
   saveStatus: 'saved' | 'saving' | 'unsaved' | 'published';
+  /** Real team members from the CMS database — powers team-grid parity on the canvas. */
+  teamMembers?: Array<{ name: string; role?: string | null; imageUrl?: string | null }>;
 }
 
 export type StudioAction =

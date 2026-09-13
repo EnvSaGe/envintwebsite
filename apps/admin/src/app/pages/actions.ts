@@ -1,6 +1,6 @@
 'use server';
 
-import { db, pages, pageRevisions, eq } from '@envint/db';
+import { db, pages, pageRevisions, teamMembers, eq, asc } from '@envint/db';
 import { requireRole, getCurrentUserInfo } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';
 import {
@@ -9,6 +9,8 @@ import {
   createAboutPageTree,
   createStarterPageTree,
   convertLegacyPageBlocksToTree,
+  getCanonicalPageTree,
+  ALL_CANONICAL_PAGE_SLUGS,
 } from '@envint/shared';
 
 import pagesContentJson from '@/data/pages-content.json';
@@ -39,12 +41,16 @@ export async function fetchPagesList() {
       ? (p.contentBlocks as any[])
       : (fallback?.contentBlocks ?? []);
 
+    const draftTree = (p.draftBlocks && (p.draftBlocks as any).rootIds) ? (p.draftBlocks as any) : null;
+    const canonicalTree = getCanonicalPageTree(p.slug);
+    const sectionsCount = draftTree ? draftTree.rootIds.length : (canonicalTree ? canonicalTree.rootIds.length : rawBlocks.length);
+
     return {
       slug: p.slug,
       title: p.title || fallback?.title || p.slug,
       category: getPageCategory(p.slug),
       layoutTemplate: p.layoutTemplate || fallback?.layoutTemplate || 'standard',
-      sectionsCount: rawBlocks.length,
+      sectionsCount,
       status: p.status || fallback?.status || 'PUBLISHED',
       updatedAt: p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Recently',
       scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
@@ -357,6 +363,7 @@ export async function fetchPageTreeAction(slug: string) {
   const record = await db.query.pages.findFirst({
     where: eq(pages.slug, slug),
   });
+  const canonicalTree = getCanonicalPageTree(slug);
 
   // Check if draftBlocks or publishedBlocks has Schema v2 tree
   let tree: PageBlockTree | null = null;
@@ -364,15 +371,32 @@ export async function fetchPageTreeAction(slug: string) {
     tree = record.draftBlocks as PageBlockTree;
   } else if (record?.publishedBlocks && (record.publishedBlocks as any).rootIds && (record.publishedBlocks as any).nodes) {
     tree = record.publishedBlocks as PageBlockTree;
-  } else if (slug === '/about') {
-    // Authentic initial Schema v2 tree for About page
-    tree = createAboutPageTree();
+  } else if (canonicalTree) {
+    // Authentic initial Schema v2 tree for this page
+    tree = canonicalTree;
   } else if (record?.contentBlocks && Array.isArray(record.contentBlocks) && record.contentBlocks.length > 0) {
     // Convert existing legacy content blocks into Schema v2 element tree
     tree = convertLegacyPageBlocksToTree(record.contentBlocks, slug, record.title);
   } else {
     // Fresh starter tree
     tree = createStarterPageTree(record?.title || slug);
+  }
+
+  // Real team members so dynamic team-grid modules render with live data in the studio canvas
+  let studioTeamMembers: Array<{ name: string; role?: string | null; imageUrl?: string | null }> = [];
+  try {
+    const members = await db.query.teamMembers.findMany({
+      where: eq(teamMembers.status, 'PUBLISHED'),
+      orderBy: [asc(teamMembers.orderIndex)],
+      limit: 50,
+    });
+    studioTeamMembers = (members || []).map((m) => ({
+      name: m.name,
+      role: m.roleTitle,
+      imageUrl: m.avatarUrl || null,
+    }));
+  } catch {
+    studioTeamMembers = [];
   }
 
   return {
@@ -384,6 +408,7 @@ export async function fetchPageTreeAction(slug: string) {
     schemaVersion: record?.schemaVersion || 2,
     tree,
     hasDraft: Boolean(record?.draftBlocks && (record.draftBlocks as any).rootIds),
+    teamMembers: studioTeamMembers,
   };
 }
 

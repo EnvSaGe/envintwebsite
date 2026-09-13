@@ -15,6 +15,7 @@ import {
   ExternalLink 
 } from 'lucide-react';
 import { fetchImpacts, saveImpactAction, deleteImpactAction } from './actions';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export default function CaseStudiesPage() {
   const [impacts, setImpacts] = useState<any[]>([]);
@@ -342,13 +343,13 @@ export default function CaseStudiesPage() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                    Full Story & Outcomes (HTML / Text)
+                    Full Story & Outcomes
                   </label>
-                  <textarea
-                    rows={10}
+                  <RichTextEditor
                     value={editingImpact.contentHtml || ''}
-                    onChange={(e) => setEditingImpact({ ...editingImpact, contentHtml: e.target.value })}
-                    style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem', fontFamily: 'monospace' }}
+                    onChange={(html) => setEditingImpact({ ...editingImpact, contentHtml: html })}
+                    minHeight={300}
+                    placeholder="Write the full story and outcomes…"
                   />
                 </div>
 

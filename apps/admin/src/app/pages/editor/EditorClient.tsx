@@ -370,6 +370,9 @@ function PageBuilderContent() {
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   const [studioTree, setStudioTree] = useState<PageBlockTree | null>(null);
+  const [studioTeamMembers, setStudioTeamMembers] = useState<
+    Array<{ name: string; role?: string | null; imageUrl?: string | null }>
+  >([]);
   const [editorEngine, setEditorEngine] = useState<'studio' | 'legacy'>('studio');
 
   const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
@@ -406,6 +409,9 @@ function PageBuilderContent() {
           setPageTitle(treeData.title || slug);
           setSeoTitle(treeData.seoTitle || '');
           setSeoDescription(treeData.seoDescription || '');
+          if (Array.isArray(treeData.teamMembers)) {
+            setStudioTeamMembers(treeData.teamMembers);
+          }
         }
 
         // 2. Fetch Schema v1 legacy blocks as fallback
@@ -605,6 +611,7 @@ function PageBuilderContent() {
     return (
       <VisualStudioEditor
         initialTree={studioTree}
+        teamMembers={studioTeamMembers}
         slug={slug}
         pageTitle={pageTitle || (slug === '/about' ? 'About Envint' : slug)}
         seoTitle={seoTitle}

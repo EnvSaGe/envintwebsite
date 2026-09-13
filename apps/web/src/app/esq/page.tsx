@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { getPage } from '@/lib/data/pages';
+import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 import FallbackPage from './esq_cms_page';
 
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const page = await getPage('/esq');
-  if (page && page.contentBlocks && (page.contentBlocks as any[]).length > 0) {
+  if (pageHasRenderableContent(page)) {
     return <DynamicPageRenderer page={page} />;
   }
   return <FallbackPage />;

@@ -8,7 +8,8 @@ export default clerkMiddleware(async (auth, request) => {
   if (
     pathname.startsWith('/sign-in') ||
     pathname.startsWith('/access-denied') ||
-    pathname.startsWith('/api/public')
+    pathname.startsWith('/api/public') ||
+    (process.env.NODE_ENV === 'development' && request.nextUrl.searchParams.get('dev_preview') === 'true')
   ) {
     return;
   }

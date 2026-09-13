@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Montreal';
+  src: url('/fonts/NeueMontreal-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-primary: #0f172a;
   --bg-surface: #1e293b;
@@ -39,6 +71,49 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Visual Editor (Studio) design tokens
+   A single source of truth for the CMS editor UI typography, control sizes
+   and spacing rhythm. Shared primitives in
+   src/app/pages/editor/studio/ui-kit.tsx consume these.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.studio-shell {
+  /* Typography scale — editor chrome (NOT the rendered page) */
+  --editor-font-xs: 11px;      /* helper / hint text */
+  --editor-font-sm: 12px;      /* property labels, breadcrumb, tooltips */
+  --editor-font-md: 13px;      /* control values, tabs, palette names */
+  --editor-font-lg: 15px;      /* selected element title */
+
+  --editor-weight-normal: 400;
+  --editor-weight-medium: 500;
+  --editor-weight-semibold: 600;
+  --editor-weight-bold: 700;
+
+  /* Control heights — comfortable desktop-editor click targets */
+  --editor-control-height-sm: 28px;
+  --editor-control-height-md: 32px;
+
+  /* Vertical rhythm */
+  --editor-spacing-xs: 4px;   /* label → control */
+  --editor-spacing-sm: 10px;  /* control → next property */
+  --editor-spacing-md: 14px;  /* between groups */
+
+  /* Hierarchy accents */
+  --editor-heading-fg: #E2E8F0;
+  --editor-heading-muted: #94A3B8;
+  --editor-accent: #10B981;
+}
+
+/* Hide native horizontal scrollbar while keeping wheel/trackpad scroll */
+.studio-shell .no-scrollbar {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge legacy */
+}
+.studio-shell .no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom Scrollbars */

@@ -58,7 +58,10 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   // Background
   if (styles.backgroundColor) css.backgroundColor = styles.backgroundColor;
   if (styles.backgroundImage) {
-    const bg = styles.backgroundImage.trim();
+    let bg = styles.backgroundImage.trim();
+    if (bg.includes('/images/')) {
+      bg = bg.replace(/\/images\//g, 'https://envintcms.s3.ap-south-1.amazonaws.com/images/');
+    }
     css.backgroundImage = bg.startsWith('url(') || bg.startsWith('linear-gradient') ? bg : `url(${bg})`;
   }
   if (styles.backgroundSize) css.backgroundSize = styles.backgroundSize;

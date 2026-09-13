@@ -16,6 +16,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { fetchTeam, saveTeamMemberAction, deleteTeamMemberAction } from './actions';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export default function TeamPage() {
   const [members, setMembers] = useState<any[]>([]);
@@ -380,11 +381,11 @@ export default function TeamPage() {
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
                     Full Bio (Modal & Standalone Page)
                   </label>
-                  <textarea
-                    rows={6}
+                  <RichTextEditor
                     value={editingMember.bio || ''}
-                    onChange={(e) => setEditingMember({ ...editingMember, bio: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                    onChange={(html) => setEditingMember({ ...editingMember, bio: html })}
+                    minHeight={200}
+                    placeholder="Write the team member bio…"
                   />
                 </div>
 

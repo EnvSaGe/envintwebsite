@@ -45,3 +45,4 @@ scratch/
 migration-output/temp/
 
 .vercel
+.env*

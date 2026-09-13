@@ -7,7 +7,7 @@
  */
 import React from 'react';
 import { Metadata } from 'next';
-import { getPage } from '@/lib/data/pages';
+import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 import ServicesPageFallback from './ServicesPageFallback';
 
@@ -30,7 +30,7 @@ export default async function ServicesPage() {
   const page = await getPage('/services');
 
   // If the DB has published content blocks, render them via CMS
-  if (page && page.contentBlocks && (page.contentBlocks as any[]).length > 0) {
+  if (pageHasRenderableContent(page)) {
     return <DynamicPageRenderer page={page} />;
   }
 

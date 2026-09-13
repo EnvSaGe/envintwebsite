@@ -17,6 +17,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { fetchInsights, saveInsightAction, deleteInsightAction } from './actions';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export default function InsightsPage() {
   const [articles, setArticles] = useState<any[]>([]);
@@ -380,13 +381,13 @@ export default function InsightsPage() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                    Full Article Content (HTML / Rich Format)
+                    Full Article Content (Rich Format)
                   </label>
-                  <textarea
-                    rows={12}
+                  <RichTextEditor
                     value={editingArticle.contentHtml || ''}
-                    onChange={(e) => setEditingArticle({ ...editingArticle, contentHtml: e.target.value })}
-                    style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem', fontFamily: 'monospace' }}
+                    onChange={(html) => setEditingArticle({ ...editingArticle, contentHtml: html })}
+                    minHeight={340}
+                    placeholder="Write the full article…"
                   />
                 </div>
 

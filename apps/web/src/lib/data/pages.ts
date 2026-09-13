@@ -17,6 +17,22 @@ export interface CmsPage {
 }
 
 /**
+ * Whether a page has renderable CMS content: either legacy content blocks
+ * (Schema v1) or a published element tree (Schema v2, preferred).
+ *
+ * Used by page routes to decide between CMS rendering and the hard-coded
+ * fallback. In normal (non-draft) mode, getPage() only returns records with
+ * contentBlocks or a published tree, so a draft-only tree still falls back
+ * gracefully until the page is published from the studio.
+ */
+export function pageHasRenderableContent(page: CmsPage | null): page is CmsPage {
+  if (!page) return false;
+  if (Array.isArray(page.contentBlocks) && page.contentBlocks.length > 0) return true;
+  const tree = (page.publishedBlocks ?? page.draftBlocks) as any;
+  return Boolean(tree && tree.rootIds && tree.nodes);
+}
+
+/**
  * Fetch a page for the PUBLIC site.
  *
  * - In normal mode: returns only PUBLISHED pages, cached per slug tag.

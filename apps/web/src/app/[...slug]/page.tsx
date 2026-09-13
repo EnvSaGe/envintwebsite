@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getInsightBySlug, getInsightAdjacentSlugs, getInsights } from '@/lib/data/insights';
-import { getPage } from '@/lib/data/pages';
+import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
 import { JsonLd, articleSchema, breadcrumbSchema } from '@/components/seo/JsonLd';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 
@@ -77,7 +77,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const cleanSlug = joined.startsWith('/') ? joined : `/${joined}`;
   const cmsPage = await getPage(cleanSlug);
 
-  if (cmsPage && Array.isArray(cmsPage.contentBlocks) && cmsPage.contentBlocks.length > 0) {
+  if (pageHasRenderableContent(cmsPage)) {
     return (
       <main style={{ minHeight: '80vh' }}>
         <JsonLd
