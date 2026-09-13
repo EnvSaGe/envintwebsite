@@ -159,9 +159,12 @@ export async function saveInsightAction(article: {
     }
   }
 
-  await dispatchRevalidation({
-    tags: ['insights:list', `insight:${article.slug}`],
-  });
+  if (status === 'PUBLISHED') {
+    await dispatchRevalidation({
+      tags: ['insights:list', `insight:${article.slug}`, `record:insight:${article.slug}`, 'archive:insight'],
+      paths: [`/${article.slug}/`, '/envision/', '/enviki/'],
+    });
+  }
 
   return { success: true, id: insightId };
 }
@@ -175,7 +178,8 @@ export async function publishInsightAction(slug: string) {
     .where(eq(insights.slug, slug));
 
   await dispatchRevalidation({
-    tags: ['insights:list', `insight:${slug}`],
+    tags: ['insights:list', `insight:${slug}`, `record:insight:${slug}`, 'archive:insight'],
+    paths: [`/${slug}/`, '/envision/', '/enviki/'],
   });
 
   return { success: true };
@@ -194,7 +198,8 @@ export async function deleteInsightAction(slug: string) {
   await db.delete(insights).where(eq(insights.id, record.id));
 
   await dispatchRevalidation({
-    tags: ['insights:list', `insight:${slug}`],
+    tags: ['insights:list', `insight:${slug}`, `record:insight:${slug}`, 'archive:insight'],
+    paths: [`/${slug}/`, '/envision/', '/enviki/'],
   });
 
   return { success: true };

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import crypto from 'crypto';
+import { normalizeRevalidationRequest } from '@/lib/revalidation/targets';
 
-const ALLOWED_TAG_PATTERN = /^(insights:list|impacts:list|team:list|services:list|page:home|insight:[a-z0-9-]+|impact:[a-z0-9-]+|team:[a-z0-9-]+|service:[a-z0-9-]+|page:[a-z0-9-]+|tax:[a-z-]+:[a-z0-9-]+)$/;
-const ALLOWED_PATH_PATTERN = /^\/([a-zA-Z0-9-_\/]+)?$/;
 const MAX_AGE_SECONDS = 300; // 5-minute validity window
 
 // Track seen nonces during the 5-minute validity window for replay prevention
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
     const nonce = request.headers.get('x-revalidation-nonce') || '';
     const secret = process.env.REVALIDATION_SECRET_TOKEN;
 
-    if (!signature || !timestampHeader || !secret) {
+    if (!signature || !timestampHeader || !secret || !/^[a-f0-9]{32}$/i.test(nonce)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -34,15 +33,6 @@ export async function POST(request: NextRequest) {
     // Freshness verification
     if (isNaN(timestamp) || Math.abs(now - timestamp) > MAX_AGE_SECONDS) {
       return NextResponse.json({ error: 'Request expired' }, { status: 401 });
-    }
-
-    // Nonce replay protection
-    cleanExpiredNonces(now);
-    if (nonce) {
-      if (seenNonces.has(nonce)) {
-        return NextResponse.json({ error: 'Replay detected: duplicate nonce' }, { status: 401 });
-      }
-      seenNonces.set(nonce, now);
     }
 
     const rawBody = await request.text();
@@ -63,19 +53,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    const { paths = [], tags = [] } = JSON.parse(rawBody);
+    // Only authenticated requests may consume a nonce. This also allows a
+    // dispatcher to safely retry a request that never reached this handler.
+    cleanExpiredNonces(now);
+    if (seenNonces.has(nonce)) {
+      return NextResponse.json({ error: 'Replay detected: duplicate nonce' }, { status: 401 });
+    }
+    seenNonces.set(nonce, now);
+
+    const { paths, tags, rejectedPaths, rejectedTags } = normalizeRevalidationRequest(JSON.parse(rawBody));
+    const results: Array<{ type: 'path' | 'tag'; target: string; success: boolean }> = [];
 
     // Invalidate tags
     for (const tag of tags) {
-      if (typeof tag === 'string' && ALLOWED_TAG_PATTERN.test(tag)) {
+      try {
         revalidateTag(tag, 'max');
+        results.push({ type: 'tag', target: tag, success: true });
+      } catch {
+        results.push({ type: 'tag', target: tag, success: false });
       }
     }
 
     // Invalidate paths
     for (const path of paths) {
-      if (typeof path === 'string' && ALLOWED_PATH_PATTERN.test(path)) {
+      try {
         revalidatePath(path);
+        results.push({ type: 'path', target: path, success: true });
+      } catch {
+        results.push({ type: 'path', target: path, success: false });
       }
     }
 
@@ -83,9 +88,15 @@ export async function POST(request: NextRequest) {
       revalidated: true,
       paths,
       tags,
+      rejectedPaths,
+      rejectedTags,
+      results,
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof SyntaxError || (error instanceof Error && /invalid|array|at most/i.test(error.message))) {
+      return NextResponse.json({ error: 'Invalid revalidation payload' }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Revalidation failed' }, { status: 500 });
   }
 }

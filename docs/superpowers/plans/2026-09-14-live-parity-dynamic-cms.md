@@ -424,7 +424,7 @@ git commit -m "feat: edit shared templates and dynamic content visually"
 - Produces: signed `POST /api/revalidate` accepting bounded path/tag arrays.
 - Consumes: dependency records from Task 2 and cache tags from Task 3.
 
-- [ ] **Step 1: Write failing target-selection tests**
+- [x] **Step 1: Write failing target-selection tests**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -438,25 +438,25 @@ assert.deepEqual(collectStaticRevalidationTargets({ type: 'global', key: 'naviga
 });
 ```
 
-- [ ] **Step 2: Run the tests and verify failure**
+- [x] **Step 2: Run the tests and verify failure**
 
 Run: `pnpm exec tsx scripts/verify-revalidation-targets.ts`
 
 Expected: FAIL because the targets module does not exist.
 
-- [ ] **Step 3: Implement secure, bounded revalidation**
+- [x] **Step 3: Implement secure, bounded revalidation**
 
 Require a server-side shared secret, constant-time comparison, POST requests, same-origin admin dispatch, at most 200 paths/tags per request, normalized paths, and allowlisted tag prefixes. Return per-target success/failure details without exposing the secret.
 
-- [ ] **Step 4: Dispatch revalidation after successful publication**
+- [x] **Step 4: Dispatch revalidation after successful publication**
 
 Page publication invalidates its route and page tag. Record publication invalidates its detail route plus dependent collection/archive tags. Template/global publication invalidates dependency tags. A dispatch failure is recorded and returned to the editor but does not roll back the saved publication.
 
-- [ ] **Step 5: Reduce scheduled execution frequency**
+- [x] **Step 5: Reduce scheduled execution frequency**
 
 Change the five-minute scheduled publish poll to a frequency justified by the product requirement, defaulting to hourly on Netlify Free. Keep direct scheduled-publish correctness by publishing all records due at or before the invocation time.
 
-- [ ] **Step 6: Run revalidation, type, build, and config checks**
+- [x] **Step 6: Run revalidation, type, build, and config checks**
 
 Run: `pnpm exec tsx scripts/verify-revalidation-targets.ts`
 
@@ -466,7 +466,7 @@ Run: `pnpm --filter @envint/web typecheck && pnpm --filter @envint/admin typeche
 
 Expected: all commands exit 0.
 
-- [ ] **Step 7: Commit credit-efficient publishing**
+- [x] **Step 7: Commit credit-efficient publishing**
 
 ```bash
 git add apps/web/src/app/api/revalidate apps/web/src/lib/revalidation apps/admin/src/lib/revalidate-dispatcher.ts apps/admin/src/app/pages/actions.ts apps/web/src/app/api/cron/publish-scheduled/route.ts apps/web/netlify.toml scripts/verify-revalidation-targets.ts

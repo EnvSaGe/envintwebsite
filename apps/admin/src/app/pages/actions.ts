@@ -158,13 +158,15 @@ export async function savePageAction(pageData: {
     savedAt: new Date(),
   });
 
-  // 3. Dispatch cache invalidation to public web app (non-throwing)
-  await dispatchRevalidation({
-    tags: [`page:${pageData.slug}`],
-    paths: [pageData.slug === '/' ? '/' : pageData.slug],
-  });
+  // Draft saves never touch the public cache. A publish invalidates only this page.
+  const revalidation = status === 'PUBLISHED'
+    ? await dispatchRevalidation({
+        tags: [`page:${pageData.slug}`],
+        paths: [pageData.slug === '/' ? '/' : pageData.slug],
+      })
+    : null;
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 export async function publishPageAction(slug: string) {
@@ -190,12 +192,12 @@ export async function publishPageAction(slug: string) {
     savedAt: new Date(),
   });
 
-  await dispatchRevalidation({
+  const revalidation = await dispatchRevalidation({
     tags: [`page:${slug}`],
     paths: [slug === '/' ? '/' : slug],
   });
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 export async function unpublishPageAction(slug: string) {
@@ -206,12 +208,12 @@ export async function unpublishPageAction(slug: string) {
     .set({ status: 'DRAFT', scheduledAt: null, updatedAt: new Date() })
     .where(eq(pages.slug, slug));
 
-  await dispatchRevalidation({
+  const revalidation = await dispatchRevalidation({
     tags: [`page:${slug}`],
     paths: [slug === '/' ? '/' : slug],
   });
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 export async function createPageAction(newPage: {
@@ -283,12 +285,12 @@ export async function deletePageAction(slug: string) {
 
   await db.delete(pages).where(eq(pages.slug, slug));
 
-  await dispatchRevalidation({
+  const revalidation = await dispatchRevalidation({
     tags: [`page:${slug}`],
     paths: [slug === '/' ? '/' : slug],
   });
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 export async function fetchPageRevisions(slug: string) {
@@ -352,9 +354,9 @@ export async function restorePageRevision(slug: string, revisionId: string) {
     savedAt: new Date(),
   });
 
-  await dispatchRevalidation({ tags: [`page:${slug}`] });
+  const revalidation = await dispatchRevalidation({ tags: [`page:${slug}`] });
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 // ─── Visual Builder Tree Actions ──────────────────────────────────────────
@@ -638,12 +640,12 @@ export async function publishTreeAction(pageData: {
   });
 
   // 4. Revalidate public web cache
-  await dispatchRevalidation({
-    tags: [`page:${pathSlug}`, `page:${cleanSlug}`],
-    paths: [pathSlug === '/' ? '/' : pathSlug, `/${cleanSlug}`],
+  const revalidation = await dispatchRevalidation({
+    tags: [`page:${pathSlug}`],
+    paths: [pathSlug === '/' ? '/' : pathSlug],
   });
 
-  return { success: true };
+  return { success: true, revalidation };
 }
 
 /* ─── Scheduled publishing ─────────────────────────────────────────────────
@@ -712,10 +714,6 @@ export async function scheduleTreePublishAction(pageData: {
     savedByName: userInfo?.name ?? null,
     note: `Scheduled publish for ${when.toISOString()}`,
     savedAt: new Date(),
-  });
-
-  await dispatchRevalidation({
-    tags: [`page:${pathSlug}`, `page:${cleanSlug}`],
   });
 
   return { success: true, scheduledAt: when.toISOString() };

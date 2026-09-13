@@ -142,8 +142,8 @@ export async function publishTemplateAction(input: {
     note: `Published shared template affecting ${routes.length} route${routes.length === 1 ? '' : 's'}`,
   });
 
-  await dispatchRevalidation({ tags: [`template:${slug}`], paths: routes });
-  return { success: true, affectedRoutes: routes.length };
+  const revalidation = await dispatchRevalidation({ tags: [`template:${slug}`], paths: routes });
+  return { success: true, affectedRoutes: routes.length, revalidation };
 }
 
 export async function fetchTemplateRevisionsAction(slugInput: string) {

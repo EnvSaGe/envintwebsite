@@ -8,10 +8,13 @@
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
 
-# Scheduled function — publishes content with scheduledAt <= now() every 5 minutes
-[[scheduled_functions]]
-  function = "publish-scheduled"
-  schedule  = "*/5 * * * *"
+[functions]
+  directory = "netlify/functions"
+
+# Hourly is deliberate for the Free plan. Editors can publish immediately;
+# this poll exists only for content scheduled for a future time.
+[functions."publish-scheduled"]
+  schedule = "@hourly"
 
 # Headers
 [[headers]]

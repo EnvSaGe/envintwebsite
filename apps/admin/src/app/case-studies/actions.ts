@@ -130,9 +130,12 @@ export async function saveImpactAction(impact: {
       },
     });
 
-  await dispatchRevalidation({
-    tags: ['impacts:list', `impact:${impact.slug}`],
-  });
+  if (status === 'PUBLISHED') {
+    await dispatchRevalidation({
+      tags: ['impacts:list', `impact:${impact.slug}`, `record:impact:${impact.slug}`, 'archive:impact'],
+      paths: [`/impact/${impact.slug}/`, '/impact/'],
+    });
+  }
 
   return { success: true };
 }
@@ -146,7 +149,8 @@ export async function publishImpactAction(slug: string) {
     .where(eq(impactCaseStudies.slug, slug));
 
   await dispatchRevalidation({
-    tags: ['impacts:list', `impact:${slug}`],
+    tags: ['impacts:list', `impact:${slug}`, `record:impact:${slug}`, 'archive:impact'],
+    paths: [`/impact/${slug}/`, '/impact/'],
   });
 
   return { success: true };
@@ -165,7 +169,8 @@ export async function deleteImpactAction(slug: string) {
   await db.delete(impactCaseStudies).where(eq(impactCaseStudies.id, record.id));
 
   await dispatchRevalidation({
-    tags: ['impacts:list', `impact:${slug}`],
+    tags: ['impacts:list', `impact:${slug}`, `record:impact:${slug}`, 'archive:impact'],
+    paths: [`/impact/${slug}/`, '/impact/'],
   });
 
   return { success: true };

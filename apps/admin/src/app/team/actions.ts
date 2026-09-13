@@ -128,7 +128,8 @@ export async function saveTeamMemberAction(member: {
     });
 
   await dispatchRevalidation({
-    tags: ['team:list', `team:${member.slug}`],
+    tags: ['team:list', `team:${member.slug}`, `record:team:${member.slug}`, 'archive:team'],
+    paths: [`/member/${member.slug}/`, '/about/'],
   });
 
   return { success: true };
@@ -147,7 +148,8 @@ export async function deleteTeamMemberAction(slug: string) {
   await db.delete(teamMembers).where(eq(teamMembers.id, record.id));
 
   await dispatchRevalidation({
-    tags: ['team:list', `team:${slug}`],
+    tags: ['team:list', `team:${slug}`, `record:team:${slug}`, 'archive:team'],
+    paths: [`/member/${slug}/`, '/about/'],
   });
 
   return { success: true };

@@ -8,7 +8,8 @@ export const maxDuration = 30;
 /**
  * GET /api/cron/publish-scheduled
  *
- * Runs on a schedule (every 5 minutes via vercel.json crons).
+ * Runs hourly through the Netlify scheduled function. It still publishes
+ * every record due at or before the invocation time.
  * Publishes any content with status=DRAFT (or with a pending scheduledAt)
  * whose scheduledAt <= now().
  *
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
   const providedSecret = req.headers.get('x-cron-secret');
 
-  if (cronSecret && providedSecret !== cronSecret) {
+  if (!cronSecret || providedSecret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -34,10 +35,7 @@ export async function GET(req: NextRequest) {
   try {
     // ─── 1. Publish scheduled pages ────────────────────────────────────
     const scheduledPages = await db.query.pages.findMany({
-      where: and(
-        eq(pages.status, 'DRAFT'),
-        sql`${pages.scheduledAt} IS NOT NULL AND ${pages.scheduledAt} <= ${now}`,
-      ),
+      where: sql`${pages.scheduledAt} IS NOT NULL AND ${pages.scheduledAt} <= ${now}`,
     });
 
     for (const p of scheduledPages) {
@@ -102,8 +100,11 @@ export async function GET(req: NextRequest) {
         .where(eq(insights.id, i.id));
 
       revalidateTag(`insight:${i.slug}`, 'max');
+      revalidateTag(`record:insight:${i.slug}`, 'max');
       revalidateTag('insights:list', 'max');
+      revalidateTag('archive:insight', 'max');
       revalidateTag(`page:/${i.slug}`, 'max');
+      revalidatePath(`/${i.slug}/`);
 
       publishedCount++;
       publishedSlugs.push(`/${i.slug}`);
@@ -125,8 +126,11 @@ export async function GET(req: NextRequest) {
         .where(eq(impactCaseStudies.id, imp.id));
 
       revalidateTag(`impact:${imp.slug}`, 'max');
+      revalidateTag(`record:impact:${imp.slug}`, 'max');
       revalidateTag('impacts:list', 'max');
+      revalidateTag('archive:impact', 'max');
       revalidateTag(`page:/impact/${imp.slug}`, 'max');
+      revalidatePath(`/impact/${imp.slug}/`);
 
       publishedCount++;
       publishedSlugs.push(`/impact/${imp.slug}`);

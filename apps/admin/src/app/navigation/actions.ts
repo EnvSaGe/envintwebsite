@@ -66,14 +66,14 @@ export async function saveNavigationItem(item: {
     });
   }
 
-  await dispatchRevalidation({ tags: ['navigation'] });
+  await dispatchRevalidation({ tags: ['global:navigation', `global:${(item.navGroup ?? 'primary') === 'primary' ? 'header' : 'footer'}`] });
   return { success: true };
 }
 
 export async function deleteNavigationItem(id: string) {
   await requireRole(['super_admin', 'editor']);
   await db.delete(navigationItems).where(eq(navigationItems.id, id));
-  await dispatchRevalidation({ tags: ['navigation'] });
+  await dispatchRevalidation({ tags: ['global:navigation', 'global:header', 'global:footer'] });
   return { success: true };
 }
 
@@ -87,6 +87,6 @@ export async function reorderNavigationItems(items: Array<{ id: string; orderInd
       .where(eq(navigationItems.id, item.id));
   }
 
-  await dispatchRevalidation({ tags: ['navigation'] });
+  await dispatchRevalidation({ tags: ['global:navigation', 'global:header', 'global:footer'] });
   return { success: true };
 }
