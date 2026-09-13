@@ -358,7 +358,7 @@ git commit -m "feat: render bound CMS templates and global layout"
 - Produces: labelled inspectors for bindings and collection queries.
 - Produces: global-impact confirmation when publishing shared templates or blocks.
 
-- [ ] **Step 1: Write a failing editor-state contract test**
+- [x] **Step 1: Write a failing editor-state contract test**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -372,25 +372,25 @@ assert.equal(next.tree.nodes.title.content.bindings.text.path, 'title');
 assert.equal(next.saveStatus, 'unsaved');
 ```
 
-- [ ] **Step 2: Run the contract and verify failure**
+- [x] **Step 2: Run the contract and verify failure**
 
 Run: `pnpm exec tsx scripts/verify-editor-contract.ts`
 
 Expected: FAIL because the reducer does not support `UPDATE_BINDING`.
 
-- [ ] **Step 3: Add template CRUD using the current studio**
+- [x] **Step 3: Add template CRUD using the current studio**
 
 Use the same draft/publish/revision behavior as pages. Template publishing must require super-admin authority when its dependency count is greater than one and must show the affected route count before confirmation.
 
-- [ ] **Step 4: Add editor-friendly binding and query controls**
+- [x] **Step 4: Add editor-friendly binding and query controls**
 
 Expose source and field select boxes populated by allowlisted schemas. Dynamic grids expose content type, category/taxonomy filters, sort, item count, pagination mode, visible metadata, and card style. Never require editors to enter JSON.
 
-- [ ] **Step 5: Add shared/global editing indicators**
+- [x] **Step 5: Add shared/global editing indicators**
 
 Show `Page`, `Record`, `Shared template`, or `Global` in the editor header. Bound fields display their source and provide a direct link to the associated content record when the current user can edit it.
 
-- [ ] **Step 6: Run editor contract and admin checks**
+- [x] **Step 6: Run editor contract and admin checks**
 
 Run: `pnpm exec tsx scripts/verify-editor-contract.ts`
 
@@ -400,7 +400,7 @@ Run: `pnpm --filter @envint/admin typecheck && pnpm --filter @envint/admin lint 
 
 Expected: all commands exit 0.
 
-- [ ] **Step 7: Commit the editor workflow**
+- [x] **Step 7: Commit the editor workflow**
 
 ```bash
 git add apps/admin/src/app/templates apps/admin/src/app/pages/editor/studio apps/admin/src/components/Sidebar.tsx scripts/verify-editor-contract.ts

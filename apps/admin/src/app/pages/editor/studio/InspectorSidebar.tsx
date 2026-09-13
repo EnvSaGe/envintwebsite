@@ -34,7 +34,7 @@ import {
   ToggleLeft,
   Check,
 } from 'lucide-react';
-import { BuilderNode, ElementStyles } from '@envint/shared';
+import { BuilderNode, ElementStyles, type ContentBinding, type DynamicQueryConfig } from '@envint/shared';
 import { Breakpoint, StudioState } from './StudioState';
 import { MediaPickerModal, PickedMedia } from '../../../../components/MediaPickerModal';
 import {
@@ -58,10 +58,14 @@ import {
   AdvancedDisclosure,
   StylePresetSelect,
 } from './ui-controls';
+import { BindingInspector } from './inspectors/BindingInspector';
+import { DynamicQueryInspector } from './inspectors/DynamicQueryInspector';
 
 interface InspectorSidebarProps {
   state: StudioState;
   onUpdateContent: (nodeId: string, content: Partial<any>) => void;
+  onUpdateBinding: (nodeId: string, field: string, binding: ContentBinding | null) => void;
+  onUpdateDynamicQuery: (nodeId: string, query: DynamicQueryConfig) => void;
   onUpdateStyles: (nodeId: string, styles: Partial<ElementStyles>, bp?: Breakpoint) => void;
   onUpdateVisibility: (
     nodeId: string,
@@ -99,6 +103,8 @@ type InspectorTab = 'content' | 'design' | 'layout';
 export function InspectorSidebar({
   state,
   onUpdateContent,
+  onUpdateBinding,
+  onUpdateDynamicQuery,
   onUpdateStyles,
   onUpdateVisibility,
   onDuplicateNode,
@@ -253,12 +259,23 @@ export function InspectorSidebar({
       {/* Panels */}
       <div className="studio-scroll min-h-0 flex-1 overflow-y-auto p-2.5 text-[12px]">
         {activeTab === 'content' && (
-          <ContentPanel
-            node={selectedNode}
-            state={state}
-            onUpdateContent={onUpdateContent}
-            onOpenMediaPicker={() => setIsMediaPickerOpen(true)}
-          />
+          <>
+            <BindingInspector
+              node={selectedNode}
+              onChange={(field, binding) => onUpdateBinding(selectedNode.id, field, binding)}
+            />
+            <DynamicQueryInspector
+              node={selectedNode}
+              onChange={(query) => onUpdateDynamicQuery(selectedNode.id, query)}
+              onUpdateDisplay={(content) => onUpdateContent(selectedNode.id, content)}
+            />
+            <ContentPanel
+              node={selectedNode}
+              state={state}
+              onUpdateContent={onUpdateContent}
+              onOpenMediaPicker={() => setIsMediaPickerOpen(true)}
+            />
+          </>
         )}
 
         {activeTab === 'design' && (

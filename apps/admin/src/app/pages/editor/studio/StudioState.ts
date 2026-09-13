@@ -1,4 +1,12 @@
-import { BuilderNode, PageBlockTree, ElementType, createDefaultNode, cloneNodeTree, ElementStyles } from '@envint/shared';
+import {
+  BuilderNode,
+  PageBlockTree,
+  ElementType,
+  cloneNodeTree,
+  ElementStyles,
+  type ContentBinding,
+  type DynamicQueryConfig,
+} from '@envint/shared';
 
 export type Breakpoint = 'desktop' | 'tablet' | 'mobile';
 
@@ -36,6 +44,8 @@ export type StudioAction =
   | { type: 'DUPLICATE_NODE'; nodeId: string }
   | { type: 'DELETE_NODE'; nodeId: string }
   | { type: 'UPDATE_CONTENT'; nodeId: string; content: Partial<any> }
+  | { type: 'UPDATE_BINDING'; nodeId: string; field: string; binding: ContentBinding | null }
+  | { type: 'UPDATE_DYNAMIC_QUERY'; nodeId: string; query: DynamicQueryConfig }
   | { type: 'UPDATE_STYLES'; nodeId: string; styles: Partial<ElementStyles>; breakpoint?: Breakpoint }
   | { type: 'UPDATE_VISIBILITY'; nodeId: string; visibility: { desktop?: boolean; tablet?: boolean; mobile?: boolean } }
   | { type: 'RENAME_NODE'; nodeId: string; name: string }
@@ -49,6 +59,27 @@ function pushHistory(state: StudioState): { past: PageBlockTree[]; future: PageB
   return {
     past: newPast,
     future: [],
+  };
+}
+
+export function createInitialStudioState(
+  tree: PageBlockTree,
+  teamMembers?: StudioState['teamMembers'],
+): StudioState {
+  return {
+    tree,
+    selectedId: null,
+    hoveredId: null,
+    draggedType: null,
+    draggedExistingId: null,
+    dropTargetId: null,
+    dropPosition: null,
+    breakpoint: 'desktop',
+    activeLeftTab: 'palette',
+    history: { past: [], future: [] },
+    isDirty: false,
+    saveStatus: 'saved',
+    teamMembers,
   };
 }
 
@@ -285,6 +316,36 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
         saveStatus: 'unsaved',
         history,
       };
+    }
+
+    case 'UPDATE_BINDING': {
+      const node = state.tree.nodes[action.nodeId];
+      if (!node) return state;
+
+      const history = pushHistory(state);
+      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
+      const bindings = { ...(newTree.nodes[action.nodeId].content.bindings ?? {}) };
+      if (action.binding) bindings[action.field] = action.binding;
+      else delete bindings[action.field];
+      newTree.nodes[action.nodeId].content = {
+        ...newTree.nodes[action.nodeId].content,
+        ...(Object.keys(bindings).length > 0 ? { bindings } : {}),
+      };
+      if (Object.keys(bindings).length === 0) delete newTree.nodes[action.nodeId].content.bindings;
+
+      return { ...state, tree: newTree, isDirty: true, saveStatus: 'unsaved', history };
+    }
+
+    case 'UPDATE_DYNAMIC_QUERY': {
+      const node = state.tree.nodes[action.nodeId];
+      if (!node) return state;
+      const history = pushHistory(state);
+      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
+      newTree.nodes[action.nodeId].content = {
+        ...newTree.nodes[action.nodeId].content,
+        query: action.query,
+      };
+      return { ...state, tree: newTree, isDirty: true, saveStatus: 'unsaved', history };
     }
 
     case 'UPDATE_STYLES': {

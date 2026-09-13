@@ -7,13 +7,15 @@ import {
   Users, 
   Image as ImageIcon, 
   Settings,
-  ExternalLink
+  ExternalLink,
+  Layers3
 } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 
 const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Pages & Layouts', href: '/pages', icon: FileText },
+  { label: 'Shared Templates', href: '/templates', icon: Layers3 },
   { label: 'Insights & Articles', href: '/insights', icon: BookOpen },
   { label: 'Case Studies', href: '/case-studies', icon: Briefcase },
   { label: 'Team & Leadership', href: '/team', icon: Users },

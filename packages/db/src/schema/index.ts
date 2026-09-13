@@ -94,6 +94,19 @@ export const contentTemplates = pgTable('content_templates', {
   publishedAt: timestamp('published_at', { withTimezone: true }),
 });
 
+export const contentTemplateRevisions = pgTable('content_template_revisions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  templateSlug: varchar('template_slug', { length: 100 }).notNull(),
+  blocks: jsonb('blocks').notNull(),
+  schemaVersion: integer('schema_version').notNull().default(2),
+  versionNumber: integer('version_number').notNull(),
+  status: contentStatusEnum('status').notNull().default('DRAFT'),
+  savedByClerkId: varchar('saved_by_clerk_id', { length: 255 }),
+  savedByName: varchar('saved_by_name', { length: 255 }),
+  note: varchar('note', { length: 500 }),
+  savedAt: timestamp('saved_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Reusable blocks already store their current tree. This table supplies the
 // same rollback/audit history available to pages and shared templates.
 export const globalBlockRevisions = pgTable('global_block_revisions', {

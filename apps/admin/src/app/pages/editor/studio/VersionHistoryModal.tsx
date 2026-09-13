@@ -3,19 +3,22 @@
 import React, { useEffect, useState } from 'react';
 import { X, History, RotateCcw, Loader2, CheckCircle2 } from 'lucide-react';
 import { fetchPageRevisionsAction } from '../../actions';
+import { fetchTemplateRevisionsAction } from '../../../templates/actions';
 
 interface VersionHistoryModalProps {
   slug: string;
   onClose: () => void;
   onRestore: (revisionId: string) => void;
+  entityType?: 'page' | 'template';
 }
 
-export function VersionHistoryModal({ slug, onClose, onRestore }: VersionHistoryModalProps) {
+export function VersionHistoryModal({ slug, onClose, onRestore, entityType = 'page' }: VersionHistoryModalProps) {
   const [revisions, setRevisions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPageRevisionsAction(slug)
+    const load = entityType === 'template' ? fetchTemplateRevisionsAction : fetchPageRevisionsAction;
+    load(slug)
       .then((data) => {
         setRevisions(data || []);
         setLoading(false);
@@ -24,7 +27,7 @@ export function VersionHistoryModal({ slug, onClose, onRestore }: VersionHistory
         console.error(err);
         setLoading(false);
       });
-  }, [slug]);
+  }, [entityType, slug]);
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -51,7 +54,7 @@ export function VersionHistoryModal({ slug, onClose, onRestore }: VersionHistory
             </div>
           ) : revisions.length === 0 ? (
             <div className="text-center py-12 text-white/40 text-xs">
-              No previous version snapshots found for this page.
+              No previous version snapshots found for this {entityType}.
             </div>
           ) : (
             revisions.map((rev, idx) => (

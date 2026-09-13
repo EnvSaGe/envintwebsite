@@ -2,7 +2,7 @@
 
 import React, { useReducer, useEffect, useState, useRef, useCallback } from 'react';
 import { PageBlockTree, ElementType, createDefaultNode, ElementStyles } from '@envint/shared';
-import { studioReducer, StudioState, Breakpoint } from './StudioState';
+import { createInitialStudioState, studioReducer, StudioState } from './StudioState';
 import { StudioTopbar } from './StudioTopbar';
 import { PaletteSidebar } from './PaletteSidebar';
 import { StudioCanvas, ZoomLevel } from './StudioCanvas';
@@ -17,6 +17,12 @@ import {
   cancelScheduledPublishAction,
 } from '../../actions';
 import { SchedulePublishModal } from './SchedulePublishModal';
+import {
+  publishTemplateAction,
+  restoreTemplateRevisionAction,
+  saveTemplateDraftAction,
+} from '../../../templates/actions';
+import { GlobalImpactWarning } from './GlobalImpactWarning';
 
 interface VisualStudioEditorProps {
   initialTree: PageBlockTree;
@@ -27,6 +33,9 @@ interface VisualStudioEditorProps {
   seoDescription?: string;
   scheduledAt?: string | null;
   onSwitchToLegacy?: () => void;
+  entityType?: 'page' | 'template';
+  contentScope?: 'Page' | 'Record' | 'Shared template' | 'Global';
+  dependencyCount?: number;
 }
 
 /* ─────────────────── Panel sizing (persisted, UI-only) ─────────────────── */
@@ -71,22 +80,11 @@ export function VisualStudioEditor({
   seoTitle,
   seoDescription,
   scheduledAt: initialScheduledAt = null,
+  entityType = 'page',
+  contentScope = 'Page',
+  dependencyCount = 0,
 }: VisualStudioEditorProps) {
-  const [state, dispatch] = useReducer(studioReducer, {
-    tree: initialTree,
-    selectedId: null,
-    hoveredId: null,
-    draggedType: null,
-    draggedExistingId: null,
-    dropTargetId: null,
-    dropPosition: null,
-    breakpoint: 'desktop' as Breakpoint,
-    activeLeftTab: 'palette' as const,
-    history: { past: [], future: [] },
-    isDirty: false,
-    saveStatus: 'saved' as const,
-    teamMembers,
-  });
+  const [state, dispatch] = useReducer(studioReducer, createInitialStudioState(initialTree, teamMembers));
 
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -99,6 +97,7 @@ export function VisualStudioEditor({
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
+  const [showImpactWarning, setShowImpactWarning] = useState(false);
 
   /* Panel UI state */
   const [prefs, setPrefs] = useState<PanelPrefs>(loadPanelPrefs);
@@ -149,7 +148,8 @@ export function VisualStudioEditor({
 
     autoSaveTimerRef.current = setTimeout(async () => {
       try {
-        await saveDraftTreeAction(slug, state.tree);
+        if (entityType === 'template') await saveTemplateDraftAction(slug, state.tree);
+        else await saveDraftTreeAction(slug, state.tree);
         dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
       } catch (err) {
         console.error('Auto-save error:', err);
@@ -160,7 +160,7 @@ export function VisualStudioEditor({
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     };
-  }, [state.tree, state.isDirty, slug]);
+  }, [entityType, state.tree, state.isDirty, slug]);
 
   /* 2. Handlers */
   const stateRef = useRef(state);
@@ -170,7 +170,8 @@ export function VisualStudioEditor({
     setIsSaving(true);
     dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
     try {
-      await saveDraftTreeAction(slug, stateRef.current.tree);
+      if (entityType === 'template') await saveTemplateDraftAction(slug, stateRef.current.tree);
+      else await saveDraftTreeAction(slug, stateRef.current.tree);
       dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
       showNotification('Draft saved successfully to database!');
     } catch (err: any) {
@@ -178,26 +179,36 @@ export function VisualStudioEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [slug]);
+  }, [entityType, slug]);
 
-  const handlePublish = useCallback(async () => {
+  const publishNow = useCallback(async () => {
     setIsPublishing(true);
     try {
-      await publishTreeAction({
-        slug,
-        title: pageTitle,
-        seoTitle,
-        seoDescription,
-        tree: stateRef.current.tree,
-      });
+      if (entityType === 'template') {
+        await publishTemplateAction({ slug, name: pageTitle, tree: stateRef.current.tree });
+      } else {
+        await publishTreeAction({
+          slug,
+          title: pageTitle,
+          seoTitle,
+          seoDescription,
+          tree: stateRef.current.tree,
+        });
+      }
       dispatch({ type: 'SET_SAVE_STATUS', status: 'published' });
-      showNotification('Page published live! Public Edge cache revalidated.', 'success');
+      setShowImpactWarning(false);
+      showNotification(`${entityType === 'template' ? 'Template' : 'Page'} published live! Public edge cache revalidated.`, 'success');
     } catch (err: any) {
       showNotification(`Publish failed: ${err.message}`, 'error');
     } finally {
       setIsPublishing(false);
     }
-  }, [slug, pageTitle, seoTitle, seoDescription]);
+  }, [entityType, slug, pageTitle, seoTitle, seoDescription]);
+
+  const handlePublish = useCallback(() => {
+    if (entityType === 'template') setShowImpactWarning(true);
+    else void publishNow();
+  }, [entityType, publishNow]);
 
   const handleAddNode = useCallback(
     (type: ElementType, targetParentId?: string | null, position?: 'before' | 'after' | 'inside', relativeNodeId?: string) => {
@@ -260,7 +271,8 @@ export function VisualStudioEditor({
     setIsHistoryOpen(false);
     showNotification('Restoring revision...', 'info');
     try {
-      await restorePageRevision(slug, revisionId);
+      if (entityType === 'template') await restoreTemplateRevisionAction(slug, revisionId);
+      else await restorePageRevision(slug, revisionId);
       window.location.reload();
     } catch (err: any) {
       showNotification(`Rollback failed: ${err.message}`, 'error');
@@ -411,6 +423,10 @@ export function VisualStudioEditor({
       <StudioTopbar
         slug={slug}
         pageTitle={pageTitle}
+        contentScope={contentScope}
+        backHref={entityType === 'template' ? '/templates' : '/pages'}
+        allowScheduling={entityType === 'page'}
+        liveHref={entityType === 'template' ? null : undefined}
         state={state}
         onSetBreakpoint={(bp) => dispatch({ type: 'SET_BREAKPOINT', breakpoint: bp })}
         onUndo={() => dispatch({ type: 'UNDO' })}
@@ -482,6 +498,12 @@ export function VisualStudioEditor({
               <InspectorSidebar
                 state={state}
                 onUpdateContent={handleUpdateContent}
+                onUpdateBinding={(id, field, binding) =>
+                  dispatch({ type: 'UPDATE_BINDING', nodeId: id, field, binding })
+                }
+                onUpdateDynamicQuery={(id, query) =>
+                  dispatch({ type: 'UPDATE_DYNAMIC_QUERY', nodeId: id, query })
+                }
                 onUpdateStyles={(id, styles, bp) =>
                   dispatch({ type: 'UPDATE_STYLES', nodeId: id, styles, breakpoint: bp })
                 }
@@ -588,20 +610,32 @@ export function VisualStudioEditor({
 
       {/* Version History Modal */}
       {isHistoryOpen && (
-        <VersionHistoryModal slug={slug} onClose={() => setIsHistoryOpen(false)} onRestore={handleRestoreRevision} />
+        <VersionHistoryModal slug={slug} entityType={entityType} onClose={() => setIsHistoryOpen(false)} onRestore={handleRestoreRevision} />
       )}
 
       {/* Schedule Publish Modal */}
-      <SchedulePublishModal
-        open={isScheduleOpen}
-        slug={slug}
-        existingIso={scheduledIso}
-        isScheduling={isScheduling}
-        error={scheduleError}
-        onClose={() => setIsScheduleOpen(false)}
-        onConfirm={handleConfirmSchedule}
-        onCancelSchedule={handleCancelSchedule}
-      />
+      {entityType === 'page' && (
+        <SchedulePublishModal
+          open={isScheduleOpen}
+          slug={slug}
+          existingIso={scheduledIso}
+          isScheduling={isScheduling}
+          error={scheduleError}
+          onClose={() => setIsScheduleOpen(false)}
+          onConfirm={handleConfirmSchedule}
+          onCancelSchedule={handleCancelSchedule}
+        />
+      )}
+
+      {showImpactWarning && (
+        <GlobalImpactWarning
+          label={pageTitle}
+          affectedRouteCount={dependencyCount}
+          isPublishing={isPublishing}
+          onCancel={() => setShowImpactWarning(false)}
+          onConfirm={() => void publishNow()}
+        />
+      )}
     </div>
   );
 }

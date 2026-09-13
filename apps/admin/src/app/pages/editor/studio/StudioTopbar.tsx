@@ -30,6 +30,10 @@ import { Breakpoint, StudioState } from './StudioState';
 interface StudioTopbarProps {
   slug: string;
   pageTitle: string;
+  contentScope?: 'Page' | 'Record' | 'Shared template' | 'Global';
+  backHref?: string;
+  allowScheduling?: boolean;
+  liveHref?: string | null;
   state: StudioState;
   onSetBreakpoint: (bp: Breakpoint) => void;
   onUndo: () => void;
@@ -59,6 +63,10 @@ const BREAKPOINTS: Array<{ id: Breakpoint; label: string; icon: React.ReactNode;
 export function StudioTopbar({
   slug,
   pageTitle,
+  contentScope = 'Page',
+  backHref = '/pages',
+  allowScheduling = true,
+  liveHref,
   state,
   onSetBreakpoint,
   onUndo,
@@ -117,17 +125,20 @@ export function StudioTopbar({
         />
 
         <Link
-          href="/pages"
+          href={backHref}
           className="flex items-center gap-1.5 rounded-lg border border-transparent px-2 py-1.5 text-xs text-slate-400 transition-all hover:border-slate-700/60 hover:bg-slate-800/70 hover:text-white"
-          title="Back to Pages List"
+          title={`Back to ${contentScope === 'Shared template' ? 'Templates' : 'Pages'} List`}
         >
           <ArrowLeft size={14} />
-          <span className="font-medium">Pages</span>
+          <span className="font-medium">{contentScope === 'Shared template' ? 'Templates' : 'Pages'}</span>
         </Link>
 
         <div className="h-4 w-px bg-slate-800" />
 
         <div className="flex min-w-0 items-center gap-2">
+          <span className="rounded-md border border-violet-400/20 bg-violet-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-violet-200">
+            {contentScope}
+          </span>
           <span className="truncate text-[13px] font-semibold tracking-tight text-slate-100">{pageTitle}</span>
           <span className="hidden rounded-md border border-slate-800 bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] text-slate-400 md:inline">
             {slug}
@@ -247,16 +258,18 @@ export function StudioTopbar({
           <span className="hidden lg:inline">History</span>
         </button>
 
-        <a
-          href={`https://envintglobal.vercel.app${slug === '/' ? '' : slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/60 px-2 py-1.5 text-[11px] font-medium text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
-          title="Open live production page in new tab"
-        >
-          <ExternalLink size={13} />
-          <span className="hidden lg:inline">Live Site</span>
-        </a>
+        {(liveHref ?? (contentScope === 'Page' ? `https://envintglobal.com${slug === '/' ? '' : slug}` : null)) && (
+          <a
+            href={liveHref ?? `https://envintglobal.com${slug === '/' ? '' : slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/60 px-2 py-1.5 text-[11px] font-medium text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+            title="Open live production page in new tab"
+          >
+            <ExternalLink size={13} />
+            <span className="hidden lg:inline">Live Site</span>
+          </a>
+        )}
 
         <button
           type="button"
@@ -285,21 +298,23 @@ export function StudioTopbar({
             )}
             <span>Publish</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setPublishMenuOpen((o) => !o)}
-            disabled={isPublishing}
-            aria-expanded={publishMenuOpen}
-            aria-haspopup="menu"
-            title="Schedule publish"
-            className={`flex items-center rounded-r-lg border-l border-emerald-600/40 bg-emerald-500 px-1.5 py-1.5 text-slate-950 transition-all hover:bg-emerald-400 ${
-              publishMenuOpen ? 'rounded-l-none' : ''
-            }`}
-          >
-            <ChevronDown size={12} />
-          </button>
+          {allowScheduling && (
+            <button
+              type="button"
+              onClick={() => setPublishMenuOpen((o) => !o)}
+              disabled={isPublishing}
+              aria-expanded={publishMenuOpen}
+              aria-haspopup="menu"
+              title="Schedule publish"
+              className={`flex items-center rounded-r-lg border-l border-emerald-600/40 bg-emerald-500 px-1.5 py-1.5 text-slate-950 transition-all hover:bg-emerald-400 ${
+                publishMenuOpen ? 'rounded-l-none' : ''
+              }`}
+            >
+              <ChevronDown size={12} />
+            </button>
+          )}
 
-          {publishMenuOpen && (
+          {allowScheduling && publishMenuOpen && (
             <div
               role="menu"
               className="absolute right-0 top-full z-50 mt-1.5 w-56 overflow-hidden rounded-xl border border-slate-800 bg-[#0D1220] py-1 shadow-2xl"
