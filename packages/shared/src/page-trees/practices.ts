@@ -243,11 +243,11 @@ const PRACTICES_DATA: Record<string, PracticeData> = {
   '/responsible-investment': {
     slug: '/responsible-investment',
     title: 'Responsible Investment',
-    subtitle: 'ESG across the investment lifecycle',
-    heroImage: '/images/services-investment.webp',
-    heroAlt: 'Wind turbine and agricultural landscape - Responsible Investment',
+    subtitle: 'Green make sense beyond conscience',
+    heroImage: '/images/services-responsible.webp',
+    heroAlt: 'Seedling sprouting from coins - Responsible Investment',
     intro:
-      'Development Finance Institutions (DFIs), Private Equity (PE) and Venture Capital (VC) funds and Angel investors are increasingly integrating ESG principles in their investment thesis and across the investment lifecycle. Envint provides an integrated ESG solutions suite to support investors during various stages of the investment lifecycle. Our approach is customized to the type of investor, sector, asset class and ticket size.',
+      'We work with leading Development Finance Institutions (DFIs), Private Equity funds, venture capital funds and angel investors to integrate ESG principles across the deal lifecycle. Our experience with funds and investors include infrastructure & real estate, manufacturing, energy, mining, BFSI, healthcare, technology and argi, wherein we have incorporated sector-specific risks, opportunities and market considerations.',
     offeringsSubtitle: 'Responsible Investment Services',
     offerings: [
       {
@@ -518,6 +518,7 @@ export function createPracticePageTree(slug: string): PageBlockTree {
     nodes[cardImgId] = makeImage(cardImgId, cardId, resolveCmsImage(item.img), item.alt, {
       width: '100%',
       aspectRatio: '16/10',
+      height: '240px',
       objectFit: 'cover',
       marginBottom: '20px',
     }, `${item.title} Image`);
@@ -543,7 +544,10 @@ export function createPracticePageTree(slug: string): PageBlockTree {
     nodes[cardLinkId] = makeButton(cardLinkId, cardId, 'Read More →', item.href, 'outline', {
       fontSize: '15px',
       textColor: '#004E35',
+      backgroundColor: 'transparent',
       borderColor: '#004E35',
+      borderWidth: '1px',
+      borderStyle: 'solid',
       paddingTop: '8px',
       paddingBottom: '8px',
       paddingLeft: '20px',
@@ -607,6 +611,7 @@ export function createPracticePageTree(slug: string): PageBlockTree {
   }, 'CTA Container');
 
   nodes[cardCtaId] = makeContainer(cardCtaId, contCtaId, [h3CtaId, btnCtaId], {
+    backgroundColor: '#004E35',
     backgroundImage: resolveCmsImage('/images/footer-cta.webp'),
     backgroundSize: 'cover',
     backgroundPosition: 'center',

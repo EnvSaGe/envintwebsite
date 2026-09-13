@@ -21,7 +21,9 @@ import {
   ServiceCardsElement,
   InsightsGridElement,
   ImpactGridElement,
+  SocialShareElement,
 } from './elements/DynamicModules';
+import { FormElement } from './elements/FormElement';
 import { TeamCardMember } from '@/components/about/TeamGrid';
 
 interface TreeRendererProps {
@@ -155,6 +157,12 @@ function RenderNode({
 
     case 'impact-grid':
       return <ImpactGridElement node={node} />;
+
+    case 'form':
+      return <FormElement node={node} />;
+
+    case 'social-share':
+      return <SocialShareElement node={node} />;
 
     default:
       // Graceful fallback for unknown elements

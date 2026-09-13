@@ -628,6 +628,164 @@ function ContentPanel({
         </>
       );
 
+    case 'social-share': {
+      const channels = node.content?.channels || [
+        { id: 'email', name: 'Email', enabled: true, color: '#ea4335', url: '' },
+        { id: 'linkedin', name: 'LinkedIn', enabled: true, color: '#0a66c2', url: '' },
+        { id: 'twitter', name: 'X / Twitter', enabled: true, color: '#000000', url: '' },
+        { id: 'facebook', name: 'Facebook', enabled: true, color: '#1877f2', url: '' },
+      ];
+      const buttonSize = node.content?.buttonSize || 32;
+      const borderRadius = node.content?.borderRadius ?? 4;
+      const gap = node.content?.gap ?? 10;
+      const alignment = node.content?.alignment || 'left';
+
+      const updateChannel = (channelId: string, patch: Partial<any>) => {
+        const next = channels.map((c: any) => (c.id === channelId ? { ...c, ...patch } : c));
+        onUpdateContent(node.id, { channels: next });
+      };
+
+      return (
+        <div className="space-y-4">
+          <InspectorSection id="social-share-layout" title="Button Style & Layout">
+            <FieldRow label="Button Size">
+              <Segmented
+                ariaLabel="Button size"
+                value={String(buttonSize)}
+                onChange={(v) => onUpdateContent(node.id, { buttonSize: Number(v) })}
+                options={[
+                  { value: '28', label: '28px' },
+                  { value: '32', label: '32px' },
+                  { value: '36', label: '36px' },
+                  { value: '42', label: '42px' },
+                ]}
+              />
+            </FieldRow>
+
+            <FieldRow label="Corner Radius">
+              <Segmented
+                ariaLabel="Corner radius"
+                value={String(borderRadius)}
+                onChange={(v) => onUpdateContent(node.id, { borderRadius: Number(v) })}
+                options={[
+                  { value: '0', label: 'Square' },
+                  { value: '4', label: '4px' },
+                  { value: '8', label: '8px' },
+                  { value: '9999', label: 'Round' },
+                ]}
+              />
+            </FieldRow>
+
+            <FieldRow label="Spacing (Gap)">
+              <Segmented
+                ariaLabel="Spacing gap"
+                value={String(gap)}
+                onChange={(v) => onUpdateContent(node.id, { gap: Number(v) })}
+                options={[
+                  { value: '6', label: '6px' },
+                  { value: '10', label: '10px' },
+                  { value: '14', label: '14px' },
+                  { value: '20', label: '20px' },
+                ]}
+              />
+            </FieldRow>
+
+            <FieldRow label="Alignment">
+              <Segmented
+                ariaLabel="Alignment"
+                value={alignment}
+                onChange={(v) => onUpdateContent(node.id, { alignment: v })}
+                options={[
+                  { value: 'left', label: 'Left' },
+                  { value: 'center', label: 'Center' },
+                  { value: 'right', label: 'Right' },
+                ]}
+              />
+            </FieldRow>
+          </InspectorSection>
+
+          <InspectorSection id="social-share-channels" title="Channels & Links">
+            <div className="space-y-3">
+              {channels.map((ch: any) => (
+                <div
+                  key={ch.id}
+                  className="rounded-lg border border-slate-800 bg-slate-950/80 p-2.5 transition"
+                >
+                  <div className="flex items-center justify-between pb-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold text-white shadow-sm"
+                        style={{ backgroundColor: ch.color || '#004E35' }}
+                      >
+                        {ch.id === 'email' ? '✉' : ch.id === 'linkedin' ? 'in' : ch.id === 'twitter' ? '𝕏' : 'f'}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-200">{ch.name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => updateChannel(ch.id, { enabled: ch.enabled === false ? true : false })}
+                      className={`rounded px-2 py-0.5 text-[10px] font-semibold transition ${
+                        ch.enabled !== false
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                          : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      }`}
+                    >
+                      {ch.enabled !== false ? 'Active' : 'Disabled'}
+                    </button>
+                  </div>
+
+                  {ch.enabled !== false && (
+                    <div className="space-y-2 pt-1 border-t border-slate-900">
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-400">
+                          {ch.id === 'email' ? 'Mailto / Subject override' : 'Custom Share URL (optional)'}
+                        </label>
+                        <input
+                          type="text"
+                          value={ch.url || ''}
+                          onChange={(e) => updateChannel(ch.id, { url: e.target.value })}
+                          placeholder={ch.id === 'email' ? 'mailto:?subject=...' : 'https://...'}
+                          className="mt-1 w-full rounded-md border border-slate-700/80 bg-slate-900 px-2 py-1 font-mono text-[11px] text-slate-100 placeholder:text-slate-600 focus:border-emerald-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <label className="text-[10px] font-medium text-slate-400">Icon Color</label>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="color"
+                            value={ch.color || (ch.id === 'email' ? '#ea4335' : ch.id === 'linkedin' ? '#0a66c2' : ch.id === 'twitter' ? '#000000' : '#1877f2')}
+                            onChange={(e) => updateChannel(ch.id, { color: e.target.value })}
+                            className="h-6 w-7 cursor-pointer rounded border border-slate-700 bg-transparent p-0"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const defaultColors: Record<string, string> = {
+                                email: '#ea4335',
+                                linkedin: '#0a66c2',
+                                twitter: '#000000',
+                                facebook: '#1877f2',
+                              };
+                              updateChannel(ch.id, { color: defaultColors[ch.id] || '#004E35' });
+                            }}
+                            className="text-[10px] text-slate-500 hover:text-slate-300"
+                            title="Reset to brand color"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </InspectorSection>
+        </div>
+      );
+    }
+
     default: {
       if (['section', 'container', 'grid', 'flex', 'columns'].includes(node.type)) {
         return (

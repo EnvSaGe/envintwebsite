@@ -365,3 +365,69 @@ h1, h2, h3, h4, h5, h6 {
   transform: scale(1.025);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Rich-text content styling for migrated CMS articles & case studies.
+   The global `* { margin: 0; padding: 0 }` reset strips the browser's
+   default paragraph/list spacing and list numbering, so long-form content
+   rendered without these rules lost its numbers, bullets and rhythm vs
+   the original envintglobal.com site.
+   ─────────────────────────────────────────────────────────────────────── */
+.article-content p {
+  margin: 0 0 1.35em 0;
+}
+
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  margin: 2em 0 0.6em 0;
+}
+
+.article-content ol,
+.article-content ul {
+  margin: 0 0 1.35em 0;
+  padding-left: 2.5em;
+  list-style: revert;
+}
+
+.article-content li {
+  margin: 0 0 0.6em 0;
+}
+
+.article-content li > ol,
+.article-content li > ul {
+  margin: 0.6em 0 0 0;
+}
+
+.article-content img {
+  margin: 2em auto;
+  border-radius: 12px;
+}
+
+.article-content a {
+  color: var(--color-brand-green-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Lists inside builder-rendered rich text (paragraph/rich-text nodes)
+   get the same treatment so migrated pages match the original site. */
+.envint-dynamic-page-tree ol,
+.envint-dynamic-page-tree ul {
+  margin: 0 0 1.35em 0;
+  padding-left: 2.5em;
+  list-style: revert;
+}
+
+.envint-dynamic-page-tree p {
+  margin: 0 0 1.35em 0;
+}
+
+.envint-dynamic-page-tree li {
+  margin: 0 0 0.6em 0;
+}
+
+.envint-dynamic-page-tree li > ol,
+.envint-dynamic-page-tree li > ul {
+  margin: 0.6em 0 0 0;
+}

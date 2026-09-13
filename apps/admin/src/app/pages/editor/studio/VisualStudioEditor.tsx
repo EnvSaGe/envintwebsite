@@ -65,7 +65,7 @@ export function VisualStudioEditor({
 }: VisualStudioEditorProps) {
   const [state, dispatch] = useReducer(studioReducer, {
     tree: initialTree,
-    selectedId: initialTree.rootIds[0] || null,
+    selectedId: null,
     hoveredId: null,
     draggedType: null,
     draggedExistingId: null,
@@ -103,6 +103,21 @@ export function VisualStudioEditor({
       /* ignore */
     }
   }, [prefs]);
+
+  /* Responsive: auto-collapse panels on small viewports so the canvas stays usable.
+     Only collapses (never force-re-expands) — the user can reopen via the toolbar. */
+  useEffect(() => {
+    const COLLAPSE_BELOW = 1024;
+    const apply = () => {
+      if (window.innerWidth < COLLAPSE_BELOW) {
+        setLeftCollapsed(true);
+        setRightCollapsed(true);
+      }
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
+  }, []);
 
   const showNotification = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -326,6 +341,11 @@ export function VisualStudioEditor({
     dispatch({ type: 'UPDATE_CONTENT', nodeId: id, content });
   }, []);
 
+  /* Drop-position indicator state (fires frequently during drag-over) */
+  const handleDropTargetChange = useCallback((targetId: string | null, position: 'before' | 'after' | 'inside' | null) => {
+    dispatch({ type: 'SET_DROP_TARGET', targetId, position });
+  }, []);
+
   return (
     <div
       className="studio-shell flex h-screen w-screen flex-col overflow-hidden bg-[#090D14] text-white"
@@ -359,7 +379,7 @@ export function VisualStudioEditor({
       <div className="flex min-h-0 flex-1 overflow-hidden">
         {!focusMode && (
           <>
-            <div className="relative flex min-h-0 min-w-0" style={{ width: leftCollapsed ? 56 : prefs.leftWidth }}>
+            <div className="relative flex min-h-0 min-w-0 overflow-hidden" style={{ width: leftCollapsed ? 56 : prefs.leftWidth }}>
               <PaletteSidebar
                 state={state}
                 collapsed={leftCollapsed}
@@ -393,7 +413,7 @@ export function VisualStudioEditor({
 
             {/* Right Inspector */}
             <div
-              className="relative flex min-h-0 min-w-0"
+              className="relative flex min-h-0 min-w-0 overflow-hidden"
               style={{ width: rightCollapsed ? 40 : prefs.rightWidth }}
             >
               <InspectorSidebar
@@ -451,6 +471,10 @@ export function VisualStudioEditor({
           onUpdateContent={handleUpdateContent}
           zoom={zoom}
           onZoomChange={setZoom}
+          onDropTargetChange={handleDropTargetChange}
+          dropTargetId={state.dropTargetId}
+          dropPosition={state.dropPosition}
+          isDragActive={state.dropTargetId !== null || state.draggedType !== null || state.draggedExistingId !== null}
         />
       </div>
 

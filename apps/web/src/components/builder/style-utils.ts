@@ -41,8 +41,15 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   if (styles.gap) css.gap = styles.gap;
   if (styles.columnGap) css.columnGap = styles.columnGap;
   if (styles.rowGap) css.rowGap = styles.rowGap;
-  if (styles.gridColumns) css.gridTemplateColumns = styles.gridColumns;
-  if (styles.gridRows) css.gridTemplateRows = styles.gridRows;
+  if (styles.gridColumns || styles.gridTemplateColumns) {
+    css.gridTemplateColumns = styles.gridColumns || styles.gridTemplateColumns;
+  }
+  if (styles.gridRows || styles.gridTemplateRows) {
+    css.gridTemplateRows = styles.gridRows || styles.gridTemplateRows;
+  }
+  if (styles.aspectRatio) {
+    css.aspectRatio = styles.aspectRatio;
+  }
 
   // Typography
   if (styles.fontFamily) css.fontFamily = styles.fontFamily;
@@ -58,7 +65,12 @@ export function elementStylesToCss(styles: ElementStyles | undefined): React.CSS
   // Background
   if (styles.backgroundColor) css.backgroundColor = styles.backgroundColor;
   if (styles.backgroundImage) {
-    const bg = styles.backgroundImage.trim();
+    let bg = styles.backgroundImage.trim();
+    if (bg.startsWith('/images/')) {
+      bg = `https://envintcms.s3.ap-south-1.amazonaws.com${bg}`;
+    } else if (bg.startsWith('/media/uploads/')) {
+      bg = `https://envintcms.s3.ap-south-1.amazonaws.com${bg}`;
+    }
     css.backgroundImage = bg.startsWith('url(') || bg.startsWith('linear-gradient') ? bg : `url(${bg})`;
   }
   if (styles.backgroundSize) css.backgroundSize = styles.backgroundSize;

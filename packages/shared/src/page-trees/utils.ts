@@ -2,6 +2,21 @@ import { BuilderNode, ElementStyles, ElementType, PageBlockTree } from '../build
 
 export function resolveCmsImage(url?: string | null): string {
   if (!url) return '';
+  if (url.includes('services-investment.webp')) {
+    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/services-responsible.webp';
+  }
+  if (url.includes('mapsense-banner.jpg')) {
+    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/mapsense-hero.webp';
+  }
+  if (url.includes('careers-polo.webp')) {
+    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-polo-people.webp';
+  }
+  if (url.includes('careers-footer.webp')) {
+    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-footer.jpg';
+  }
+  if (url.includes('careers-wifu-3.webp') || url.includes('careers-wifu-4.webp')) {
+    return 'https://envintcms.s3.ap-south-1.amazonaws.com/images/careers-typical-day.webp';
+  }
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   if (url.startsWith('/images/')) {
     return `https://envintcms.s3.ap-south-1.amazonaws.com${url}`;
@@ -387,7 +402,7 @@ export function makeImage(
     content: {
       src: resolveCmsImage(src),
       alt,
-      objectFit: 'cover',
+      objectFit: (styles as any)?.objectFit || 'cover',
     },
     styles: {
       width: '100%',
@@ -703,6 +718,88 @@ export function makeDynamicModule(
       width: '100%',
       ...styles,
     },
+    visibility: { desktop: true, tablet: true, mobile: true },
+  };
+}
+
+export function makeForm(
+  id: string,
+  arg2: any,
+  arg3?: any,
+  arg4?: any,
+  arg5?: any
+): BuilderNode {
+  let name = id;
+  let parentId = '';
+  let content: any = { formType: 'contact', action: '/api/forms/contact' };
+  let styles: ElementStyles = {};
+
+  if (typeof arg4 === 'object' && arg4 !== null) {
+    parentId = typeof arg2 === 'string' ? arg2 : '';
+    content = { ...content, ...arg3 };
+    styles = safeStyles(arg4);
+    name = typeof arg5 === 'string' ? arg5 : id;
+  } else {
+    name = typeof arg2 === 'string' ? arg2 : id;
+    parentId = typeof arg3 === 'string' ? arg3 : '';
+    content = { ...content, ...(typeof arg4 === 'object' ? arg4 : {}) };
+    styles = safeStyles(arg5);
+  }
+
+  return {
+    id,
+    type: 'form',
+    name,
+    parentId,
+    children: [],
+    content,
+    styles: {
+      width: '100%',
+      ...styles,
+    },
+    responsiveStyles: {},
+    visibility: { desktop: true, tablet: true, mobile: true },
+  };
+}
+
+export function makeSocialShare(
+  id: string,
+  parentId: string,
+  channels?: Array<{ id: string; name: string; enabled: boolean; color?: string; url?: string }>,
+  options?: {
+    buttonSize?: number;
+    borderRadius?: number;
+    gap?: number;
+    alignment?: 'left' | 'center' | 'right';
+  },
+  styles?: ElementStyles,
+  name: string = 'Social Share Bar'
+): BuilderNode {
+  const defaultChannels = [
+    { id: 'email', name: 'Email', enabled: true, color: '#ea4335', url: '' },
+    { id: 'linkedin', name: 'LinkedIn', enabled: true, color: '#0a66c2', url: '' },
+    { id: 'twitter', name: 'X / Twitter', enabled: true, color: '#000000', url: '' },
+    { id: 'facebook', name: 'Facebook', enabled: true, color: '#1877f2', url: '' },
+  ];
+
+  return {
+    id,
+    type: 'social-share',
+    name,
+    parentId,
+    children: [],
+    content: {
+      channels: channels || defaultChannels,
+      buttonSize: options?.buttonSize || 32,
+      borderRadius: options?.borderRadius ?? 4,
+      gap: options?.gap ?? 10,
+      alignment: options?.alignment || 'left',
+    },
+    styles: {
+      width: '100%',
+      ...safeStyles(styles),
+    },
+    responsiveStyles: {},
     visibility: { desktop: true, tablet: true, mobile: true },
   };
 }

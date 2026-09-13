@@ -17,6 +17,7 @@ export * from './mapsense';
 export * from './connect';
 export * from './practices';
 export * from './hubs';
+export * from './article-tree';
 
 export const ALL_CANONICAL_PAGE_SLUGS = [
   '/',

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '../../components/Sidebar';
 import { 
   BookOpen, 
@@ -222,7 +223,7 @@ export default function InsightsPage() {
                     {item.publishedAt ? item.publishedAt.slice(0, 10) : 'Active'}
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                     <a
                       href={`https://envintglobal.vercel.app/${item.slug}`}
                       target="_blank"
@@ -240,6 +241,27 @@ export default function InsightsPage() {
                       <Eye size={15} />
                     </a>
 
+                    <Link
+                      href={`/pages/editor?slug=/${item.slug}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        boxShadow: '0 1px 3px rgba(0,78,53,0.25)'
+                      }}
+                      title="Open in Cutting-Edge Visual Studio Canvas Editor"
+                    >
+                      <Sparkles size={14} color="#34d399" />
+                      <span>Visual Studio</span>
+                    </Link>
+
                     <button
                       onClick={() => setEditingArticle(item)}
                       style={{
@@ -253,9 +275,10 @@ export default function InsightsPage() {
                         fontSize: '0.82rem',
                         fontWeight: 600
                       }}
+                      title="Edit metadata & summary"
                     >
                       <Edit3 size={14} />
-                      <span>Edit</span>
+                      <span>Quick Meta</span>
                     </button>
 
                     <button
@@ -306,16 +329,71 @@ export default function InsightsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <BookOpen size={20} color="#10b981" />
                   <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                    {editingArticle.id ? 'Edit Article' : 'New Article'}
+                    {editingArticle.id ? 'Edit Article Metadata' : 'New Article'}
                   </h2>
                 </div>
-                <button onClick={() => setEditingArticle(null)} style={{ color: '#94a3b8' }}>
-                  <X size={20} />
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {editingArticle.slug && (
+                    <Link
+                      href={`/pages/editor?slug=/${editingArticle.slug}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 14px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        boxShadow: '0 2px 6px rgba(0,78,53,0.2)',
+                      }}
+                    >
+                      <Sparkles size={14} color="#34d399" />
+                      <span>Visual Studio Editor</span>
+                    </Link>
+                  )}
+                  <button onClick={() => setEditingArticle(null)} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               {/* Modal Body */}
               <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto', padding: '24px', gap: '18px' }}>
+                {editingArticle.slug && (
+                  <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.86rem', color: '#166534' }}>
+                        Prefer full visual drag-and-drop page editing?
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#15803d', marginTop: '2px' }}>
+                        Design this article on the live interactive canvas with typography, images, and block controls.
+                      </div>
+                    </div>
+                    <Link
+                      href={`/pages/editor?slug=/${editingArticle.slug}`}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                        marginLeft: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Sparkles size={13} color="#34d399" />
+                      <span>Launch Studio</span>
+                    </Link>
+                  </div>
+                )}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                     Article Headline / Title *

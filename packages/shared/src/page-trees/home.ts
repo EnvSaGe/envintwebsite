@@ -6,7 +6,6 @@ import {
   makeHeading,
   makeParagraph,
   makeImage,
-  makeBadge,
   makeButton,
   makeCounter,
   makeDynamicModule,
@@ -14,14 +13,60 @@ import {
   resolveCmsImage,
 } from './utils';
 
+const HELP_CARDS = [
+  {
+    title: 'Sustainability Integration',
+    desc: 'Integrate sustainability in your core strategy & operations',
+    url: '/sustainability-integration/',
+  },
+  {
+    title: 'Responsible Investment',
+    desc: 'Build ESG principles to channelize funds into responsible businesses',
+    url: '/responsible-investment/',
+  },
+  {
+    title: 'Climate Action',
+    desc: 'Futureproof your organization with low-carbon transition plans',
+    url: '/climate-action/',
+  },
+];
+
+const ENVINT_WAY_PILLARS = [
+  {
+    title: 'Focused',
+    img: '/images/envintway-focused.webp',
+    alt: 'Focused - Magnifying glass on forest trees',
+    desc: 'We are sharply focused on sustainability & ESG giving us the edge to understand the complexities associated with this domain.',
+  },
+  {
+    title: 'Balanced',
+    img: '/images/envintway-balanced.webp',
+    alt: 'Balanced - Stacked balancing pebbles in nature',
+    desc: 'Our approach is calibrated to be balanced and pragmatic, built on understanding of policy, regulation, markets and ground realities.',
+  },
+  {
+    title: 'Committed',
+    img: '/images/envintway-committed.webp',
+    alt: 'Committed - Handshake in partnership',
+    desc: 'As a young firm, we go one step further, and believe in co-owning the execution of strategy with our clients. Ownership is not a buzzword for us - our skin is in the game.',
+  },
+];
+
+const IMPACT_STATS = [
+  { value: '525+', label: 'Engagements', img: '/images/stat-engagements.webp' },
+  { value: '150+', label: 'Clients', img: '/images/stat-clients-clean.webp' },
+  { value: '10+', label: 'Countries', img: '/images/stat-countries-clean.webp' },
+  { value: '6', label: 'Offices', img: '/images/stat-offices.webp' },
+];
+
 export function createHomePageTree(): PageBlockTree {
   const rootIds: string[] = [
     'sec_home_hero',
     'sec_home_philosophy',
     'sec_home_vantage',
-    'sec_home_capabilities',
+    'sec_home_services',
     'sec_home_envint_way',
-    'sec_home_stats',
+    'sec_home_impact',
     'sec_home_insights',
     'sec_home_cta',
   ];
@@ -30,7 +75,6 @@ export function createHomePageTree(): PageBlockTree {
     // ─── 1. Hero Section ────────────────────────────────────────────────────────
     sec_home_hero: makeSection(
       'sec_home_hero',
-      'Hero Banner',
       ['cont_home_hero'],
       {
         minHeight: '85vh',
@@ -38,728 +82,801 @@ export function createHomePageTree(): PageBlockTree {
         alignItems: 'flex-end',
         paddingTop: '180px',
         paddingBottom: '100px',
-        backgroundImage: `url(${resolveCmsImage('/images/hero-wetland.webp')})`,
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundImage: resolveCmsImage('/images/hero-wetland.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundOverlay: 'linear-gradient(to top, rgba(0, 46, 32, 0.85) 0%, rgba(0, 46, 32, 0.3) 100%)',
-      }
+        backgroundOverlay:
+          'linear-gradient(to top, rgba(0, 20, 15, 0.55) 0%, rgba(0, 20, 15, 0.15) 100%)',
+      },
+      'Hero Banner'
     ),
     cont_home_hero: makeContainer(
       'cont_home_hero',
-      'Hero Container',
       'sec_home_hero',
-      ['badge_home_hero', 'h1_home_hero', 'p_home_hero', 'btn_home_hero'],
+      ['p_home_hero_title', 'h1_home_hero'],
       {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
         maxWidth: '1280px',
-      }
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Hero Container'
     ),
-    badge_home_hero: makeBadge(
-      'badge_home_hero',
-      'Hero Tagline',
+    p_home_hero_title: makeParagraph(
+      'p_home_hero_title',
       'cont_home_hero',
-      'SUSTAINABILITY & ESG ADVISORY',
+      '<p>Business for Better.<br/>Making it happen</p>',
       {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        textColor: '#FFFFFF',
-      }
-    ),
-    h1_home_hero: makeHeading(
-      'h1_home_hero',
-      'Hero Headline',
-      'cont_home_hero',
-      'Business for Better.\nMaking it happen',
-      'h1',
-      {
-        textColor: '#FFFFFF',
+        fontFamily: 'Neue Montreal, sans-serif',
         fontSize: '76px',
         lineHeight: '1.08',
+        textColor: '#FFFFFF',
         marginBottom: '0',
       },
       {
         tablet: { fontSize: '52px' },
-        mobile: { fontSize: '36px' },
-      }
+        mobile: { fontSize: '32px' },
+      },
+      'Hero Tagline'
     ),
-    p_home_hero: makeParagraph(
-      'p_home_hero',
-      'Hero Subtitle',
+    h1_home_hero: makeHeading(
+      'h1_home_hero',
       'cont_home_hero',
       'We help clients integrate sustainability, channelize responsible investment and enable climate action.',
+      'h1',
       {
-        textColor: '#FBF4EB',
-        fontSize: '24px',
-        maxWidth: '820px',
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '32px',
+        fontWeight: 400,
+        lineHeight: '1.25',
+        textColor: '#FFFFFF',
         marginBottom: '0',
+        maxWidth: '980px',
       },
       {
-        mobile: { fontSize: '18px' },
-      }
-    ),
-    btn_home_hero: makeButton(
-      'btn_home_hero',
-      'Hero CTA Button',
-      'cont_home_hero',
-      'Connect With Us',
-      '/connect',
-      {
-        backgroundColor: '#FFFFFF',
-        textColor: '#004E35',
-        fontWeight: 600,
-        width: 'fit-content',
-        marginTop: '10px',
-      }
+        tablet: { fontSize: '24px' },
+        mobile: { fontSize: '16px' },
+      },
+      'Hero Headline'
     ),
 
-    // ─── 2. Philosophy Section ──────────────────────────────────────────────────
+    // ─── 2. Philosophy Statement ────────────────────────────────────────────────
     sec_home_philosophy: makeSection(
       'sec_home_philosophy',
-      'Philosophy & Purpose',
       ['cont_home_philosophy'],
       {
         backgroundColor: '#FFFFFF',
-        paddingTop: '90px',
-        paddingBottom: '90px',
-      }
+        paddingTop: '80px',
+        paddingBottom: '60px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+      'Philosophy Statement'
     ),
     cont_home_philosophy: makeContainer(
       'cont_home_philosophy',
-      'Philosophy Container',
       'sec_home_philosophy',
-      ['badge_home_phil', 'h2_home_phil', 'p1_home_phil', 'p2_home_phil'],
-      { maxWidth: '1080px' }
-    ),
-    badge_home_phil: makeBadge(
-      'badge_home_phil',
-      'Philosophy Badge',
-      'cont_home_philosophy',
-      'OUR PHILOSOPHY'
-    ),
-    h2_home_phil: makeHeading(
-      'h2_home_phil',
-      'Philosophy Headline',
-      'cont_home_philosophy',
-      'Everything we do is in pursuit of better',
-      'h2',
+      ['phil_p1', 'phil_p2', 'phil_p3', 'phil_link'],
       {
-        fontSize: '48px',
-        textColor: '#004E35',
-        marginTop: '16px',
-        marginBottom: '24px',
-      }
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+        paddingRight: '5%',
+      },
+      'Philosophy Container'
     ),
-    p1_home_phil: makeParagraph(
-      'p1_home_phil',
-      'Philosophy Intro',
+    phil_p1: makeParagraph(
+      'phil_p1',
       'cont_home_philosophy',
-      'From the air we breathe and the water we drink to the future we want, the desire for better touches us all. Better is inspiring and limitless, constrained only by the laws of nature.',
-      { fontSize: '24px', lineHeight: '1.5', textColor: '#393939' }
+      '<p>From the air we breathe and the water we drink to the future we want, the desire for better touches us all.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '35px',
+      },
+      {
+        mobile: { fontSize: '17px', lineHeight: '25px', marginBottom: '20px' },
+      },
+      'Philosophy Line 1'
     ),
-    p2_home_phil: makeParagraph(
-      'p2_home_phil',
-      'Philosophy Detail',
+    phil_p2: makeParagraph(
+      'phil_p2',
       'cont_home_philosophy',
-      'At Envint, better is what we live, think and enable. We believe that by embedding environmental, social and governance principles in their core strategies, businesses can not only do good for the world, but also earn better financial returns.',
-      { fontSize: '18px', lineHeight: '1.7', textColor: '#64748B' }
+      '<p>Better is inspiring and limitless, constrained only by the laws of nature.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '35px',
+      },
+      {
+        mobile: { fontSize: '17px', lineHeight: '25px', marginBottom: '20px' },
+      },
+      'Philosophy Line 2'
+    ),
+    phil_p3: makeParagraph(
+      'phil_p3',
+      'cont_home_philosophy',
+      '<p>Being sustainable is no longer optional – the future belongs to businesses that go for better.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '20px',
+      },
+      {
+        mobile: { fontSize: '17px', lineHeight: '25px' },
+      },
+      'Philosophy Line 3'
+    ),
+    phil_link: makeButton(
+      'phil_link',
+      'cont_home_philosophy',
+      'Explore more',
+      '/services/',
+      'primary',
+      {
+        backgroundColor: 'transparent',
+        textColor: '#8C8C8C',
+        fontSize: '24px',
+        fontWeight: 400,
+        paddingTop: '0',
+        paddingBottom: '10px',
+        paddingLeft: '0',
+        paddingRight: '0',
+        borderRadius: '0',
+        width: 'fit-content',
+      },
+      'Explore More Link'
     ),
 
-    // ─── 3. Featured Spotlight (Vantage 2026) ───────────────────────────────────
+    // ─── 3. Featured Publication Spotlight (Vantage 2026) ───────────────────────
     sec_home_vantage: makeSection(
       'sec_home_vantage',
-      'Featured Publication Spotlight',
       ['cont_home_vantage'],
       {
-        backgroundColor: '#F8FAFC',
-        paddingTop: '80px',
-        paddingBottom: '80px',
-      }
+        backgroundColor: '#F7F7F7',
+        paddingTop: '70px',
+        paddingBottom: '70px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+      'Featured Publication Spotlight'
     ),
     cont_home_vantage: makeContainer(
       'cont_home_vantage',
-      'Vantage Container',
       'sec_home_vantage',
-      ['grid_home_vantage']
+      ['grid_home_vantage'],
+      {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Vantage Container'
     ),
     grid_home_vantage: makeGrid(
       'grid_home_vantage',
-      'Vantage 2-Col Grid',
       'cont_home_vantage',
-      ['col_vantage_info', 'col_vantage_img'],
-      {
-        gridColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)',
-        alignItems: 'center',
-        gap: '48px',
-      },
+      '2',
+      '86px',
+      ['img_vantage', 'col_vantage_info'],
+      { gridColumns: 'minmax(0, 635fr) minmax(0, 465fr)', alignItems: 'center' },
       {
         tablet: { gridColumns: '1fr' },
       }
-    ),
-    col_vantage_info: makeContainer(
-      'col_vantage_info',
-      'Vantage Info Column',
-      'grid_home_vantage',
-      ['badge_vantage', 'h2_vantage', 'p_vantage', 'btn_vantage']
-    ),
-    badge_vantage: makeBadge(
-      'badge_vantage',
-      'Vantage Badge',
-      'col_vantage_info',
-      'FLAGSHIP PUBLICATION'
-    ),
-    h2_vantage: makeHeading(
-      'h2_vantage',
-      'Vantage Headline',
-      'col_vantage_info',
-      'Vantage 2026: The ESG Inflection Point',
-      'h2',
-      { fontSize: '42px', marginTop: '14px' }
-    ),
-    p_vantage: makeParagraph(
-      'p_vantage',
-      'Vantage Description',
-      'col_vantage_info',
-      'Our definitive annual industry report analyzing corporate decarbonization roadmaps, BRSR disclosures, Scope 3 supply chain realities, and emerging transition finance vehicles.',
-      { fontSize: '18px' }
-    ),
-    btn_vantage: makeButton(
-      'btn_vantage',
-      'Read Report Button',
-      'col_vantage_info',
-      'Explore Publication',
-      '/insights',
-      { marginTop: '12px' }
-    ),
-    col_vantage_img: makeContainer(
-      'col_vantage_img',
-      'Vantage Image Column',
-      'grid_home_vantage',
-      ['img_vantage']
     ),
     img_vantage: makeImage(
       'img_vantage',
-      'Vantage Report Cover',
-      'col_vantage_img',
-      '/images/brsr-round-2.webp',
-      'Envint Vantage 2026 Report Cover',
+      'grid_home_vantage',
+      resolveCmsImage('/images/vantage-2026.webp'),
+      'Vantage 2026: Navigating the ESG Reset - Envint Publication',
+      { width: '100%', borderRadius: '20px' },
+      'Vantage Report Cover'
+    ),
+    col_vantage_info: makeContainer(
+      'col_vantage_info',
+      'grid_home_vantage',
+      ['h2_vantage', 'p_vantage', 'vantage_links'],
+      { display: 'flex', flexDirection: 'column' },
+      'Vantage Info Column'
+    ),
+    h2_vantage: makeHeading(
+      'h2_vantage',
+      'col_vantage_info',
+      'Vantage 2026: Navigating the ESG Reset',
+      'h2',
       {
-        borderRadius: '16px',
-        boxShadow: '0 20px 40px -15px rgba(0, 78, 53, 0.18)',
-      }
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '20px',
+      },
+      {
+        mobile: { fontSize: '28px' },
+      },
+      'Vantage Headline'
+    ),
+    p_vantage: makeParagraph(
+      'p_vantage',
+      'col_vantage_info',
+      '<p>Trade tensions, geopolitical conflicts, and supply chain disruptions continue to reshape business priorities, while sustainability in India continues to gain traction. Our publication explores the evolving ESG agenda, macroeconomic challenges for businesses and how organizations in India can respond in this context. Drawing on policy and regulatory developments, market insights, and client experience, Vantage helps businesses navigate a changing ESG landscape and focus on what matters most.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '35px',
+      },
+      {
+        mobile: { fontSize: '18px', lineHeight: '25px' },
+      },
+      'Vantage Description'
+    ),
+    vantage_links: makeContainer(
+      'vantage_links',
+      'col_vantage_info',
+      ['btn_vantage_read', 'btn_vantage_2025'],
+      {
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '24px',
+      },
+      'Vantage Links Row'
+    ),
+    btn_vantage_read: makeButton(
+      'btn_vantage_read',
+      'vantage_links',
+      'Read now',
+      '/envision/',
+      'primary',
+      {
+        backgroundColor: 'transparent',
+        textColor: '#1E88D2',
+        fontSize: '24px',
+        fontWeight: 400,
+        paddingTop: '0',
+        paddingBottom: '10px',
+        paddingLeft: '0',
+        paddingRight: '0',
+        borderRadius: '0',
+        width: 'fit-content',
+      },
+      'Read Now Link'
+    ),
+    btn_vantage_2025: makeButton(
+      'btn_vantage_2025',
+      'vantage_links',
+      'Click here to read Vantage 2025',
+      '/media/uploads/Envint-Vantage-ESG-Reset.pdf',
+      'primary',
+      {
+        backgroundColor: 'transparent',
+        textColor: '#1E88D2',
+        fontSize: '24px',
+        fontWeight: 400,
+        paddingTop: '0',
+        paddingBottom: '10px',
+        paddingLeft: '0',
+        paddingRight: '0',
+        borderRadius: '0',
+        width: 'fit-content',
+      },
+      'Vantage 2025 Link'
     ),
 
-    // ─── 4. Capabilities / Services ─────────────────────────────────────────────
-    sec_home_capabilities: makeSection(
-      'sec_home_capabilities',
-      'Core Capabilities & Solutions',
-      ['cont_home_capabilities'],
+    // ─── 4. We help you with ... ────────────────────────────────────────────────
+    sec_home_services: makeSection(
+      'sec_home_services',
+      ['cont_home_services'],
       {
-        backgroundColor: '#FFFFFF',
-        paddingTop: '90px',
-        paddingBottom: '90px',
-      }
-    ),
-    cont_home_capabilities: makeContainer(
-      'cont_home_capabilities',
-      'Capabilities Container',
-      'sec_home_capabilities',
-      ['badge_home_caps', 'h2_home_caps', 'grid_home_caps']
-    ),
-    badge_home_caps: makeBadge(
-      'badge_home_caps',
-      'Capabilities Badge',
-      'cont_home_capabilities',
-      'WHAT WE DELIVER'
-    ),
-    h2_home_caps: makeHeading(
-      'h2_home_caps',
-      'Capabilities Headline',
-      'cont_home_capabilities',
-      'Three specialized practices delivering end-to-end impact',
-      'h2',
-      { fontSize: '42px', marginTop: '14px', marginBottom: '40px' }
-    ),
-    grid_home_caps: makeGrid(
-      'grid_home_caps',
-      'Practice Cards Grid',
-      'cont_home_capabilities',
-      ['card_cap_1', 'card_cap_2', 'card_cap_3'],
-      {
-        gridColumns: 'repeat(3, 1fr)',
-        gap: '28px',
+        paddingTop: '120px',
+        paddingBottom: '120px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundImage: resolveCmsImage('/images/polo-mountain-bg.webp'),
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundOverlay:
+          'linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.25) 100%)',
       },
+      'We Help You With Section'
+    ),
+    cont_home_services: makeContainer(
+      'cont_home_services',
+      'sec_home_services',
+      ['h2_home_services', 'grid_home_services'],
+      {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Services Container'
+    ),
+    h2_home_services: makeHeading(
+      'h2_home_services',
+      'cont_home_services',
+      'We help you with ...',
+      'h2',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '60px',
+        fontWeight: 400,
+        textColor: '#FFFFFF',
+        marginBottom: '48px',
+        textShadow: '0 2px 14px rgba(0, 0, 0, 0.45)',
+      },
+      {
+        tablet: { fontSize: '44px' },
+        mobile: { fontSize: '32px' },
+      },
+      'Services Heading'
+    ),
+    grid_home_services: makeGrid(
+      'grid_home_services',
+      'cont_home_services',
+      '3',
+      '24px',
+      HELP_CARDS.map((_, i) => `card_help_${i + 1}`),
+      {},
       {
         tablet: { gridColumns: '1fr' },
       }
     ),
 
-    // Practice 1: Sustainability Integration
-    card_cap_1: makeContainer(
-      'card_cap_1',
-      'Sustainability Integration Card',
-      'grid_home_caps',
-      ['h3_cap_1', 'p_cap_1', 'btn_cap_1'],
-      {
-        backgroundColor: '#F7F7F7',
-        borderRadius: '16px',
-        paddingTop: '36px',
-        paddingBottom: '36px',
-        paddingLeft: '28px',
-        paddingRight: '28px',
-      }
-    ),
-    h3_cap_1: makeHeading(
-      'h3_cap_1',
-      'Card 1 Title',
-      'card_cap_1',
-      'Sustainability Integration',
-      'h3',
-      { fontSize: '26px', textColor: '#004E35' }
-    ),
-    p_cap_1: makeParagraph(
-      'p_cap_1',
-      'Card 1 Description',
-      'card_cap_1',
-      'Embedding sustainability principles into core corporate strategy, governance, supply chains, circular economy models, and verified disclosure frameworks.'
-    ),
-    btn_cap_1: makeButton(
-      'btn_cap_1',
-      'Card 1 Link',
-      'card_cap_1',
-      'Explore Practice →',
-      '/sustainability-integration',
-      {
-        backgroundColor: 'transparent',
-        textColor: '#004E35',
-        paddingLeft: '0',
-        paddingRight: '0',
-        fontWeight: 600,
-      }
-    ),
-
-    // Practice 2: Climate Action
-    card_cap_2: makeContainer(
-      'card_cap_2',
-      'Climate Action Card',
-      'grid_home_caps',
-      ['h3_cap_2', 'p_cap_2', 'btn_cap_2'],
-      {
-        backgroundColor: '#F7F7F7',
-        borderRadius: '16px',
-        paddingTop: '36px',
-        paddingBottom: '36px',
-        paddingLeft: '28px',
-        paddingRight: '28px',
-      }
-    ),
-    h3_cap_2: makeHeading(
-      'h3_cap_2',
-      'Card 2 Title',
-      'card_cap_2',
-      'Climate Action & Decarbonization',
-      'h3',
-      { fontSize: '26px', textColor: '#004E35' }
-    ),
-    p_cap_2: makeParagraph(
-      'p_cap_2',
-      'Card 2 Description',
-      'card_cap_2',
-      'Scope 1-3 GHG inventories, science-based net zero pathways, renewable energy strategies, energy efficiency audits, and physical climate risk screening.'
-    ),
-    btn_cap_2: makeButton(
-      'btn_cap_2',
-      'Card 2 Link',
-      'card_cap_2',
-      'Explore Practice →',
-      '/climate-action',
-      {
-        backgroundColor: 'transparent',
-        textColor: '#004E35',
-        paddingLeft: '0',
-        paddingRight: '0',
-        fontWeight: 600,
-      }
-    ),
-
-    // Practice 3: Responsible Investment
-    card_cap_3: makeContainer(
-      'card_cap_3',
-      'Responsible Investment Card',
-      'grid_home_caps',
-      ['h3_cap_3', 'p_cap_3', 'btn_cap_3'],
-      {
-        backgroundColor: '#F7F7F7',
-        borderRadius: '16px',
-        paddingTop: '36px',
-        paddingBottom: '36px',
-        paddingLeft: '28px',
-        paddingRight: '28px',
-      }
-    ),
-    h3_cap_3: makeHeading(
-      'h3_cap_3',
-      'Card 3 Title',
-      'card_cap_3',
-      'Responsible Investment & Diligence',
-      'h3',
-      { fontSize: '26px', textColor: '#004E35' }
-    ),
-    p_cap_3: makeParagraph(
-      'p_cap_3',
-      'Card 3 Description',
-      'card_cap_3',
-      'Comprehensive pre-investment ESG due diligence, Environmental & Social Action Plans (ESAP), LP reporting, and post-deal portfolio monitoring for PE & DFIs.'
-    ),
-    btn_cap_3: makeButton(
-      'btn_cap_3',
-      'Card 3 Link',
-      'card_cap_3',
-      'Explore Practice →',
-      '/responsible-investment',
-      {
-        backgroundColor: 'transparent',
-        textColor: '#004E35',
-        paddingLeft: '0',
-        paddingRight: '0',
-        fontWeight: 600,
-      }
-    ),
-
-    // ─── 5. The Envint Way ──────────────────────────────────────────────────────
+    // ─── 5. #TheEnvintWay ───────────────────────────────────────────────────────
     sec_home_envint_way: makeSection(
       'sec_home_envint_way',
-      'The Envint Way (3 Pillars)',
       ['cont_home_envint_way'],
       {
-        backgroundColor: '#004E35',
-        paddingTop: '90px',
-        paddingBottom: '90px',
-      }
+        backgroundColor: '#FFFFFF',
+        paddingTop: '70px',
+        paddingBottom: '70px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+      'The Envint Way Section'
     ),
     cont_home_envint_way: makeContainer(
       'cont_home_envint_way',
-      'Envint Way Container',
       'sec_home_envint_way',
-      ['badge_envint_way', 'h2_envint_way', 'grid_envint_way']
-    ),
-    badge_envint_way: makeBadge(
-      'badge_envint_way',
-      'Envint Way Badge',
-      'cont_home_envint_way',
-      '#THEENVINTWAY',
+      ['h2_envint_way', 'p_envint_way', 'grid_envint_way'],
       {
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        textColor: '#FFFFFF',
-      }
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Envint Way Container'
     ),
     h2_envint_way: makeHeading(
       'h2_envint_way',
-      'Envint Way Headline',
       'cont_home_envint_way',
-      'Where conviction, capability and action meet',
+      '#TheEnvintWay',
       'h2',
       {
-        textColor: '#FFFFFF',
-        fontSize: '44px',
-        marginTop: '16px',
-        marginBottom: '40px',
-      }
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '16px',
+      },
+      {
+        mobile: { fontSize: '28px' },
+      },
+      'Envint Way Headline'
+    ),
+    p_envint_way: makeParagraph(
+      'p_envint_way',
+      'cont_home_envint_way',
+      '<p>Our mission is to drive sustainability into mainstream thought and action, with the belief that <em>‘green makes sense beyond conscience’</em>.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '50px',
+      },
+      {
+        mobile: { fontSize: '18px', lineHeight: '25px' },
+      },
+      'Envint Way Mission'
     ),
     grid_envint_way: makeGrid(
       'grid_envint_way',
-      'Pillars Grid',
       'cont_home_envint_way',
-      ['pillar_1', 'pillar_2', 'pillar_3'],
-      {
-        gridColumns: 'repeat(3, 1fr)',
-        gap: '24px',
-      },
+      '3',
+      '24px',
+      ENVINT_WAY_PILLARS.map((_, i) => `pillar_${i + 1}`),
+      { justifyContent: 'space-between' },
       {
         tablet: { gridColumns: '1fr' },
       }
     ),
 
-    // Pillar 1: Conviction
-    pillar_1: makeContainer(
-      'pillar_1',
-      'Pillar 1 - Conviction',
-      'grid_envint_way',
-      ['img_pillar_1', 'h3_pillar_1', 'p_pillar_1'],
-      {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
-        borderRadius: '16px',
-        paddingTop: '24px',
-        paddingBottom: '24px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
-      }
-    ),
-    img_pillar_1: makeImage(
-      'img_pillar_1',
-      'Conviction Image',
-      'pillar_1',
-      '/images/aboutesg.webp',
-      'Conviction in sustainability',
-      { height: '180px', marginBottom: '16px' }
-    ),
-    h3_pillar_1: makeHeading(
-      'h3_pillar_1',
-      'Conviction Title',
-      'pillar_1',
-      'Conviction',
-      'h3',
-      { textColor: '#FFFFFF', fontSize: '24px' }
-    ),
-    p_pillar_1: makeParagraph(
-      'p_pillar_1',
-      'Conviction Text',
-      'pillar_1',
-      'We believe sustainability is not an afterthought, but the bedrock of resilient enterprise value in a decarbonizing world.',
-      { textColor: '#E2E8F0', fontSize: '16px' }
-    ),
-
-    // Pillar 2: Capability
-    pillar_2: makeContainer(
-      'pillar_2',
-      'Pillar 2 - Capability',
-      'grid_envint_way',
-      ['img_pillar_2', 'h3_pillar_2', 'p_pillar_2'],
-      {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
-        borderRadius: '16px',
-        paddingTop: '24px',
-        paddingBottom: '24px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
-      }
-    ),
-    img_pillar_2: makeImage(
-      'img_pillar_2',
-      'Capability Image',
-      'pillar_2',
-      '/images/brsr-round-2.webp',
-      'Multidisciplinary Capability',
-      { height: '180px', marginBottom: '16px' }
-    ),
-    h3_pillar_2: makeHeading(
-      'h3_pillar_2',
-      'Capability Title',
-      'pillar_2',
-      'Capability',
-      'h3',
-      { textColor: '#FFFFFF', fontSize: '24px' }
-    ),
-    p_pillar_2: makeParagraph(
-      'p_pillar_2',
-      'Capability Text',
-      'pillar_2',
-      'Engineers, financial analysts, ESG auditors, and GIS specialists working collaboratively across multi-disciplinary advisory engagements.',
-      { textColor: '#E2E8F0', fontSize: '16px' }
-    ),
-
-    // Pillar 3: Action
-    pillar_3: makeContainer(
-      'pillar_3',
-      'Pillar 3 - Action',
-      'grid_envint_way',
-      ['img_pillar_3', 'h3_pillar_3', 'p_pillar_3'],
-      {
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
-        borderRadius: '16px',
-        paddingTop: '24px',
-        paddingBottom: '24px',
-        paddingLeft: '24px',
-        paddingRight: '24px',
-      }
-    ),
-    img_pillar_3: makeImage(
-      'img_pillar_3',
-      'Action Image',
-      'pillar_3',
-      '/images/about-hero.webp',
-      'Delivering measurable action',
-      { height: '180px', marginBottom: '16px' }
-    ),
-    h3_pillar_3: makeHeading(
-      'h3_pillar_3',
-      'Action Title',
-      'pillar_3',
-      'Action',
-      'h3',
-      { textColor: '#FFFFFF', fontSize: '24px' }
-    ),
-    p_pillar_3: makeParagraph(
-      'p_pillar_3',
-      'Action Text',
-      'pillar_3',
-      'Translating high-level commitments into verifiable baseline reductions, investor-grade disclosures, and auditable governance.',
-      { textColor: '#E2E8F0', fontSize: '16px' }
-    ),
-
-    // ─── 6. Impact Metrics & Stats ──────────────────────────────────────────────
-    sec_home_stats: makeSection(
-      'sec_home_stats',
-      'Proven Execution Metrics',
-      ['cont_home_stats'],
+    // ─── 6. Our Impact & Stats ──────────────────────────────────────────────────
+    sec_home_impact: makeSection(
+      'sec_home_impact',
+      ['cont_home_impact'],
       {
         backgroundColor: '#FFFFFF',
-        paddingTop: '80px',
-        paddingBottom: '80px',
-      }
+        paddingTop: '70px',
+        paddingBottom: '70px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        borderTopWidth: '1px',
+        borderTopStyle: 'solid',
+        borderTopColor: '#F1F5F9',
+      },
+      'Our Impact Section'
     ),
-    cont_home_stats: makeContainer(
-      'cont_home_stats',
-      'Stats Container',
-      'sec_home_stats',
-      ['badge_stats', 'h2_stats', 'grid_stats']
+    cont_home_impact: makeContainer(
+      'cont_home_impact',
+      'sec_home_impact',
+      ['h2_impact', 'p_impact', 'grid_stats'],
+      {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Impact Container'
     ),
-    badge_stats: makeBadge('badge_stats', 'Stats Badge', 'cont_home_stats', 'TRACK RECORD'),
-    h2_stats: makeHeading(
-      'h2_stats',
-      'Stats Headline',
-      'cont_home_stats',
-      'Proven Execution at Scale',
+    h2_impact: makeHeading(
+      'h2_impact',
+      'cont_home_impact',
+      'Our Impact',
       'h2',
-      { fontSize: '42px', marginTop: '14px', marginBottom: '40px' }
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '16px',
+      },
+      {
+        mobile: { fontSize: '28px' },
+      },
+      'Impact Headline'
+    ),
+    p_impact: makeParagraph(
+      'p_impact',
+      'cont_home_impact',
+      '<p>From India’s leading companies to global MNCs, from DFIs to PE and VC funds, we work with a diverse clientele across multiple geographies.</p>',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '35px',
+        textColor: '#393939',
+        marginBottom: '50px',
+      },
+      {
+        mobile: { fontSize: '18px', lineHeight: '25px' },
+      },
+      'Impact Description'
     ),
     grid_stats: makeGrid(
       'grid_stats',
-      'Stats Counters Grid',
-      'cont_home_stats',
-      ['stat_1', 'stat_2', 'stat_3', 'stat_4'],
-      {
-        gridColumns: 'repeat(4, 1fr)',
-        gap: '24px',
-      },
+      'cont_home_impact',
+      '4',
+      '24px',
+      IMPACT_STATS.map((_, i) => `stat_${i + 1}`),
+      {},
       {
         tablet: { gridColumns: 'repeat(2, 1fr)' },
         mobile: { gridColumns: '1fr' },
       }
     ),
-    stat_1: makeCounter('stat_1', 'Stat 1', 'grid_stats', '500+', 'Engagements Delivered', {
-      borderWidth: '2px',
-      borderStyle: 'solid',
-      borderColor: '#004E35',
-      paddingLeft: '16px',
-    }),
-    stat_2: makeCounter('stat_2', 'Stat 2', 'grid_stats', '100+', 'Corporate Clients', {
-      borderWidth: '2px',
-      borderStyle: 'solid',
-      borderColor: '#004E35',
-      paddingLeft: '16px',
-    }),
-    stat_3: makeCounter('stat_3', 'Stat 3', 'grid_stats', '15+', 'Global Geographies', {
-      borderWidth: '2px',
-      borderStyle: 'solid',
-      borderColor: '#004E35',
-      paddingLeft: '16px',
-    }),
-    stat_4: makeCounter('stat_4', 'Stat 4', 'grid_stats', '6+', 'Years of Impact', {
-      borderWidth: '2px',
-      borderStyle: 'solid',
-      borderColor: '#004E35',
-      paddingLeft: '16px',
-    }),
 
-    // ─── 7. Dynamic Insights Module ─────────────────────────────────────────────
+    // ─── 7. Read News and Insights ──────────────────────────────────────────────
     sec_home_insights: makeSection(
       'sec_home_insights',
-      'Latest Insights & Perspectives',
       ['cont_home_insights'],
       {
         backgroundColor: '#F8FAFC',
-        paddingTop: '80px',
-        paddingBottom: '80px',
-      }
+        paddingTop: '70px',
+        paddingBottom: '70px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        borderTopWidth: '1px',
+        borderTopStyle: 'solid',
+        borderTopColor: '#EEF2F6',
+      },
+      'Read News and Insights Section'
     ),
     cont_home_insights: makeContainer(
       'cont_home_insights',
-      'Insights Container',
       'sec_home_insights',
-      ['badge_insights', 'h2_insights', 'mod_insights']
+      ['h2_insights', 'mod_insights'],
+      {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Insights Container'
     ),
-    badge_insights: makeBadge('badge_insights', 'Insights Badge', 'cont_home_insights', 'KNOWLEDGE & PERSPECTIVES'),
     h2_insights: makeHeading(
       'h2_insights',
-      'Insights Headline',
       'cont_home_insights',
-      'Thought Leadership & Regulatory Analysis',
+      'Read news and insights',
       'h2',
-      { fontSize: '40px', marginTop: '14px', marginBottom: '32px' }
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '40px',
+      },
+      {
+        mobile: { fontSize: '28px' },
+      },
+      'Insights Headline'
     ),
     mod_insights: makeDynamicModule(
       'mod_insights',
+      'cont_home_insights',
       'insights-grid',
-      'Insights Dynamic Grid',
-      'cont_home_insights'
+      {},
+      'Latest Insights Grid'
     ),
 
-    // ─── 8. Acceleration CTA ────────────────────────────────────────────────────
+    // ─── 8. Pre-Footer CTA ──────────────────────────────────────────────────────
     sec_home_cta: makeSection(
       'sec_home_cta',
-      'Bottom Call to Action',
       ['cont_home_cta'],
       {
-        backgroundColor: '#004E35',
-        paddingTop: '80px',
-        paddingBottom: '80px',
-      }
+        backgroundColor: '#FFFFFF',
+        paddingTop: '50px',
+        paddingBottom: '70px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+      'Bottom Call to Action'
     ),
     cont_home_cta: makeContainer(
       'cont_home_cta',
-      'CTA Container',
       'sec_home_cta',
-      ['h2_cta', 'p_cta', 'btn_cta'],
+      ['card_home_cta'],
       {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'CTA Container'
+    ),
+    card_home_cta: makeContainer(
+      'card_home_cta',
+      'cont_home_cta',
+      ['h2_cta', 'btn_cta'],
+      {
+        backgroundImage: resolveCmsImage('/images/footer-cta.webp'),
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundOverlay: 'rgba(0, 0, 0, 0.25)',
+        borderRadius: '20px',
+        paddingTop: '60px',
+        paddingBottom: '60px',
+        paddingLeft: '30px',
+        paddingRight: '30px',
         textAlign: 'center',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '16px',
-      }
+        justifyContent: 'center',
+        gap: '32px',
+        minHeight: '360px',
+      },
+      'CTA Banner Card'
     ),
     h2_cta: makeHeading(
       'h2_cta',
-      'CTA Headline',
-      'cont_home_cta',
-      'Ready to Accelerate Your Sustainability Journey?',
+      'card_home_cta',
+      'Let us move towards a greener future',
       'h2',
       {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '48px',
+        fontWeight: 400,
         textColor: '#FFFFFF',
-        fontSize: '44px',
-        margin: '0',
-      }
-    ),
-    p_cta: makeParagraph(
-      'p_cta',
-      'CTA Subtext',
-      'cont_home_cta',
-      'Speak with our senior advisory leaders to initiate a tailored consultation for your enterprise or fund.',
+        lineHeight: '1.25',
+        textShadow: '0 2px 12px rgba(0, 0, 0, 0.4)',
+        marginBottom: '0',
+      },
       {
-        textColor: '#E2E8F0',
-        fontSize: '20px',
-        maxWidth: '700px',
-        margin: '0',
-      }
+        mobile: { fontSize: '28px' },
+      },
+      'CTA Headline'
     ),
     btn_cta: makeButton(
       'btn_cta',
-      'CTA Button',
-      'cont_home_cta',
-      'Connect With Us',
-      '/connect',
+      'card_home_cta',
+      'Connect',
+      '/connect/',
+      'primary',
       {
         backgroundColor: '#FFFFFF',
         textColor: '#004E35',
-        fontSize: '18px',
-        fontWeight: 600,
+        fontSize: '20px',
+        fontWeight: 500,
+        paddingTop: '12px',
+        paddingBottom: '12px',
         paddingLeft: '36px',
         paddingRight: '36px',
-        marginTop: '12px',
-      }
+        borderRadius: '9999px',
+        width: 'fit-content',
+      },
+      'CTA Connect Button'
     ),
   };
+
+  // Populate "We help you with ..." cards
+  HELP_CARDS.forEach((c, idx) => {
+    const cardId = `card_help_${idx + 1}`;
+    const titleId = `help_title_${idx + 1}`;
+    const descId = `help_desc_${idx + 1}`;
+    const btnId = `help_btn_${idx + 1}`;
+
+    nodes[cardId] = makeContainer(
+      cardId,
+      'grid_home_services',
+      [titleId, descId, btnId],
+      {
+        backgroundColor: '#FFFFFF',
+        borderRadius: '16px',
+        paddingTop: '32px',
+        paddingBottom: '28px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+      },
+      `${c.title} Card`
+    );
+
+    nodes[titleId] = makeHeading(
+      titleId,
+      cardId,
+      c.title,
+      'h3',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '28px',
+        fontWeight: 500,
+        textColor: '#C65102',
+        marginBottom: '12px',
+      },
+      `${c.title} Title`
+    );
+
+    nodes[descId] = makeParagraph(
+      descId,
+      cardId,
+      `<p>${c.desc}</p>`,
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        lineHeight: '30px',
+        textColor: '#484848',
+        marginBottom: '16px',
+      },
+      {
+        mobile: { fontSize: '18px', lineHeight: '24px' },
+      },
+      `${c.title} Description`
+    );
+
+    nodes[btnId] = makeButton(
+      btnId,
+      cardId,
+      'Explore',
+      c.url,
+      'primary',
+      {
+        backgroundColor: 'transparent',
+        textColor: '#1E88D2',
+        fontSize: '18px',
+        fontWeight: 500,
+        paddingTop: '0',
+        paddingBottom: '6px',
+        paddingLeft: '0',
+        paddingRight: '0',
+        borderRadius: '0',
+        width: 'fit-content',
+      },
+      `${c.title} Link`
+    );
+  });
+
+  // Populate #TheEnvintWay pillars
+  ENVINT_WAY_PILLARS.forEach((p, idx) => {
+    const cardId = `pillar_${idx + 1}`;
+    const imgId = `pillar_img_${idx + 1}`;
+    const titleId = `pillar_title_${idx + 1}`;
+    const descId = `pillar_desc_${idx + 1}`;
+
+    nodes[cardId] = makeContainer(
+      cardId,
+      'grid_envint_way',
+      [imgId, titleId, descId],
+      {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      },
+      `${p.title} Pillar`
+    );
+
+    nodes[imgId] = makeImage(
+      imgId,
+      cardId,
+      resolveCmsImage(p.img),
+      p.alt,
+      {
+        width: '100%',
+        maxWidth: '310px',
+        aspectRatio: '1/1',
+        borderRadius: '20px',
+        objectFit: 'cover',
+        marginBottom: '20px',
+      },
+      `${p.title} Image`
+    );
+
+    nodes[titleId] = makeHeading(
+      titleId,
+      cardId,
+      p.title,
+      'h3',
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '24px',
+        fontWeight: 400,
+        textColor: '#5A5A5A',
+        marginBottom: '14px',
+      },
+      `${p.title} Title`
+    );
+
+    nodes[descId] = makeParagraph(
+      descId,
+      cardId,
+      `<p>${p.desc}</p>`,
+      {
+        fontFamily: 'Neue Montreal, sans-serif',
+        fontSize: '18px',
+        lineHeight: '26px',
+        textColor: '#5A5A5A',
+        marginBottom: '0',
+      },
+      `${p.title} Description`
+    );
+  });
+
+  // Populate Impact stats counters
+  IMPACT_STATS.forEach((s, idx) => {
+    const statId = `stat_${idx + 1}`;
+    nodes[statId] = makeCounter(statId, `Stat ${idx + 1}`, 'grid_stats', s.value, s.label, {
+      borderLeftWidth: '1px',
+      borderLeftStyle: 'solid',
+      borderLeftColor: '#D9D9D9',
+      paddingLeft: '18px',
+    });
+  });
 
   return assembleTree(rootIds, nodes);
 }

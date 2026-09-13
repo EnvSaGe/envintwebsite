@@ -8,6 +8,7 @@ import {
   makeImage,
   makeButton,
   makeDynamicModule,
+  makeForm,
   assembleTree,
   resolveCmsImage,
 } from './utils';
@@ -62,9 +63,27 @@ export function createHubPageTree(slug: string): PageBlockTree {
         cont_imp_grid: makeContainer(
           'cont_imp_grid',
           'sec_imp_grid',
-          ['mod_impact_grid'],
+          ['p_imp_intro', 'mod_impact_grid'],
           { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Grid Container'
+        ),
+        p_imp_intro: makeParagraph(
+          'p_imp_intro',
+          'cont_imp_grid',
+          '<p>Envint works with Indian and international corporates, investors, and institutions to integrate sustainability into core business strategy and operations, channel funds into responsible business through ESG principles, and develop low carbon transition plans. Browse featured case studies across sectors and advisory areas below.</p>',
+          {
+            fontSize: '24px',
+            fontWeight: 400,
+            textColor: '#393939',
+            lineHeight: '35px',
+            marginBottom: '50px',
+            paddingRight: '10%',
+            fontFamily: 'Neue Montreal, sans-serif',
+          },
+          {
+            mobile: { fontSize: '18px', lineHeight: '28px', paddingRight: '0' },
+          },
+          'Impact Intro'
         ),
         mod_impact_grid: makeDynamicModule('mod_impact_grid', 'impact-grid', 'Impact Case Studies Dynamic Grid', 'cont_imp_grid'),
       };
@@ -442,20 +461,19 @@ export function createHubPageTree(slug: string): PageBlockTree {
         cont_gbc_card: makeContainer(
           'cont_gbc_card',
           'sec_gbc_card',
-          ['h1_gbc', 'p_gbc', 'btn_gbc'],
+          ['h1_gbc', 'p_gbc', 'grid_gbc_content'],
           {
-            maxWidth: '860px',
+            maxWidth: '960px',
             marginLeft: 'auto',
             marginRight: 'auto',
-            marginTop: '-60px',
+            marginTop: '-80px',
             backgroundColor: '#FFFFFF',
             borderRadius: '20px',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.08)',
+            boxShadow: '0 20px 50px rgba(18, 17, 39, 0.08)',
             paddingTop: '48px',
             paddingBottom: '48px',
             paddingLeft: '48px',
             paddingRight: '48px',
-            textAlign: 'center',
           },
           'Floating Card'
         ),
@@ -471,17 +489,54 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'p_gbc',
           'cont_gbc_card',
           '<p>Please share a few details to access our knowledge resources and connect with our team.</p>',
-          { fontSize: '20px', textColor: '#393939', marginBottom: '28px', fontFamily: 'Neue Montreal, sans-serif' },
+          { fontSize: '20px', textColor: '#393939', marginBottom: '40px', fontFamily: 'Neue Montreal, sans-serif' },
           'Text'
         ),
-        btn_gbc: makeButton(
-          'btn_gbc',
+        grid_gbc_content: makeGrid(
+          'grid_gbc_content',
+          'GBC Content Split',
           'cont_gbc_card',
-          'Contact Our Team',
-          '/connect/',
-          'primary',
-          { backgroundColor: '#004E35', textColor: '#FFFFFF', paddingLeft: '32px', paddingRight: '32px', paddingTop: '12px', paddingBottom: '12px', borderRadius: '9999px', fontSize: '16px', width: 'fit-content', marginLeft: 'auto', marginRight: 'auto' },
-          'CTA Button'
+          ['col_gbc_info', 'col_gbc_form'],
+          { gridColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }
+        ),
+        col_gbc_info: makeContainer(
+          'col_gbc_info',
+          'Contact Details Panel',
+          'grid_gbc_content',
+          ['p_gbc_info_content'],
+          {
+            backgroundColor: '#F7FBF9',
+            borderRadius: '16px',
+            paddingTop: '36px',
+            paddingBottom: '36px',
+            paddingLeft: '36px',
+            paddingRight: '36px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '28px',
+            border: '1px solid #E5EAE7',
+          }
+        ),
+        p_gbc_info_content: makeParagraph(
+          'p_gbc_info_content',
+          'Contact Info Details',
+          'col_gbc_info',
+          '<div style="display:flex;flex-direction:column;gap:24px;"><div style="display:flex;align-items:center;gap:16px;"><span style="font-size:1.4rem;">✉</span><a href="mailto:connect@envintglobal.com" style="color:#004E35;font-size:18px;font-weight:500;text-decoration:none;font-family:Neue Montreal, sans-serif;">connect@envintglobal.com</a></div><div style="display:flex;align-items:flex-start;gap:16px;"><span style="font-size:1.4rem;margin-top:2px;">📍</span><div><strong style="display:block;font-size:16px;color:#004E35;margin-bottom:4px;font-family:Neue Montreal, sans-serif;">Corporate Office:</strong><p style="margin:0;font-size:16px;line-height:1.6;color:#404040;font-family:Neue Montreal, sans-serif;">91 Springboard, Godrej &amp; Boyce, LBS Marg, Vikhroli West, Mumbai 400079</p></div></div></div>',
+          { margin: '0' }
+        ),
+        col_gbc_form: makeContainer(
+          'col_gbc_form',
+          'GBC Form Container',
+          'grid_gbc_content',
+          ['form_gbc'],
+          { width: '100%' }
+        ),
+        form_gbc: makeForm(
+          'form_gbc',
+          'GBC Form',
+          'col_gbc_form',
+          { formType: 'gbc', action: '/api/forms/gbc' },
+          { width: '100%' }
         ),
       };
       return assembleTree(rootIds, nodes);

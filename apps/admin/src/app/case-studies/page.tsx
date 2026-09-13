@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Sidebar } from '../../components/Sidebar';
 import { 
   Briefcase, 
@@ -12,7 +13,8 @@ import {
   Save, 
   X, 
   Check, 
-  ExternalLink 
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { fetchImpacts, saveImpactAction, deleteImpactAction } from './actions';
 import { RichTextEditor } from '../../components/RichTextEditor';
@@ -217,7 +219,7 @@ export default function CaseStudiesPage() {
                     ))}
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                     <a
                       href={`https://envintglobal.vercel.app/impact/${item.slug}`}
                       target="_blank"
@@ -227,11 +229,33 @@ export default function CaseStudiesPage() {
                     >
                       <Eye size={15} />
                     </a>
+
+                    <Link
+                      href={`/pages/editor?slug=/impact/${item.slug}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        boxShadow: '0 1px 3px rgba(0,78,53,0.25)'
+                      }}
+                      title="Open in Cutting-Edge Visual Studio Canvas Editor"
+                    >
+                      <Sparkles size={14} color="#34d399" />
+                      <span>Visual Studio</span>
+                    </Link>
+
                     <button
                       onClick={() => setEditingImpact(item)}
                       style={{ padding: '6px 12px', backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 600 }}
                     >
-                      Edit
+                      Quick Meta
                     </button>
                     <button
                       onClick={() => handleDelete(item.slug, item.title)}
@@ -272,14 +296,69 @@ export default function CaseStudiesPage() {
             }}>
               <div style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  {editingImpact.id ? 'Edit Case Study' : 'New Case Study'}
+                  {editingImpact.id ? 'Edit Case Study Metadata' : 'New Case Study'}
                 </h2>
-                <button onClick={() => setEditingImpact(null)} style={{ color: '#94a3b8' }}>
-                  <X size={20} />
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {editingImpact.slug && (
+                    <Link
+                      href={`/pages/editor?slug=/impact/${editingImpact.slug}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 14px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        boxShadow: '0 2px 6px rgba(0,78,53,0.2)',
+                      }}
+                    >
+                      <Sparkles size={14} color="#34d399" />
+                      <span>Visual Studio Editor</span>
+                    </Link>
+                  )}
+                  <button onClick={() => setEditingImpact(null)} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <X size={20} />
+                  </button>
+                </div>
               </div>
 
               <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto', padding: '24px', gap: '16px' }}>
+                {editingImpact.slug && (
+                  <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.86rem', color: '#166534' }}>
+                        Prefer full visual drag-and-drop page editing?
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#15803d', marginTop: '2px' }}>
+                        Design this case study on the live interactive canvas with typography, images, and block controls.
+                      </div>
+                    </div>
+                    <Link
+                      href={`/pages/editor?slug=/impact/${editingImpact.slug}`}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#004E35',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                        marginLeft: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Sparkles size={13} color="#34d399" />
+                      <span>Launch Studio</span>
+                    </Link>
+                  </div>
+                )}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
                     Title *

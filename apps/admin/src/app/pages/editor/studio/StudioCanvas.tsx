@@ -56,6 +56,11 @@ import {
   AccordionPrimitive,
   AccordionItemPrimitive,
   TeamGridPrimitive,
+  ServiceCardsPrimitive,
+  InsightsGridPrimitive,
+  ImpactGridPrimitive,
+  SocialSharePrimitive,
+  FormPrimitive,
   DynamicModulePlaceholder,
 } from './blocks';
 
@@ -78,6 +83,11 @@ interface StudioCanvasProps {
   onUpdateContent: (nodeId: string, content: Partial<any>) => void;
   zoom: ZoomLevel;
   onZoomChange: (zoom: ZoomLevel) => void;
+  /** Dispatches drop-target changes during drag-overs (for insertion indicators). */
+  onDropTargetChange?: (targetId: string | null, position: 'before' | 'after' | 'inside' | null) => void;
+  dropTargetId?: string | null;
+  dropPosition?: 'before' | 'after' | 'inside' | null;
+  isDragActive?: boolean;
 }
 
 const ZOOM_OPTIONS: Array<{ label: string; value: ZoomLevel }> = [
@@ -111,8 +121,32 @@ export function StudioCanvas({
   onUpdateContent,
   zoom,
   onZoomChange,
+  onDropTargetChange,
+  dropTargetId,
+  dropPosition,
 }: StudioCanvasProps) {
   const { tree, selectedId, breakpoint } = state;
+
+  /* Track whether an HTML5 drag is currently over the canvas (indicator gating).
+     Cleared on window-level dragend/drop so indicators never stick. */
+  const [isDragOverCanvas, setIsDragOverCanvas] = React.useState(false);
+  const dragDepthRef = React.useRef(0);
+
+  React.useEffect(() => {
+    const clear = () => {
+      dragDepthRef.current = 0;
+      setIsDragOverCanvas(false);
+      onDropTargetChange?.(null, null);
+    };
+    window.addEventListener('dragend', clear);
+    window.addEventListener('drop', clear);
+    return () => {
+      window.removeEventListener('dragend', clear);
+      window.removeEventListener('drop', clear);
+    };
+  }, [onDropTargetChange]);
+
+  const isDragActive = isDragOverCanvas || Boolean(dropTargetId);
   const device = DEVICE_META[breakpoint];
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const [inlineEditId, setInlineEditId] = React.useState<string | null>(null);
@@ -150,7 +184,7 @@ export function StudioCanvas({
       const host = scrollRef.current.getBoundingClientRect();
       const fullyVisible = rect.top >= host.top + 8 && rect.bottom <= host.bottom - 8;
       if (!fullyVisible) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
   }, [selectedId]);
@@ -167,16 +201,51 @@ export function StudioCanvas({
       aria-label="Visual canvas"
     >
       {/* The single independent scroll container for the canvas column */}
-      <div ref={scrollRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+      <div
+        ref={scrollRef}
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden"
+        onDragEnter={(e) => {
+          if (getDragPayload(e).kind === 'none') return;
+          dragDepthRef.current += 1;
+          setIsDragOverCanvas(true);
+        }}
+        onDragLeave={(e) => {
+          if (e.target === e.currentTarget && dragDepthRef.current > 0) {
+            dragDepthRef.current -= 1;
+            if (dragDepthRef.current === 0) {
+              setIsDragOverCanvas(false);
+              onDropTargetChange?.(null, null);
+            }
+          }
+        }}
+        onDrop={() => {
+          dragDepthRef.current = 0;
+          setIsDragOverCanvas(false);
+        }}
+      >
         <div className="flex min-h-full flex-col items-center px-4 pb-24 pt-4">
           {/* Page frame — height follows the rendered page content exactly */}
           <div
             onClick={(e) => e.stopPropagation()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              // Root-frame safety net: only fires when nothing else handled the
+              // drop (e.g. the empty padding around the page). Appends at root.
+              if (getDragPayload(e).kind === 'none') return;
+              e.preventDefault();
+              const payload = getDragPayload(e);
+              if (payload.kind === 'new' && payload.elementType) {
+                onAddNode(payload.elementType, null, 'after');
+              } else if (payload.kind === 'move' && payload.existingId) {
+                const node = state.tree.nodes[payload.existingId];
+                if (node?.parentId) onMoveNode(payload.existingId, null, tree.rootIds.length);
+              }
+            }}
             style={{
               ...canvasWidthStyle,
               transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            className={`w-full rounded-lg border border-slate-800 bg-white shadow-[0_24px_80px_-24px_rgba(0,0,0,0.8)] ${
+            className={`studio-page-frame w-full rounded-lg border border-slate-800 bg-white shadow-[0_24px_80px_-24px_rgba(0,0,0,0.8)] ${
               breakpoint !== 'desktop' ? 'ring-8 ring-slate-900/80' : ''
             }`}
           >
@@ -212,6 +281,10 @@ export function StudioCanvas({
                   onDeleteNode={onDeleteNode}
                   onToggleVisibility={onToggleVisibility}
                   onUpdateContent={onUpdateContent}
+                  onDropTargetChange={onDropTargetChange}
+                  dropTargetId={dropTargetId}
+                  dropPosition={dropPosition}
+                  isDragActive={isDragActive}
                 />
               ))
             )}
@@ -292,6 +365,50 @@ interface CanvasNodeRendererProps {
   onDeleteNode: (nodeId: string) => void;
   onToggleVisibility: (nodeId: string) => void;
   onUpdateContent: (nodeId: string, content: Partial<any>) => void;
+  onDropTargetChange?: (targetId: string | null, position: 'before' | 'after' | 'inside' | null) => void;
+  dropTargetId?: string | null;
+  dropPosition?: 'before' | 'after' | 'inside' | null;
+  isDragActive?: boolean;
+}
+
+/** Drag payload kinds, derived from the dataTransfer custom types. */
+function getDragPayload(e: React.DragEvent): { kind: 'new' | 'move' | 'none'; elementType?: ElementType; existingId?: string } {
+  if (e.dataTransfer.types.includes('application/envint-palette-type')) {
+    return { kind: 'new', elementType: e.dataTransfer.getData('application/envint-palette-type') as ElementType };
+  }
+  if (e.dataTransfer.types.includes('application/envint-node-id')) {
+    return { kind: 'move', existingId: e.dataTransfer.getData('application/envint-node-id') };
+  }
+  return { kind: 'none' };
+}
+
+/**
+ * Decide the drop gesture for a node under the pointer:
+ * - leaf nodes and non-containers → insert BEFORE/AFTER (line indicator)
+ * - containers that accept the payload → INSIDE (ring highlight)
+ * - containers that don't accept it → BEFORE/AFTER fallback
+ */
+function computeDropPosition(
+  e: React.DragEvent,
+  node: BuilderNode,
+  payload: ReturnType<typeof getDragPayload>
+): 'before' | 'after' | 'inside' {
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const isContainer = isLayoutType(node.type) || node.type === 'accordion' || node.type === 'accordion-item';
+  const canDropInside =
+    isContainer &&
+    ((payload.kind === 'new' && payload.elementType ? canAcceptChild(node.type, payload.elementType) : true) ||
+      payload.kind === 'move');
+
+  if (canDropInside && !node.children?.length) return 'inside';
+  if (!canDropInside) {
+    return rect.top + rect.height / 2 > e.clientY ? 'before' : 'after';
+  }
+  // Container with children: use edge zones (25%) for before/after, middle for inside
+  const yRatio = (e.clientY - rect.top) / Math.max(rect.height, 1);
+  if (yRatio < 0.25) return 'before';
+  if (yRatio > 0.75) return 'after';
+  return 'inside';
 }
 
 /**
@@ -301,6 +418,13 @@ interface CanvasNodeRendererProps {
 const MemoCanvasNode = React.memo(CanvasNodeRenderer, (prev, next) => {
   if (prev.nodeId !== next.nodeId) return false;
   if (prev.inlineEditId !== next.inlineEditId) return false;
+  if (
+    prev.dropTargetId !== next.dropTargetId ||
+    prev.dropPosition !== next.dropPosition ||
+    prev.isDragActive !== next.isDragActive
+  ) {
+    return false; // re-render: drop indicators may have moved
+  }
   const p = prev.state.tree.nodes[prev.nodeId];
   const n = next.state.tree.nodes[next.nodeId];
   if (p !== n) return false;
@@ -335,6 +459,10 @@ function CanvasNodeRenderer({
   onDeleteNode,
   onToggleVisibility,
   onUpdateContent,
+  onDropTargetChange,
+  dropTargetId,
+  dropPosition,
+  isDragActive,
 }: CanvasNodeRendererProps) {
   const node: BuilderNode | undefined = state.tree.nodes[nodeId];
   if (!node) return null;
@@ -343,6 +471,12 @@ function CanvasNodeRenderer({
   const isHovered = state.hoveredId === nodeId && !isSelected;
   const { breakpoint } = state;
   const isEditing = inlineEditId === nodeId;
+
+  /* Active drop-target indicator flags (during palette / node drags) */
+  const isDropTarget = Boolean(isDragActive) && dropTargetId === nodeId;
+  const isDropInside = isDropTarget && dropPosition === 'inside';
+  const isDropBefore = isDropTarget && dropPosition === 'before';
+  const isDropAfter = isDropTarget && dropPosition === 'after';
 
   const isVisible = !node.visibility || node.visibility[breakpoint] !== false;
   const hasChildren = (node.children || []).length > 0;
@@ -376,7 +510,7 @@ function CanvasNodeRenderer({
     }
   };
 
-  const acceptChildType = (childType: ElementType): boolean => canAcceptChild(node.type, childType);
+
 
   return (
     <div
@@ -400,36 +534,78 @@ function CanvasNodeRenderer({
         if (!isVisible) return;
         e.preventDefault();
         e.stopPropagation();
+        if (!onDropTargetChange) return;
+        const payload = getDragPayload(e);
+        if (payload.kind === 'none') return;
+        const pos = computeDropPosition(e, node, payload);
+        onDropTargetChange(node.id, pos);
       }}
       onDrop={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        onDropTargetChange?.(null, null);
         const existingId = e.dataTransfer.getData('application/envint-node-id');
         if (existingId) {
-          if (existingId !== node.id && existingId !== node.parentId) {
+          const pos = dropTargetId === node.id ? dropPosition : computeDropPosition(e, node, getDragPayload(e));
+          if (existingId === node.id) return;
+          if (pos === 'inside') {
             onMoveNode(existingId, node.id, (node.children || []).length);
+          } else {
+            // Sibling move: insert relative to this node within its parent
+            const parentId = node.parentId;
+            const siblings = parentId ? state.tree.nodes[parentId]?.children ?? [] : state.tree.rootIds;
+            let idx = siblings.indexOf(node.id);
+            if (pos === 'after') idx += 1;
+            // Moving within the same parent: adjust index for the removal shift
+            const sameParent = existingId && state.tree.nodes[existingId]?.parentId === parentId;
+            const oldIdx = sameParent ? siblings.indexOf(existingId) : -1;
+            const adjusted = sameParent && oldIdx !== -1 && oldIdx < idx ? idx - 1 : idx;
+            if (parentId) onMoveNode(existingId, parentId, adjusted);
           }
           return;
         }
         const elementType = e.dataTransfer.getData('text/plain') as ElementType;
-        if (elementType && acceptChildType(elementType)) {
+        const pos = (dropTargetId === node.id ? dropPosition : computeDropPosition(e, node, getDragPayload(e))) ?? 'after';
+        if (elementType && pos === 'inside') {
           onAddNode(elementType, node.id, 'inside');
         } else if (elementType) {
-          onAddNode(elementType, node.parentId, 'after', node.id);
+          onAddNode(elementType, node.parentId, pos, node.id);
         }
       }}
       style={{
         boxSizing: 'border-box',
         position: 'relative',
         opacity: isVisible ? undefined : 0.35,
-        outline: isSelected
-          ? '2px solid #10B981'
-          : isHovered
-            ? '1px solid rgba(100,116,139,0.55)'
-            : undefined,
+        outline: isDropInside
+          ? '2px dashed #10B981'
+          : isSelected
+            ? '2px solid #10B981'
+            : isHovered
+              ? '1px solid rgba(100,116,139,0.55)'
+              : undefined,
         outlineOffset: '-1px',
+        backgroundColor: isDropInside ? 'rgba(16, 185, 129, 0.06)' : undefined,
       }}
     >
+      {/* ── Drop-position indicators (editor chrome only) ──────────────────── */}
+      {isDropBefore && (
+        <div
+          className="pointer-events-none absolute left-0 right-0 z-40 flex items-center"
+          style={{ top: -3, height: 6 }}
+        >
+          <span className="h-[3px] flex-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <span className="ml-[-2px] h-[9px] w-[9px] rounded-full border-2 border-emerald-500 bg-white shadow" />
+        </div>
+      )}
+      {isDropAfter && (
+        <div
+          className="pointer-events-none absolute left-0 right-0 z-40 flex items-center"
+          style={{ bottom: -3, height: 6 }}
+        >
+          <span className="h-[3px] flex-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <span className="ml-[-2px] h-[9px] w-[9px] rounded-full border-2 border-emerald-500 bg-white shadow" />
+        </div>
+      )}
       {/* Compact selection pill — one row, tiny footprint (editor chrome only) */}
       {(isSelected || isHovered) && !isEditing && (
         <div
@@ -480,6 +656,10 @@ function CanvasNodeRenderer({
         onDeleteNode={onDeleteNode}
         onToggleVisibility={onToggleVisibility}
         onUpdateContent={onUpdateContent}
+        onDropTargetChange={onDropTargetChange}
+        dropTargetId={dropTargetId}
+        dropPosition={dropPosition}
+        isDragActive={isDragActive}
       />
 
       {!hasChildren && isLayoutType(node.type) && (
@@ -553,7 +733,8 @@ function EmptyContainerHint({
   return (
     <div
       onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => e.stopPropagation()}
+      // NOTE: no stopPropagation on drop — the parent node wrapper owns the
+      // drop so the same inside/before/after logic applies everywhere.
       className="m-2 rounded-lg border-2 border-dashed border-emerald-500/25 bg-emerald-500/[0.03] px-4 py-4 text-center"
     >
       <p className="text-[11px] font-semibold text-slate-500">{nodeName} is empty</p>
@@ -579,6 +760,10 @@ interface NodeContentSwitchProps {
   onDeleteNode: (nodeId: string) => void;
   onToggleVisibility: (nodeId: string) => void;
   onUpdateContent: (nodeId: string, content: Partial<any>) => void;
+  onDropTargetChange?: (targetId: string | null, position: 'before' | 'after' | 'inside' | null) => void;
+  dropTargetId?: string | null;
+  dropPosition?: 'before' | 'after' | 'inside' | null;
+  isDragActive?: boolean;
 }
 
 function NodeContentSwitch({
@@ -597,6 +782,10 @@ function NodeContentSwitch({
   onDeleteNode,
   onToggleVisibility,
   onUpdateContent,
+  onDropTargetChange,
+  dropTargetId,
+  dropPosition,
+  isDragActive,
 }: NodeContentSwitchProps) {
   const renderedChildren = (node.children || []).map((childId) => (
     <MemoCanvasNode
@@ -613,6 +802,10 @@ function NodeContentSwitch({
       onDeleteNode={onDeleteNode}
       onToggleVisibility={onToggleVisibility}
       onUpdateContent={onUpdateContent}
+      onDropTargetChange={onDropTargetChange}
+      dropTargetId={dropTargetId}
+      dropPosition={dropPosition}
+      isDragActive={isDragActive}
     />
   ));
 
@@ -696,22 +889,19 @@ function NodeContentSwitch({
       return <TeamGridPrimitive node={node} members={state.teamMembers} />;
 
     case 'insights-grid':
-      return <DynamicModulePlaceholder node={node} moduleLabel="Insights" />;
+      return <InsightsGridPrimitive node={node} />;
 
     case 'impact-grid':
-      return <DynamicModulePlaceholder node={node} moduleLabel="Impact case studies" />;
+      return <ImpactGridPrimitive node={node} />;
 
     case 'service-cards':
-      return <DynamicModulePlaceholder node={node} moduleLabel="Service cards" />;
+      return <ServiceCardsPrimitive node={node} />;
 
     case 'form':
-      return (
-        <DynamicModulePlaceholder
-          node={node}
-          moduleLabel="Form"
-          hint="Forms render on the live site with spam protection."
-        />
-      );
+      return <FormPrimitive node={node} isSelected={isSelected} />;
+
+    case 'social-share':
+      return <SocialSharePrimitive node={node} isSelected={isSelected} />;
 
     case 'modal-trigger':
     case 'link':

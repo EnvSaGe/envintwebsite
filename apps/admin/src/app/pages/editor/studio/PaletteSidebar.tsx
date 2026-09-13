@@ -39,6 +39,7 @@ import {
   PanelTop,
   ToggleLeft,
   Layers,
+  Share2,
 } from 'lucide-react';
 import { ElementType } from '@envint/shared';
 import { StudioState } from './StudioState';
@@ -87,6 +88,7 @@ const PALETTE_ITEMS: PaletteItemDef[] = [
 
   // ── INTERACTIVE ───────────────────────────────────────────────────────────
   { type: 'accordion', label: 'Accordion', category: 'interactive', icon: <ChevronDown size={15} />, hint: 'Expandable list items', keywords: ['faq', 'collapse', 'expand'] },
+  { type: 'social-share', label: 'Social Share Bar', category: 'interactive', icon: <Share2 size={15} />, hint: 'Email, LinkedIn, X, Facebook buttons', keywords: ['share', 'social', 'facebook', 'linkedin', 'twitter'] },
 
   // ── DYNAMIC ───────────────────────────────────────────────────────────────
   { type: 'team-grid', label: 'Team Roster', category: 'dynamic', icon: <Users size={15} />, hint: 'Live leadership cards', keywords: ['team', 'people', 'members'] },
@@ -190,7 +192,7 @@ export function PaletteSidebar({
 
   /* ── Expanded browser (resizable width set by shell) ─────────────────── */
   return (
-    <aside className="flex h-full min-w-0 shrink-0 flex-col border-r border-slate-800/90 bg-[#0D1220] select-none">
+    <aside className="flex h-full w-full min-w-0 flex-1 flex-col overflow-hidden border-r border-slate-800/90 bg-[#0D1220] select-none">
       {/* Mode switcher + collapse */}
       <div className="border-b border-slate-800/80 bg-slate-950/40 p-2">
         <div className="flex items-center gap-1">
@@ -255,7 +257,7 @@ export function PaletteSidebar({
               )}
             </div>
 
-            <div className="no-scrollbar -mx-0.5 flex gap-1 overflow-x-auto px-0.5 pb-0.5" role="tablist" aria-label="Component categories">
+            <div className="no-scrollbar -mx-0.5 flex max-w-full gap-1 overflow-x-auto px-0.5 pb-0.5" role="tablist" aria-label="Component categories">
               {CATEGORIES.map((cat) => {
                 const active = activeCategory === cat.id;
                 return (
@@ -287,7 +289,7 @@ export function PaletteSidebar({
           </div>
 
           {/* Compact 2-col tiles */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-2.5 py-2.5">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2.5">
             {filteredPalette.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
                 <Search size={20} className="text-slate-600" />
@@ -314,6 +316,7 @@ export function PaletteSidebar({
                     draggable
                     onDragStart={(e) => {
                       e.dataTransfer.setData('text/plain', item.type);
+                      e.dataTransfer.setData('application/envint-palette-type', item.type);
                       e.dataTransfer.effectAllowed = 'copy';
                     }}
                     onClick={() => onAddNode(item.type)}

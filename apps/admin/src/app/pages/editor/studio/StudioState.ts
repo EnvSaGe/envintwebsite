@@ -82,8 +82,12 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
     case 'SET_DRAGGED_EXISTING_NODE':
       return { ...state, draggedExistingId: action.nodeId };
 
-    case 'SET_DROP_TARGET':
+    case 'SET_DROP_TARGET': {
+      // Skip redundant updates so dragging across the canvas doesn't re-render
+      // the entire tree on every pixel of pointer movement.
+      if (state.dropTargetId === action.targetId && state.dropPosition === action.position) return state;
       return { ...state, dropTargetId: action.targetId, dropPosition: action.position };
+    }
 
     case 'ADD_NODE': {
       const history = pushHistory(state);

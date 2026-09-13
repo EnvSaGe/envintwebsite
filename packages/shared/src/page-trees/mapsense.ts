@@ -7,6 +7,7 @@ import {
   makeParagraph,
   makeImage,
   makeButton,
+  makeBadge,
   assembleTree,
   resolveCmsImage,
 } from './utils';
@@ -50,14 +51,14 @@ const RECEPTORS = [
 ];
 
 const SECTORS = [
-  { name: 'Extractives & Natural Resources' },
-  { name: 'Industrial / Processing Zones' },
-  { name: 'Real Estate & Built Environment' },
-  { name: 'Linear Infrastructure & Transport' },
-  { name: 'Hospitality (Hotels & Resorts)' },
-  { name: 'Logistic Parks & Warehousing' },
-  { name: 'Renewable Energy & Solar Parks' },
-  { name: 'Projects in Sensitive Ecosystems' },
+  { name: '⛏️ Extractives & Natural Resources' },
+  { name: '🏭 Industrial / Processing Zones' },
+  { name: 'Infrastructure' },
+  { name: '🏢 Real Estate' },
+  { name: '🏨 Hospitality (Hotels & Resorts)' },
+  { name: '📦 Logistic Parks & Warehousing' },
+  { name: '♻️ Renewable Energy' },
+  { name: '🌍 Projects in sensitive ecosystems' },
 ];
 
 export function createMapSensePageTree(): PageBlockTree {
@@ -69,6 +70,7 @@ export function createMapSensePageTree(): PageBlockTree {
     'sec_map_reports',
     'sec_map_receptors',
     'sec_map_sectors',
+    'sec_map_insights',
     'sec_map_cta',
   ];
 
@@ -97,8 +99,8 @@ export function createMapSensePageTree(): PageBlockTree {
     img_map_hero: makeImage(
       'img_map_hero',
       'cont_map_hero',
-      resolveCmsImage('/images/mapsense-banner.jpg'),
-      'MapSense Ecosystem Screening Banner',
+      resolveCmsImage('/images/mapsense-hero.webp'),
+      'River through lush green forest - Envint MapSense',
       { width: '100%', height: '380px', objectFit: 'cover' },
       'Hero Banner Image'
     ),
@@ -152,7 +154,7 @@ export function createMapSensePageTree(): PageBlockTree {
     p_map_desc: makeParagraph(
       'p_map_desc',
       'cont_map_intro',
-      '<p>An environmental and social screening tool that screens project sites for sensitive receptors with 48-hour turnaround and uniform pan-India spatial coverage.</p>',
+      '<p>An environment and social screening tool that screens project sites for sensitive receptors.</p>',
       {
         fontSize: '20px',
         lineHeight: '1.6',
@@ -181,9 +183,24 @@ export function createMapSensePageTree(): PageBlockTree {
     cont_map_features: makeContainer(
       'cont_map_features',
       'sec_map_features',
-      ['grid_map_features'],
+      ['h2_map_features', 'grid_map_features'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'Features Container'
+    ),
+    h2_map_features: makeHeading(
+      'h2_map_features',
+      'cont_map_features',
+      'Features',
+      'h2',
+      {
+        fontSize: '44px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        textAlign: 'center',
+        marginBottom: '40px',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Features Title'
     ),
     grid_map_features: makeGrid(
       'grid_map_features',
@@ -218,7 +235,7 @@ export function createMapSensePageTree(): PageBlockTree {
     h2_map_steps: makeHeading(
       'h2_map_steps',
       'cont_map_steps',
-      'Four Simple Steps to Screening',
+      'Easy 4 step process',
       'h2',
       {
         fontSize: '44px',
@@ -256,24 +273,41 @@ export function createMapSensePageTree(): PageBlockTree {
     cont_map_reports: makeContainer(
       'cont_map_reports',
       'sec_map_reports',
-      ['h2_map_reports', 'grid_map_reports'],
+      ['h2_map_reports', 'p_map_reports', 'grid_map_reports'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'Reports Container'
     ),
     h2_map_reports: makeHeading(
       'h2_map_reports',
       'cont_map_reports',
-      'Sample MapSense Reports',
+      'Proximity Analysis Report',
       'h2',
       {
         fontSize: '44px',
         fontWeight: 400,
         textColor: '#004E35',
         textAlign: 'center',
-        marginBottom: '48px',
+        marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
       },
       'Reports Title'
+    ),
+    p_map_reports: makeParagraph(
+      'p_map_reports',
+      'cont_map_reports',
+      '<p>The report highlights nearby environmental and social receptors and indicates the buffer zone within which they fall. Each receptor is classified by proximity distance – supporting early-stage risk assessment, regulatory compliance, and lender due diligence.</p>',
+      {
+        fontSize: '18px',
+        lineHeight: '1.6',
+        textColor: '#555555',
+        textAlign: 'center',
+        maxWidth: '900px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        marginBottom: '40px',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Reports Description'
     ),
     grid_map_reports: makeGrid(
       'grid_map_reports',
@@ -308,7 +342,7 @@ export function createMapSensePageTree(): PageBlockTree {
     h2_map_receptors: makeHeading(
       'h2_map_receptors',
       'cont_map_receptors',
-      'E&S Receptor Categories Covered',
+      '10+ Sensitive Environment and Social Receptors',
       'h2',
       {
         fontSize: '44px',
@@ -346,14 +380,25 @@ export function createMapSensePageTree(): PageBlockTree {
     cont_map_sectors: makeContainer(
       'cont_map_sectors',
       'sec_map_sectors',
-      ['h2_map_sectors', 'grid_map_sectors'],
+      ['badge_map_sectors', 'h2_map_sectors', 'grid_map_sectors'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'Sectors Container'
+    ),
+    badge_map_sectors: makeBadge(
+      'badge_map_sectors',
+      'cont_map_sectors',
+      "WHO IT'S FOR",
+      {
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        marginBottom: '14px',
+      },
+      "WHO IT'S FOR Eyebrow"
     ),
     h2_map_sectors: makeHeading(
       'h2_map_sectors',
       'cont_map_sectors',
-      'Applicable Industry Sectors',
+      'MapSense For Multiple Sectors',
       'h2',
       {
         fontSize: '44px',
@@ -375,7 +420,58 @@ export function createMapSensePageTree(): PageBlockTree {
       'Sectors Grid'
     ),
 
-    // ─── 8. CTA Section ─────────────────────────────────────────────────────────
+    // ─── 8. Site Sensitivity Insights Section ─────────────────────────────────
+    sec_map_insights: makeSection(
+      'sec_map_insights',
+      ['cont_map_insights'],
+      {
+        paddingTop: '70px',
+        paddingBottom: '40px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundColor: '#FFFFFF',
+      },
+      'Insights Section'
+    ),
+    cont_map_insights: makeContainer(
+      'cont_map_insights',
+      'sec_map_insights',
+      ['h2_map_insights', 'p_map_insights'],
+      { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%', textAlign: 'center' },
+      'Insights Container'
+    ),
+    h2_map_insights: makeHeading(
+      'h2_map_insights',
+      'cont_map_insights',
+      'Site Sensitivity Insights for Better Project Decisions',
+      'h2',
+      {
+        fontSize: '44px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        textAlign: 'center',
+        marginBottom: '20px',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Insights Title'
+    ),
+    p_map_insights: makeParagraph(
+      'p_map_insights',
+      'cont_map_insights',
+      '<p>The screening output highlights key ecological and social sensitivities. It supports early understanding of site constraints, regulatory needs and mitigation planning for lower risk project decisions.</p>',
+      {
+        fontSize: '18px',
+        lineHeight: '1.6',
+        textColor: '#555555',
+        maxWidth: '900px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Insights Description'
+    ),
+
+    // ─── 9. CTA Section ─────────────────────────────────────────────────────────
     sec_map_cta: makeSection(
       'sec_map_cta',
       ['cont_map_cta'],

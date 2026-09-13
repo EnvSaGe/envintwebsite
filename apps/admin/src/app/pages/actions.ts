@@ -1,6 +1,6 @@
 'use server';
 
-import { db, pages, pageRevisions, teamMembers, eq, asc } from '@envint/db';
+import { db, pages, pageRevisions, teamMembers, insights, impactCaseStudies, eq, asc, or } from '@envint/db';
 import { requireRole, getCurrentUserInfo } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';
 import {
@@ -9,6 +9,8 @@ import {
   createAboutPageTree,
   createStarterPageTree,
   convertLegacyPageBlocksToTree,
+  convertArticleToPageTree,
+  convertCaseStudyToPageTree,
   getCanonicalPageTree,
   ALL_CANONICAL_PAGE_SLUGS,
 } from '@envint/shared';
@@ -360,13 +362,20 @@ export async function restorePageRevision(slug: string, revisionId: string) {
 export async function fetchPageTreeAction(slug: string) {
   await requireRole(['super_admin', 'editor']);
 
+  const cleanSlug = slug.startsWith('/') ? slug.slice(1) : slug;
+  const pathSlug = slug.startsWith('/') ? slug : `/${slug}`;
+
   const record = await db.query.pages.findFirst({
-    where: eq(pages.slug, slug),
+    where: or(eq(pages.slug, pathSlug), eq(pages.slug, cleanSlug)),
   });
-  const canonicalTree = getCanonicalPageTree(slug);
+  const canonicalTree = getCanonicalPageTree(pathSlug) || getCanonicalPageTree(cleanSlug);
 
   // Check if draftBlocks or publishedBlocks has Schema v2 tree
   let tree: PageBlockTree | null = null;
+  let pageTitle = record?.title || '';
+  let pageSeoTitle = record?.seoTitle || '';
+  let pageSeoDescription = record?.seoDescription || '';
+
   if (record?.draftBlocks && (record.draftBlocks as any).rootIds && (record.draftBlocks as any).nodes) {
     tree = record.draftBlocks as PageBlockTree;
   } else if (record?.publishedBlocks && (record.publishedBlocks as any).rootIds && (record.publishedBlocks as any).nodes) {
@@ -376,10 +385,86 @@ export async function fetchPageTreeAction(slug: string) {
     tree = canonicalTree;
   } else if (record?.contentBlocks && Array.isArray(record.contentBlocks) && record.contentBlocks.length > 0) {
     // Convert existing legacy content blocks into Schema v2 element tree
-    tree = convertLegacyPageBlocksToTree(record.contentBlocks, slug, record.title);
+    tree = convertLegacyPageBlocksToTree(record.contentBlocks, pathSlug, record.title);
   } else {
-    // Fresh starter tree
-    tree = createStarterPageTree(record?.title || slug);
+    // Check if it's an Insight (Article)
+    const insight = await db.query.insights.findFirst({
+      where: or(eq(insights.slug, cleanSlug), eq(insights.slug, pathSlug)),
+      with: {
+        author: true,
+        coverImage: true,
+        categories: {
+          with: { category: true },
+        },
+        tags: {
+          with: { tag: true },
+        },
+      },
+    });
+
+    if (insight) {
+      pageTitle = insight.title;
+      pageSeoTitle = insight.seoTitle || insight.title;
+      pageSeoDescription = insight.seoDescription || insight.excerpt || '';
+
+      const categoryNames = insight.categories?.map((c) => c.category?.name).filter(Boolean) as string[];
+      const tagNames = insight.tags?.map((t) => t.tag?.name).filter(Boolean) as string[];
+      const coverUrl = insight.coverImageUrl || (insight.coverImage as any)?.url || null;
+
+      tree = convertArticleToPageTree({
+        slug: cleanSlug,
+        title: insight.title,
+        excerpt: insight.excerpt,
+        coverImageUrl: coverUrl,
+        contentHtml: insight.contentHtml,
+        categories: categoryNames && categoryNames.length > 0 ? categoryNames : ['Insights'],
+        tags: tagNames,
+        readingTimeMinutes: insight.readingTimeMinutes || 5,
+        publishedAt: insight.publishedAt || insight.createdAt,
+      });
+    } else {
+      // Check if it's an Impact Case Study
+      // Note: case study slugs can be passed as 'foo' or '/impact/foo' or 'impact/foo'
+      const caseStudySlug = cleanSlug.startsWith('impact/') ? cleanSlug.replace('impact/', '') : cleanSlug;
+      const caseStudy = await db.query.impactCaseStudies.findFirst({
+        where: or(
+          eq(impactCaseStudies.slug, caseStudySlug),
+          eq(impactCaseStudies.slug, cleanSlug),
+          eq(impactCaseStudies.slug, pathSlug)
+        ),
+        with: {
+          service: true,
+          sector: true,
+          theme: true,
+          coverImage: true,
+        },
+      });
+
+      if (caseStudy) {
+        pageTitle = caseStudy.title;
+        pageSeoTitle = caseStudy.seoTitle || caseStudy.title;
+        pageSeoDescription = caseStudy.seoDescription || caseStudy.summary || '';
+
+        const coverUrl = caseStudy.coverImageUrl || (caseStudy.coverImage as any)?.url || null;
+
+        tree = convertCaseStudyToPageTree({
+          slug: caseStudySlug,
+          title: caseStudy.title,
+          summary: caseStudy.summary,
+          challenge: caseStudy.challenge,
+          solution: caseStudy.solution,
+          outcome: caseStudy.outcome,
+          contentHtml: caseStudy.contentHtml,
+          coverImageUrl: coverUrl,
+          sectorName: caseStudy.sector?.name,
+          themeName: caseStudy.theme?.name,
+          serviceName: caseStudy.service?.title,
+        });
+      } else {
+        // Fresh starter tree
+        tree = createStarterPageTree(record?.title || cleanSlug.replace(/-/g, ' '));
+      }
+    }
   }
 
   // Real team members so dynamic team-grid modules render with live data in the studio canvas
@@ -400,10 +485,10 @@ export async function fetchPageTreeAction(slug: string) {
   }
 
   return {
-    slug: record?.slug || slug,
-    title: record?.title || (slug === '/about' ? 'About Envint' : slug),
-    seoTitle: record?.seoTitle || record?.title || slug,
-    seoDescription: record?.seoDescription || '',
+    slug: pathSlug,
+    title: pageTitle || record?.title || (pathSlug === '/about' ? 'About Envint' : pathSlug),
+    seoTitle: pageSeoTitle || record?.seoTitle || pageTitle || pathSlug,
+    seoDescription: pageSeoDescription || record?.seoDescription || '',
     status: record?.status || 'PUBLISHED',
     schemaVersion: record?.schemaVersion || 2,
     tree,
@@ -412,16 +497,38 @@ export async function fetchPageTreeAction(slug: string) {
   };
 }
 
-export async function saveDraftTreeAction(slug: string, tree: PageBlockTree) {
+export async function saveDraftTreeAction(
+  slug: string,
+  tree: PageBlockTree,
+  meta?: { title?: string; seoTitle?: string; seoDescription?: string }
+) {
   await requireRole(['super_admin', 'editor']);
 
+  const pathSlug = slug.startsWith('/') ? slug : `/${slug}`;
+  const cleanSlug = slug.startsWith('/') ? slug.slice(1) : slug;
+
   await db
-    .update(pages)
-    .set({
+    .insert(pages)
+    .values({
+      slug: pathSlug,
+      title: meta?.title || cleanSlug.replace(/-/g, ' '),
+      seoTitle: meta?.seoTitle,
+      seoDescription: meta?.seoDescription,
       draftBlocks: tree,
+      schemaVersion: 2,
+      status: 'DRAFT',
       updatedAt: new Date(),
     })
-    .where(eq(pages.slug, slug));
+    .onConflictDoUpdate({
+      target: pages.slug,
+      set: {
+        draftBlocks: tree,
+        updatedAt: new Date(),
+        ...(meta?.title ? { title: meta.title } : {}),
+        ...(meta?.seoTitle ? { seoTitle: meta.seoTitle } : {}),
+        ...(meta?.seoDescription ? { seoDescription: meta.seoDescription } : {}),
+      },
+    });
 
   return { success: true };
 }
@@ -436,9 +543,15 @@ export async function publishTreeAction(pageData: {
   await requireRole(['super_admin', 'editor']);
   const userInfo = await getCurrentUserInfo();
 
+  const pathSlug = pageData.slug.startsWith('/') ? pageData.slug : `/${pageData.slug}`;
+  const cleanSlug = pageData.slug.startsWith('/') ? pageData.slug.slice(1) : pageData.slug;
+  const caseStudySlug = cleanSlug.startsWith('impact/') ? cleanSlug.replace('impact/', '') : cleanSlug;
+
+  // 1. Upsert into pages table
   await db
-    .update(pages)
-    .set({
+    .insert(pages)
+    .values({
+      slug: pathSlug,
       title: pageData.title,
       seoTitle: pageData.seoTitle,
       seoDescription: pageData.seoDescription,
@@ -449,11 +562,63 @@ export async function publishTreeAction(pageData: {
       publishedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(eq(pages.slug, pageData.slug));
+    .onConflictDoUpdate({
+      target: pages.slug,
+      set: {
+        title: pageData.title,
+        seoTitle: pageData.seoTitle,
+        seoDescription: pageData.seoDescription,
+        publishedBlocks: pageData.tree,
+        draftBlocks: pageData.tree,
+        schemaVersion: 2,
+        status: 'PUBLISHED',
+        publishedAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
 
-  // Snapshot into pageRevisions
+  // 2. Also keep insights / impactCaseStudies metadata in sync if this slug matches
+  try {
+    await db
+      .update(insights)
+      .set({
+        title: pageData.title,
+        seoTitle: pageData.seoTitle,
+        seoDescription: pageData.seoDescription,
+        updatedAt: new Date(),
+        status: 'PUBLISHED',
+        publishedAt: new Date(),
+      })
+      .where(or(eq(insights.slug, cleanSlug), eq(insights.slug, pathSlug)));
+  } catch (e) {
+    console.error('Failed to sync insight metadata on publish:', e);
+  }
+
+  try {
+    await db
+      .update(impactCaseStudies)
+      .set({
+        title: pageData.title,
+        seoTitle: pageData.seoTitle,
+        seoDescription: pageData.seoDescription,
+        updatedAt: new Date(),
+        status: 'PUBLISHED',
+        publishedAt: new Date(),
+      })
+      .where(
+        or(
+          eq(impactCaseStudies.slug, caseStudySlug),
+          eq(impactCaseStudies.slug, cleanSlug),
+          eq(impactCaseStudies.slug, pathSlug)
+        )
+      );
+  } catch (e) {
+    console.error('Failed to sync impactCaseStudy metadata on publish:', e);
+  }
+
+  // 3. Snapshot into pageRevisions
   await db.insert(pageRevisions).values({
-    pageSlug: pageData.slug,
+    pageSlug: pathSlug,
     contentBlocks: pageData.tree as any,
     schemaVersion: 2,
     isPublishedSnapshot: true,
@@ -464,10 +629,10 @@ export async function publishTreeAction(pageData: {
     savedAt: new Date(),
   });
 
-  // Revalidate public web cache
+  // 4. Revalidate public web cache
   await dispatchRevalidation({
-    tags: [`page:${pageData.slug}`],
-    paths: [pageData.slug === '/' ? '/' : pageData.slug],
+    tags: [`page:${pathSlug}`, `page:${cleanSlug}`],
+    paths: [pathSlug === '/' ? '/' : pathSlug, `/${cleanSlug}`],
   });
 
   return { success: true };

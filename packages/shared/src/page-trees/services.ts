@@ -69,6 +69,7 @@ export function createServicesPageTree(): PageBlockTree {
     'sec_srv_hero',
     'sec_srv_value_prop',
     'sec_srv_capability',
+    'sec_srv_engage',
     'sec_srv_cta',
   ];
 
@@ -322,7 +323,60 @@ export function createServicesPageTree(): PageBlockTree {
       'Tools 4-Col Grid'
     ),
 
-    // ─── 4. Pre-Footer CTA ─────────────────────────────────────────────────────
+    // ─── 4. Engage With Us ─────────────────────────────────────────────────────
+    sec_srv_engage: makeSection(
+      'sec_srv_engage',
+      ['cont_srv_engage'],
+      {
+        paddingTop: '70px',
+        paddingBottom: '40px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundColor: '#FFFFFF',
+      },
+      'Engage With Us Section'
+    ),
+    cont_srv_engage: makeContainer(
+      'cont_srv_engage',
+      'sec_srv_engage',
+      ['h2_srv_engage', 'p_srv_engage'],
+      {
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%',
+      },
+      'Engage Container'
+    ),
+    h2_srv_engage: makeHeading(
+      'h2_srv_engage',
+      'cont_srv_engage',
+      'Engage with us',
+      'h2',
+      {
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '20px',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Engage Title'
+    ),
+    p_srv_engage: makeParagraph(
+      'p_srv_engage',
+      'cont_srv_engage',
+      '<p>Our flexible modes of engagement provide clients with multiple options to meet their requirements. These include short to medium term project-based work, master service agreements / retainers for recurring requirements, offshoring, and &lsquo;Enabl&rsquo; - sustainability/ ESG teams dedicated for long-term client support.</p>',
+      {
+        fontSize: '22px',
+        lineHeight: '1.6',
+        textColor: '#393939',
+        marginBottom: '0',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Engage Description'
+    ),
+
+    // ─── 5. Pre-Footer CTA ─────────────────────────────────────────────────────
     sec_srv_cta: makeSection(
       'sec_srv_cta',
       ['cont_srv_cta'],

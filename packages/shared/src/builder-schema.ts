@@ -40,6 +40,7 @@ export const ElementTypeSchema = z.enum([
   'insights-grid',
   'impact-grid',
   'service-cards',
+  'social-share',
   'reusable-block',
 ]);
 
@@ -78,6 +79,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
       'insights-grid',
       'impact-grid',
       'service-cards',
+      'social-share',
       'reusable-block',
       'divider',
       'spacer',
@@ -98,6 +100,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
       'icon',
       'badge',
       'counter',
+      'social-share',
       'divider',
       'spacer',
     ],
@@ -134,6 +137,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
   'insights-grid': { allowedChildren: [], isLeaf: true },
   'impact-grid': { allowedChildren: [], isLeaf: true },
   'service-cards': { allowedChildren: [], isLeaf: true },
+  'social-share': { allowedChildren: [], isLeaf: true },
   'reusable-block': { allowedChildren: [], isLeaf: true },
   form: { allowedChildren: [], isLeaf: true },
   'modal-trigger': { allowedChildren: [], isLeaf: true },
@@ -185,7 +189,10 @@ export const ElementStylesSchema = z.object({
   columnGap: z.string().optional(),
   rowGap: z.string().optional(),
   gridColumns: z.string().optional(), // e.g. "repeat(3, 1fr)" or "minmax(0, 480px) minmax(0, 1fr)"
+  gridTemplateColumns: z.string().optional(),
   gridRows: z.string().optional(),
+  gridTemplateRows: z.string().optional(),
+  aspectRatio: z.string().optional(),
 
   // Typography
   fontFamily: z.string().optional(),
@@ -520,6 +527,26 @@ export function createDefaultNode(
         width: '100%',
         marginTop: '32px',
         marginBottom: '32px',
+      };
+      break;
+
+    case 'social-share':
+      name = 'Social Share Bar';
+      content = {
+        channels: [
+          { id: 'email', name: 'Email', enabled: true, color: '#ea4335', url: '' },
+          { id: 'linkedin', name: 'LinkedIn', enabled: true, color: '#0a66c2', url: '' },
+          { id: 'twitter', name: 'X / Twitter', enabled: true, color: '#000000', url: '' },
+          { id: 'facebook', name: 'Facebook', enabled: true, color: '#1877f2', url: '' },
+        ],
+        buttonSize: 32,
+        borderRadius: 4,
+        gap: 10,
+        alignment: 'left',
+      };
+      styles = {
+        width: '100%',
+        display: 'flex',
       };
       break;
   }

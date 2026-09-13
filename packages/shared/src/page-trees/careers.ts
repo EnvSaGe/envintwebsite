@@ -25,8 +25,7 @@ const POLO_VALUES = [
     desc: 'Every day brings forth new developments in our field. Embracing a shared learning approach, we adapt to industry developments, filtering essential insights to stay ahead.',
   },
   {
-    title: 'Ownership',
-    desc: 'We recognize and reward team members with the courage to see through their commitments. Taking charge of one’s responsibilities is a sure way to grow at Envint!',
+    title: 'Ownership',      desc: 'We recognize and reward team members with the courage and ownership to see through their commitments. Taking charge of one’s responsibilities and holding oneself accountable for one’s actions is a sure way to grow at Envint!',
   },
 ];
 
@@ -36,18 +35,12 @@ const WDWD_IMAGES = [
   { src: '/images/careers-wdwd-3.webp', alt: 'Multidisciplinary team analysis' },
 ];
 
-const WIFU_CARDS = [
-  { src: '/images/careers-wifu-1.webp', title: 'Accelerated Growth', desc: 'Fast-track career trajectory with immediate exposure to marquee engagements.' },
-  { src: '/images/careers-wifu-2.webp', title: 'Continuous Mentorship', desc: 'Learn directly from founding partners and seasoned industry practitioners.' },
-  { src: '/images/careers-wifu-3.webp', title: 'Global Mandates', desc: 'Work across cross-border projects spanning South Asia, APAC, and EMEA markets.' },
-  { src: '/images/careers-wifu-4.webp', title: 'Impact Culture', desc: 'Your work directly drives real-world decarbonization and responsible capital flows.' },
-];
-
 export function createCareersPageTree(): PageBlockTree {
   const rootIds: string[] = [
     'sec_car_hero',
     'sec_car_wdwd',
     'sec_car_polo',
+    'sec_car_typical',
     'sec_car_wifu',
     'sec_car_cta',
   ];
@@ -84,7 +77,7 @@ export function createCareersPageTree(): PageBlockTree {
     h1_car_hero: makeHeading(
       'h1_car_hero',
       'cont_car_hero',
-      'We are always looking for people who can make a difference',
+      'Building a global sustainability team - second to none',
       'h1',
       {
         fontSize: '64px',
@@ -100,7 +93,7 @@ export function createCareersPageTree(): PageBlockTree {
     sub_car_hero: makeParagraph(
       'sub_car_hero',
       'cont_car_hero',
-      '<p>Are you ready to create positive impact with your career?</p>',
+      '<p>Explore a career with us!</p>',
       {
         fontSize: '28px',
         textColor: '#F5F5F0',
@@ -132,7 +125,7 @@ export function createCareersPageTree(): PageBlockTree {
     h2_car_wdwd: makeHeading(
       'h2_car_wdwd',
       'cont_car_wdwd',
-      'What We Do',
+      'What do we do?',
       'h2',
       {
         fontSize: '48px',
@@ -146,7 +139,7 @@ export function createCareersPageTree(): PageBlockTree {
     p_car_wdwd: makeParagraph(
       'p_car_wdwd',
       'cont_car_wdwd',
-      '<p>Envint is a global professional services firm working in the area of sustainability and ESG. We help organizations integrate sustainability into strategy and operations, manage climate risks, and channelize responsible investment.</p>',
+      '<p>We are a global professional services firm. Our work involves a diverse range of client engagements, where we blend research, analysis, client interactions, site visits, and solution implementation to drive positive change. Explore our current career opportunities and join us in making an impact!</p>',
       {
         fontSize: '22px',
         lineHeight: '1.6',
@@ -213,7 +206,7 @@ export function createCareersPageTree(): PageBlockTree {
     h2_car_polo: makeHeading(
       'h2_car_polo',
       'cont_car_polo',
-      'Our Culture',
+      'What’s the way we work?',
       'h2',
       {
         fontSize: '48px',
@@ -227,7 +220,7 @@ export function createCareersPageTree(): PageBlockTree {
     sub_car_polo: makeParagraph(
       'sub_car_polo',
       'cont_car_polo',
-      '<p><strong>POLO</strong>: Professionalism, Openness, Learning, Ownership</p>',
+      '<p>Our cultural DNA is defined by four key elements, encapsulated by the acronym POLO. Built and nurtured over the years, POLO symbolizes the way we work and interact with each other.</p>',
       {
         fontSize: '24px',
         textColor: '#757575',
@@ -255,7 +248,7 @@ export function createCareersPageTree(): PageBlockTree {
     img_polo_culture: makeImage(
       'img_polo_culture',
       'col_polo_img',
-      resolveCmsImage('/images/careers-polo.webp'),
+      resolveCmsImage('/images/careers-polo-people.webp'),
       'Envint team members collaborating',
       { width: '100%', height: '100%', minHeight: '440px', borderRadius: '20px', objectFit: 'cover' },
       'POLO Culture Photo'
@@ -268,7 +261,63 @@ export function createCareersPageTree(): PageBlockTree {
       'POLO Values Column'
     ),
 
-    // ─── 4. What's In It For You Section ────────────────────────────────────────
+    // ─── 4. What's A Typical Day Like? ──────────────────────────────────────────
+    sec_car_typical: makeSection(
+      'sec_car_typical',
+      ['cont_car_typical'],
+      {
+        paddingTop: '80px',
+        paddingBottom: '80px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundColor: '#FFFFFF',
+      },
+      'Typical Day Section'
+    ),
+    cont_car_typical: makeContainer(
+      'cont_car_typical',
+      'sec_car_typical',
+      ['h2_car_typical', 'p_car_typical', 'img_car_typical'],
+      { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+      'Typical Day Container'
+    ),
+    h2_car_typical: makeHeading(
+      'h2_car_typical',
+      'cont_car_typical',
+      'What’s a typical day like?',
+      'h2',
+      {
+        fontSize: '48px',
+        fontWeight: 400,
+        textColor: '#004E35',
+        marginBottom: '20px',
+        fontFamily: 'Neue Montreal, sans-serif',
+      },
+      'Typical Day Title'
+    ),
+    p_car_typical: makeParagraph(
+      'p_car_typical',
+      'cont_car_typical',
+      '<p>There is no typical day at Envint! Each day brings forth its own challenges, learnings and unique experiences. With operations across multiple locations in India and expanding globally, we embrace a hybrid work model, providing flexibility for our team to maintain their own work-life balance. Our cohesive engagement teams are often dispersed across various offices, and we regularly visit client sites across offices, factories, hospitals, farms, project sites, treatment plants and many more!</p>',
+      {
+        fontSize: '22px',
+        lineHeight: '1.65',
+        textColor: '#393939',
+        fontFamily: 'Neue Montreal, sans-serif',
+        marginBottom: '40px',
+      },
+      'Typical Day Description'
+    ),
+    img_car_typical: makeImage(
+      'img_car_typical',
+      'cont_car_typical',
+      resolveCmsImage('/images/careers-typical-day.webp'),
+      'Envint colleagues at a client site visit',
+      { width: '100%', height: 'auto', borderRadius: '16px', objectFit: 'cover' },
+      'Typical Day Photo'
+    ),
+
+    // ─── 5. What's In It For You Section ────────────────────────────────────────
     sec_car_wifu: makeSection(
       'sec_car_wifu',
       ['cont_car_wifu'],
@@ -284,35 +333,64 @@ export function createCareersPageTree(): PageBlockTree {
     cont_car_wifu: makeContainer(
       'cont_car_wifu',
       'sec_car_wifu',
-      ['h2_car_wifu', 'grid_car_wifu'],
+      ['h2_car_wifu', 'p_car_wifu', 'grid_car_wifu'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'WIFU Container'
     ),
     h2_car_wifu: makeHeading(
       'h2_car_wifu',
       'cont_car_wifu',
-      'What’s In It For You',
+      'What’s in it for you?',
       'h2',
       {
         fontSize: '48px',
         fontWeight: 400,
         textColor: '#004E35',
-        marginBottom: '48px',
+        marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
       },
       'WIFU Title'
     ),
+    p_car_wifu: makeParagraph(
+      'p_car_wifu',
+      'cont_car_wifu',
+      '<p>Whether you are a fresher or an experienced professional, we have a role for you at Envint. Expect significant responsibility, sustained learning opportunities, and collaboration with like-minded colleagues. Take charge of your development with plentiful leadership opportunities across domains like due diligence, reporting, sectors like built environment or healthcare, and functions such as marketing and communication. You can own your growth at Envint!</p>',
+      {
+        fontSize: '22px',
+        lineHeight: '1.65',
+        textColor: '#393939',
+        fontFamily: 'Neue Montreal, sans-serif',
+        marginBottom: '40px',
+      },
+      'WIFU Description'
+    ),
     grid_car_wifu: makeGrid(
       'grid_car_wifu',
       'cont_car_wifu',
-      '4',
+      '2',
       '24px',
-      WIFU_CARDS.map((_, i) => `card_wifu_${i + 1}`),
+      ['img_wifu_1', 'img_wifu_2'],
       {},
-      'WIFU 4-Col Grid'
+      'WIFU 2-Col Grid'
+    ),
+    img_wifu_1: makeImage(
+      'img_wifu_1',
+      'grid_car_wifu',
+      resolveCmsImage('/images/careers-wifu-1.webp'),
+      'Envint team member working with a client',
+      { width: '100%', aspectRatio: '16/10', borderRadius: '16px', objectFit: 'cover' },
+      'WIFU Photo 1'
+    ),
+    img_wifu_2: makeImage(
+      'img_wifu_2',
+      'grid_car_wifu',
+      resolveCmsImage('/images/careers-wifu-2.webp'),
+      'Envint colleagues during an engagement',
+      { width: '100%', aspectRatio: '16/10', borderRadius: '16px', objectFit: 'cover' },
+      'WIFU Photo 2'
     ),
 
-    // ─── 5. Application CTA Section ─────────────────────────────────────────────
+    // ─── 6. Application CTA Section ─────────────────────────────────────────────
     sec_car_cta: makeSection(
       'sec_car_cta',
       ['cont_car_cta'],
@@ -337,9 +415,10 @@ export function createCareersPageTree(): PageBlockTree {
       'cont_car_cta',
       ['h3_car_cta', 'p_car_cta', 'btn_car_cta'],
       {
-        backgroundImage: resolveCmsImage('/images/careers-footer.webp'),
+        backgroundImage: resolveCmsImage('/images/careers-footer.jpg'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundOverlay: 'linear-gradient(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.48))',
         borderRadius: '20px',
         paddingTop: '80px',
         paddingBottom: '80px',
@@ -358,7 +437,7 @@ export function createCareersPageTree(): PageBlockTree {
     h3_car_cta: makeHeading(
       'h3_car_cta',
       'card_car_cta',
-      'Ready to start your journey?',
+      'Explore a career with us!',
       'h3',
       {
         fontSize: '48px',
@@ -371,7 +450,7 @@ export function createCareersPageTree(): PageBlockTree {
     p_car_cta: makeParagraph(
       'p_car_cta',
       'card_car_cta',
-      '<p>If you are looking to build a career in sustainability, send in your resume to careers@envintglobal.com</p>',
+      '<p>We accept candidates from all disciplines as long as you have an interest in sustainability and believe that you can make a difference!</p>',
       {
         fontSize: '20px',
         textColor: '#F5F5F0',
@@ -382,8 +461,8 @@ export function createCareersPageTree(): PageBlockTree {
     btn_car_cta: makeButton(
       'btn_car_cta',
       'card_car_cta',
-      'Apply via Email',
-      'mailto:careers@envintglobal.com',
+      'Apply Now',
+      'mailto:connect@envintglobal.com',
       'primary',
       {
         backgroundColor: '#FFFFFF',
@@ -451,71 +530,6 @@ export function createCareersPageTree(): PageBlockTree {
         fontFamily: 'Neue Montreal, sans-serif',
       },
       `${v.title} Description`
-    );
-  });
-
-  // Populate WIFU cards
-  WIFU_CARDS.forEach((c, idx) => {
-    const cardId = `card_wifu_${idx + 1}`;
-    const imgId = `wifu_img_${idx + 1}`;
-    const titleId = `wifu_title_${idx + 1}`;
-    const descId = `wifu_desc_${idx + 1}`;
-
-    nodes[cardId] = makeContainer(
-      cardId,
-      'grid_car_wifu',
-      [imgId, titleId, descId],
-      {
-        backgroundColor: '#FFFFFF',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        borderColor: 'rgba(0, 0, 0, 0.08)',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        paddingBottom: '24px',
-      },
-      `${c.title} Card`
-    );
-
-    nodes[imgId] = makeImage(
-      imgId,
-      cardId,
-      resolveCmsImage(c.src),
-      c.title,
-      { width: '100%', aspectRatio: '16/10', objectFit: 'cover', marginBottom: '16px' },
-      `${c.title} Image`
-    );
-
-    nodes[titleId] = makeHeading(
-      titleId,
-      cardId,
-      c.title,
-      'h3',
-      {
-        fontSize: '20px',
-        fontWeight: 500,
-        textColor: '#0E0E2C',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        marginBottom: '8px',
-        fontFamily: 'Neue Montreal, sans-serif',
-      },
-      `${c.title} Title`
-    );
-
-    nodes[descId] = makeParagraph(
-      descId,
-      cardId,
-      `<p>${c.desc}</p>`,
-      {
-        fontSize: '14px',
-        lineHeight: '1.6',
-        textColor: 'rgba(0, 0, 0, 0.6)',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        fontFamily: 'Neue Montreal, sans-serif',
-      },
-      `${c.title} Description`
     );
   });
 

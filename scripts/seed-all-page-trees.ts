@@ -53,17 +53,13 @@ async function main() {
 
     if (existing) {
       // Update draftBlocks, schemaVersion, and updatedAt
-      // Note: For /about, publishedBlocks is also kept in sync since it is already published in v2
       const updateData: any = {
         title: existing.title || title,
         draftBlocks: tree,
+        publishedBlocks: tree,
         schemaVersion: 2,
         updatedAt: new Date(),
       };
-
-      if (slug === '/about') {
-        updateData.publishedBlocks = tree;
-      }
 
       await db
         .update(pages)

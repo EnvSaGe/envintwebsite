@@ -73,9 +73,9 @@ export function StudioTopbar({
   const canRedo = state.history.future.length > 0;
 
   return (
-    <header className="z-30 flex h-12 shrink-0 items-center justify-between border-b border-slate-800/90 bg-[#0D1220] px-3 shadow-sm select-none">
+    <header className="z-30 flex h-12 shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-slate-800/90 bg-[#0D1220] px-3 shadow-sm select-none">
       {/* Left: Back, Page Title, Slug & Status + panel toggle */}
-      <div className="flex min-w-0 items-center gap-2.5">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <IconToggle
           active={!leftCollapsed}
           title={leftCollapsed ? 'Show Components (Ctrl+\\)' : 'Hide Components (Ctrl+\\)'}
@@ -119,7 +119,7 @@ export function StudioTopbar({
       </div>
 
       {/* Center: Device switcher */}
-      <div className="flex items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/80 p-0.5 shadow-inner">
+      <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-slate-800 bg-slate-950/80 p-0.5 shadow-inner">
         {BREAKPOINTS.map((bp) => {
           const active = state.breakpoint === bp.id;
           return (
@@ -143,7 +143,7 @@ export function StudioTopbar({
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5">
         <div className="flex items-center rounded-lg border border-slate-800 bg-slate-950/60 p-0.5">
           <button
             type="button"
