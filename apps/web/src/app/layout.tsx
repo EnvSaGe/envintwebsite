@@ -3,6 +3,8 @@ import '../styles/globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { JsonLd, organizationSchema, webSiteSchema } from '@/components/seo/JsonLd';
+import { getNavigationItems } from '@/lib/data/navigation';
+import { buildHeaderNavigation } from '@/lib/data/layout-content';
 
 const SITE_URL = 'https://envintglobal.com';
 
@@ -72,16 +74,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const primaryNavigation = await getNavigationItems('primary');
+  const editableHeaderNavigation = primaryNavigation.some((item) => item.children.length > 0)
+    ? buildHeaderNavigation(primaryNavigation)
+    : [];
+
   return (
     <html lang="en">
       <body>
         <JsonLd data={[organizationSchema(), webSiteSchema()]} />
-        <Header />
+        <Header navigation={editableHeaderNavigation} />
         <main>{children}</main>
         <Footer />
       </body>

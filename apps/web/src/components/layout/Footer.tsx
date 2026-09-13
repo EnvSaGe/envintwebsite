@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getNavigationItems, type NavItem } from '@/lib/data/navigation';
+import { getPublicSiteSettings, textSetting } from '@/lib/data/site-settings';
 
 const linkStyle: React.CSSProperties = {
   fontFamily: '"Neue Montreal", sans-serif',
@@ -11,7 +13,49 @@ const linkStyle: React.CSSProperties = {
   display: 'block',
 };
 
-export function Footer() {
+const DEFAULT_QUICK_LINKS = [
+  { label: 'About', href: '/about/' },
+  { label: 'Impact', href: '/impact/' },
+  { label: 'Careers', href: '/careers-at-envint/' },
+  { label: 'Envision', href: '/envision/' },
+  { label: 'Privacy policy', href: '/about/' },
+];
+const DEFAULT_SERVICE_LINKS = [
+  { label: 'Our Services', href: '/services/' },
+  { label: 'Sustainability Integration', href: '/sustainability-integration/' },
+  { label: 'Responsible Investment', href: '/responsible-investment/' },
+  { label: 'Climate Action', href: '/climate-action/' },
+];
+
+function chooseCmsLinks(
+  items: NavItem[],
+  defaults: Array<{ label: string; href: string }>,
+): Array<{ label: string; href: string }> {
+  return defaults.map((fallback) => {
+    const normalized = fallback.href.replace(/\/$/, '');
+    const match = items.find((item) => item.href.replace(/\/$/, '') === normalized);
+    return match ? { label: match.label, href: match.href } : fallback;
+  });
+}
+
+export async function Footer() {
+  const [footerNavigation, socialNavigation, settings] = await Promise.all([
+    getNavigationItems('footer'),
+    getNavigationItems('social'),
+    getPublicSiteSettings(),
+  ]);
+  const quickLinks = chooseCmsLinks(footerNavigation, DEFAULT_QUICK_LINKS);
+  const serviceLinks = chooseCmsLinks(footerNavigation, DEFAULT_SERVICE_LINKS);
+  const newsletterHeading = textSetting(settings, 'footer.newsletterHeading', 'Subscribe to our newsletter');
+  const brandTagline = textSetting(settings, 'footer.tagline', 'We help businesses progress on sustainability');
+  const contactEmail = textSetting(settings, 'contact.email', 'connect@envintglobal.com');
+  const copyright = textSetting(settings, 'footer.copyright', '© 2024 Envint Services LLP. All Rights Reserved');
+  const designCredit = textSetting(settings, 'footer.designCredit', 'Designed by Envint Team');
+  const socialLinks = socialNavigation.length > 0 ? socialNavigation : [
+    { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/envintglobal/', openInNewTab: true },
+    { id: 'twitter', label: 'Twitter', href: 'https://twitter.com/envintglobal', openInNewTab: true },
+  ];
+
   return (
     <footer style={{ backgroundColor: '#F0F0F0', marginTop: 'auto', padding: '32px 0' }}>
       <div className="container footer-container">
@@ -28,7 +72,7 @@ export function Footer() {
                 margin: '10px 0 0',
               }}
             >
-              Subscribe to our newsletter
+              {newsletterHeading}
             </h3>
           </div>
           <div className="footer-newsletter-col2">
@@ -102,7 +146,7 @@ export function Footer() {
                 margin: 0,
               }}
             >
-              We help businesses progress on sustainability
+              {brandTagline}
             </p>
           </div>
 
@@ -120,21 +164,11 @@ export function Footer() {
               Quick Links
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/about/" style={linkStyle}>
-                About
-              </Link>
-              <Link href="/impact/" style={linkStyle}>
-                Impact
-              </Link>
-              <Link href="/careers-at-envint/" style={linkStyle}>
-                Careers
-              </Link>
-              <Link href="/envision/" style={linkStyle}>
-                Envision
-              </Link>
-              <Link href="/about/" style={linkStyle}>
-                Privacy policy
-              </Link>
+              {quickLinks.map((item) => (
+                <Link key={item.href} href={item.href} style={linkStyle}>
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -152,18 +186,11 @@ export function Footer() {
               Services
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/services/" style={linkStyle}>
-                Our Services
-              </Link>
-              <Link href="/sustainability-integration/" style={linkStyle}>
-                Sustainability Integration
-              </Link>
-              <Link href="/responsible-investment/" style={linkStyle}>
-                Responsible Investment
-              </Link>
-              <Link href="/climate-action/" style={linkStyle}>
-                Climate Action
-              </Link>
+              {serviceLinks.map((item) => (
+                <Link key={item.href} href={item.href} style={linkStyle}>
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -181,11 +208,13 @@ export function Footer() {
               Social
             </h4>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {socialLinks.map((item) => (
               <a
-                href="https://www.linkedin.com/company/envintglobal/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Envint LinkedIn"
+                key={item.id}
+                href={item.href}
+                target={item.openInNewTab ? '_blank' : undefined}
+                rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+                aria-label={`Envint ${item.label}`}
                 style={{
                   width: '40px',
                   height: '40px',
@@ -197,34 +226,20 @@ export function Footer() {
                   color: '#383838',
                 }}
               >
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.63 1.63 0 1 0 0-3.26 1.63 1.63 0 0 0 0 3.26m1.4 9.74V9.93H5.06v8.57h2.8z" />
-                </svg>
+                {item.label.toLowerCase().includes('linkedin') ? (
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.63 1.63 0 1 0 0-3.26 1.63 1.63 0 0 0 0 3.26m1.4 9.74V9.93H5.06v8.57h2.8z" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                )}
               </a>
+              ))}
 
               <a
-                href="https://twitter.com/envintglobal"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Envint Twitter"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#383838',
-                }}
-              >
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-
-              <a
-                href="mailto:connect@envintglobal.com"
+                href={`mailto:${contactEmail}`}
                 aria-label="Email Envint"
                 style={{
                   width: '40px',
@@ -248,12 +263,12 @@ export function Footer() {
         {/* Row 3 — Bottom bar */}
         <div className="footer-bottom-bar">
           <div>
-            &copy; 2024 Envint Services LLP. All Rights Reserved <span>|</span>{' '}
+            {copyright} <span>|</span>{' '}
             <Link href="/disclaimer/" style={{ color: 'inherit' }}>
               Disclaimer
             </Link>
           </div>
-          <div>Designed by Envint Team</div>
+          <div>{designCredit}</div>
         </div>
       </div>
 

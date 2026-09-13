@@ -1,5 +1,6 @@
 import { db, navigationItems, eq, and } from '@envint/db';
 import { unstable_cache } from 'next/cache';
+import { globalTag } from '../routes/cache-tags';
 
 export interface NavItem {
   id: string;
@@ -17,8 +18,7 @@ export interface NavItem {
  * Fetches all navigation items for a specific group (primary, footer, social).
  * Results are cached with the 'navigation' tag for cache invalidation.
  */
-export const getNavigationItems = unstable_cache(
-  async (navGroup: string = 'primary'): Promise<NavItem[]> => {
+async function loadNavigationItems(navGroup: string): Promise<NavItem[]> {
     try {
       const records = await db.query.navigationItems.findMany({
         where: and(
@@ -58,7 +58,28 @@ export const getNavigationItems = unstable_cache(
       console.error('[navigation] DB error, returning empty navigation:', err);
       return [];
     }
-  },
-  ['navigation-items'],
-  { tags: ['navigation'], revalidate: 3600 },
+}
+
+const getPrimaryNavigation = unstable_cache(
+  () => loadNavigationItems('primary'),
+  ['navigation-items', 'primary'],
+  { tags: [globalTag('navigation'), globalTag('header')], revalidate: 3600 },
 );
+
+const getFooterNavigation = unstable_cache(
+  () => loadNavigationItems('footer'),
+  ['navigation-items', 'footer'],
+  { tags: [globalTag('navigation'), globalTag('footer')], revalidate: 3600 },
+);
+
+const getSocialNavigation = unstable_cache(
+  () => loadNavigationItems('social'),
+  ['navigation-items', 'social'],
+  { tags: [globalTag('navigation'), globalTag('footer')], revalidate: 3600 },
+);
+
+export function getNavigationItems(navGroup: string = 'primary'): Promise<NavItem[]> {
+  if (navGroup === 'footer') return getFooterNavigation();
+  if (navGroup === 'social') return getSocialNavigation();
+  return getPrimaryNavigation();
+}

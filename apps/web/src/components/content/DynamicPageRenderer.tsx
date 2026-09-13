@@ -8,7 +8,7 @@ import { getImpacts } from '@/lib/data/impacts';
 import JourneyCarousel, { JourneyMilestone } from '@/components/about/JourneyCarousel';
 import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
 import { FaqAccordion } from './FaqAccordion';
-import { TreeRenderer } from '../builder/TreeRenderer';
+import { TemplateRenderer } from '../builder/TemplateRenderer';
 import styles from '@/app/about/about.module.css';
 
 interface DynamicPageRendererProps {
@@ -136,7 +136,16 @@ export async function DynamicPageRenderer({ page, teamCards: providedTeamCards }
         hasStandaloneRoute: member.hasStandaloneRoute,
       }));
     }
-    return <TreeRenderer tree={treeData as any} teamCards={teamCards} />;
+    return (
+      <TemplateRenderer
+        tree={treeData as any}
+        context={{
+          record: page,
+          route: { pathname: page.slug },
+        }}
+        teamCards={teamCards}
+      />
+    );
   }
 
   // 2. Schema v1: Legacy Block Dispatcher

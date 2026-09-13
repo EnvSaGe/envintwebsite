@@ -288,7 +288,7 @@ git commit -m "feat: resolve public routes from published CMS data"
 - Produces: `queryDynamicSource(config): Promise<DynamicRecord[]>`.
 - Produces: CMS-driven header/footer data with deterministic defaults during migration.
 
-- [ ] **Step 1: Write failing rendering tests**
+- [x] **Step 1: Write failing rendering tests**
 
 ```tsx
 import assert from 'node:assert/strict';
@@ -302,25 +302,25 @@ assert.equal(html, 'Envint');
 assert.doesNotMatch(html, /undefined|null/);
 ```
 
-- [ ] **Step 2: Run the rendering test and verify failure**
+- [x] **Step 2: Run the rendering test and verify failure**
 
 Run: `pnpm exec tsx scripts/verify-template-rendering.tsx`
 
 Expected: FAIL because `BindingValue` does not exist.
 
-- [ ] **Step 3: Implement bound-field rendering**
+- [x] **Step 3: Implement bound-field rendering**
 
 Resolve bound text, HTML, dates, URLs, and images before an element renders. Sanitize bound HTML with the existing allowlist. A missing optional binding renders its configured fallback; a missing required binding records a server-side warning and renders a safe empty value.
 
-- [ ] **Step 4: Implement typed dynamic-source queries**
+- [x] **Step 4: Implement typed dynamic-source queries**
 
 Map only allowlisted sources, filter fields, and sort fields to existing Drizzle/data functions. Clamp limits to `1..100`, use stable secondary ordering, and return an empty list for a valid query with no matches.
 
-- [ ] **Step 5: Make header and footer CMS-driven**
+- [x] **Step 5: Make header and footer CMS-driven**
 
 Load primary/footer/social navigation and site settings through cached data functions. During migration, use the current labels and links only when the corresponding CMS records do not exist. Global layout dependencies must attach `global:header`, `global:footer`, and `global:navigation` cache tags.
 
-- [ ] **Step 6: Run rendering, type, lint, and build checks**
+- [x] **Step 6: Run rendering, type, lint, and build checks**
 
 Run: `pnpm exec tsx scripts/verify-template-rendering.tsx`
 
@@ -330,7 +330,7 @@ Run: `pnpm --filter @envint/web typecheck && pnpm --filter @envint/web lint && p
 
 Expected: all commands exit 0.
 
-- [ ] **Step 7: Commit the template renderer**
+- [x] **Step 7: Commit the template renderer**
 
 ```bash
 git add apps/web/src/components/builder apps/web/src/components/layout apps/web/src/lib/data/dynamic-sources.ts apps/web/src/app/layout.tsx scripts/verify-template-rendering.tsx

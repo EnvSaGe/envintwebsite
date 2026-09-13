@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import type { HeaderNavEntry } from '@/lib/data/layout-content';
 
 // Pages whose hero is a dark cover image: header starts transparent with white links
 const DARK_HERO_PAGES = [
@@ -31,16 +32,29 @@ const LIGHT_HERO_PAGES = [
   '/climate-action',
 ];
 
-const SERVICES_MENU = [
-  { label: 'Our Services', href: '/services/' },
-  { label: 'Sustainability Integration', href: '/sustainability-integration/' },
-  { label: 'Responsible Investment', href: '/responsible-investment/' },
-  { label: 'Climate Action', href: '/climate-action/' },
-];
-
-const INSIGHTS_MENU = [
-  { label: 'Envision', href: '/envision' },
-  { label: 'Enviki', href: '/enviki/' },
+const DEFAULT_NAVIGATION: HeaderNavEntry[] = [
+  { label: 'About', href: '/about/', items: [] },
+  {
+    label: 'Services',
+    href: '/services/',
+    items: [
+      { label: 'Our Services', href: '/services/' },
+      { label: 'Sustainability Integration', href: '/sustainability-integration/' },
+      { label: 'Responsible Investment', href: '/responsible-investment/' },
+      { label: 'Climate Action', href: '/climate-action/' },
+    ],
+  },
+  { label: 'Impact', href: '/impact/', items: [] },
+  { label: 'Careers', href: '/careers-at-envint/', items: [] },
+  {
+    label: 'Insights',
+    href: '/envision/',
+    items: [
+      { label: 'Envision', href: '/envision/' },
+      { label: 'Enviki', href: '/enviki/' },
+    ],
+  },
+  { label: 'Connect', href: '/connect/', items: [] },
 ];
 
 interface DropdownProps {
@@ -173,15 +187,16 @@ function Dropdown({ label, href, items, linkColor, open, onOpen, onClose }: Drop
   );
 }
 
-export function Header() {
+export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
   const pathname = usePathname();
+  const navEntries = navigation.length > 0 ? navigation : DEFAULT_NAVIGATION;
+  const connectEntry = navEntries.find((item) => item.href.startsWith('/connect')) ?? DEFAULT_NAVIGATION[5];
+  const menuEntries = navEntries.filter((item) => item !== connectEntry);
 
   const [scrolled, setScrolled] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
-  const [insightsOpen, setInsightsOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [mobileInsightsOpen, setMobileInsightsOpen] = useState(false);
+  const [mobileGroupOpen, setMobileGroupOpen] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -261,46 +276,32 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="desktop-nav" style={{ alignItems: 'center' }}>
-          <Link href="/about/" style={{ ...topLevelLinkStyle(pathname.startsWith('/about')), color: linkColor }}>
-            <span style={{ color: linkColor }}>About</span>
-          </Link>
-
-          <Dropdown
-            label="Services"
-            href="/services/"
-            items={SERVICES_MENU}
-            linkColor={linkColor}
-            open={servicesOpen}
-            onOpen={() => setServicesOpen(true)}
-            onClose={() => setServicesOpen(false)}
-          />
-
-          <Link href="/impact/" style={{ ...topLevelLinkStyle(pathname.startsWith('/impact')), color: linkColor }}>
-            <span style={{ color: linkColor }}>Impact</span>
-          </Link>
-
-          <Link
-            href="/careers-at-envint/"
-            style={{ ...topLevelLinkStyle(pathname.startsWith('/careers-at-envint')), color: linkColor }}
-          >
-            <span style={{ color: linkColor }}>Careers</span>
-          </Link>
-
-          <Dropdown
-            label="Insights"
-            href="/envision/"
-            items={INSIGHTS_MENU}
-            linkColor={linkColor}
-            open={insightsOpen}
-            onOpen={() => setInsightsOpen(true)}
-            onClose={() => setInsightsOpen(false)}
-          />
+          {menuEntries.map((entry) => entry.items.length > 0 ? (
+            <Dropdown
+              key={entry.href}
+              label={entry.label}
+              href={entry.href}
+              items={entry.items}
+              linkColor={linkColor}
+              open={desktopOpen === entry.href}
+              onOpen={() => setDesktopOpen(entry.href)}
+              onClose={() => setDesktopOpen(null)}
+            />
+          ) : (
+            <Link
+              key={entry.href}
+              href={entry.href}
+              style={{ ...topLevelLinkStyle(pathname.startsWith(entry.href.replace(/\/$/, ''))), color: linkColor }}
+            >
+              <span style={{ color: linkColor }}>{entry.label}</span>
+            </Link>
+          ))}
         </nav>
 
         {/* Right side: Connect CTA + mobile hamburger */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Link
-            href="/connect/"
+            href={connectEntry.href}
             className="header-connect-btn"
             style={{
               backgroundColor: '#2F7ABE',
@@ -324,7 +325,7 @@ export function Header() {
               (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)';
             }}
           >
-            Connect
+            {connectEntry.label}
           </Link>
 
           <button
@@ -370,25 +371,25 @@ export function Header() {
             zIndex: 999,
           }}
         >
-          <MobileLink href="/about/" label="About" onNavigate={() => setMobileOpen(false)} />
-          <MobileGroup
-            label="Services"
-            open={mobileServicesOpen}
-            onToggle={() => setMobileServicesOpen(!mobileServicesOpen)}
-            items={SERVICES_MENU}
-            onNavigate={() => setMobileOpen(false)}
-          />
-          <MobileLink href="/impact/" label="Impact" onNavigate={() => setMobileOpen(false)} />
-          <MobileLink href="/careers-at-envint/" label="Careers" onNavigate={() => setMobileOpen(false)} />
-          <MobileGroup
-            label="Insights"
-            open={mobileInsightsOpen}
-            onToggle={() => setMobileInsightsOpen(!mobileInsightsOpen)}
-            items={INSIGHTS_MENU}
-            onNavigate={() => setMobileOpen(false)}
-          />
+          {menuEntries.map((entry) => entry.items.length > 0 ? (
+            <MobileGroup
+              key={entry.href}
+              label={entry.label}
+              open={mobileGroupOpen === entry.href}
+              onToggle={() => setMobileGroupOpen(mobileGroupOpen === entry.href ? null : entry.href)}
+              items={entry.items}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          ) : (
+            <MobileLink
+              key={entry.href}
+              href={entry.href}
+              label={entry.label}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          ))}
           <Link
-            href="/connect/"
+            href={connectEntry.href}
             onClick={() => setMobileOpen(false)}
             style={{
               display: 'block',
@@ -404,7 +405,7 @@ export function Header() {
               fontWeight: 400,
             }}
           >
-            Connect
+            {connectEntry.label}
           </Link>
         </div>
       )}

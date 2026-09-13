@@ -2,6 +2,7 @@ import React from 'react';
 import { BuilderNode } from '@envint/shared';
 import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
 import Link from 'next/link';
+import { queryDynamicSource } from '@/lib/data/dynamic-sources';
 
 export function TeamGridElement({
   node,
@@ -112,59 +113,170 @@ export function ServiceCardsElement({ node }: { node: BuilderNode }) {
 
 export async function InsightsGridElement({ node }: { node: BuilderNode }) {
   const { getInsights } = await import('@/lib/data/insights');
-  const insightsList = await getInsights();
-  const limit = (node.content as any)?.limit || 6;
-  const articles = (insightsList || []).slice(0, limit);
+  const insightsList = node.content.query
+    ? await queryDynamicSource(node.content.query as any)
+    : await getInsights();
+  const rawCat = (node.content as any)?.category;
+  const categoryFilter = typeof rawCat === 'string' ? rawCat.toLowerCase().trim() : '';
+
+  let articles = insightsList || [];
+  if (categoryFilter) {
+    const filterClean = categoryFilter.replace(/-/g, ' ').trim().toLowerCase();
+    const matched = articles.filter((a: any) =>
+      (a.categories || []).some((c: string) => {
+        const cClean = String(c).replace(/-/g, ' ').trim().toLowerCase();
+        return cClean.includes(filterClean) || filterClean.includes(cClean);
+      })
+    );
+    articles = matched;
+  }
+
+  const limit = (node.content as any)?.limit || 50;
+  const displayArticles = articles.slice(0, limit);
+  const showReadMore = Boolean((node.content as any)?.showReadMore);
+  const showDate = (node.content as any)?.showDate !== false;
+  const cardBorder = Boolean((node.content as any)?.cardBorder);
 
   return (
     <div
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '32px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gap: '30px',
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      {articles.map((article: any) => {
-        const coverImg = article.coverImage?.url || article.coverImageUrl || 'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp';
+      {displayArticles.map((article: any) => {
+        const coverImg =
+          article.coverImage?.url ||
+          article.coverImageUrl ||
+          (article as any).heroImage ||
+          'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp';
+        const excerptText =
+          article.seoDescription ||
+          article.summary ||
+          (article.excerpt ? String(article.excerpt).replace(/<[^>]+>/g, '').trim() : '');
+
+        const rawDate = article.publishedAt || article.published_at || article.date;
+        let formattedDate = '';
+        if (rawDate) {
+          try {
+            const d = new Date(rawDate);
+            if (!isNaN(d.getTime())) {
+              formattedDate = d.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC',
+              });
+            }
+          } catch {}
+        }
+
         return (
           <Link
             key={article.slug}
-            href={`/insights/${article.slug}/`}
+            href={`/${article.slug}/`}
             style={{
               textDecoration: 'none',
-              backgroundColor: '#ffffff',
-              borderRadius: '16px',
-              border: '1px solid #e2e8f0',
-              overflow: 'hidden',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
+              backgroundColor: cardBorder ? '#ffffff' : 'transparent',
+              borderRadius: cardBorder ? '12px' : '0',
+              border: cardBorder ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
+              overflow: 'visible',
               display: 'flex',
               flexDirection: 'column',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              transition: 'transform 0.2s ease',
             }}
           >
-            <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '240px',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                backgroundColor: '#f1f5f9',
+              }}
+            >
               <img
                 src={coverImg}
                 alt={article.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  transition: 'transform 0.3s ease',
+                }}
               />
             </div>
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#10B981', textTransform: 'uppercase' }}>
-                {(article.categories || ['INSIGHT'])[0]}
-              </span>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#004E35', marginTop: '8px', marginBottom: '12px', lineHeight: '1.4' }}>
+            <div
+              style={{
+                padding: cardBorder ? '16px' : '20px 0 0 0',
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+              }}
+            >
+              <h3
+                style={{
+                  fontFamily: '"Neue Montreal", sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 400,
+                  color: '#1E1E1E',
+                  lineHeight: 1.3,
+                  margin: '0 0 12px 0',
+                }}
+              >
                 {article.title}
               </h3>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', flex: 1 }}>
-                {article.summary ? `${article.summary.slice(0, 110)}...` : ''}
-              </p>
-              <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8' }}>
-                <span>{article.readTimeMinutes ? `${article.readTimeMinutes} min read` : '5 min read'}</span>
-                <span style={{ color: '#004E35', fontWeight: 600 }}>Read Article &rarr;</span>
-              </div>
+              {excerptText && (
+                <p
+                  style={{
+                    fontFamily: '"Neue Montreal", sans-serif',
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    color: '#555555',
+                    lineHeight: '1.5',
+                    margin: '0 0 16px 0',
+                    flex: 1,
+                  }}
+                >
+                  {excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}
+                </p>
+              )}
+              {showDate && formattedDate && (
+                <div
+                  style={{
+                    fontFamily: '"Neue Montreal", sans-serif',
+                    fontSize: '15px',
+                    fontWeight: 400,
+                    color: '#8C8C8C',
+                    marginTop: 'auto',
+                    paddingTop: '4px',
+                  }}
+                >
+                  {formattedDate}
+                </div>
+              )}
+              {showReadMore && (
+                <span
+                  style={{
+                    fontFamily: '"Neue Montreal", sans-serif',
+                    fontSize: '18px',
+                    fontWeight: 400,
+                    color: '#2F7ABE',
+                    display: 'block',
+                    textAlign: 'left',
+                    padding: '16px 0 0 0',
+                    marginTop: 'auto',
+                  }}
+                >
+                  Read More
+                </span>
+              )}
             </div>
           </Link>
         );
@@ -175,7 +287,9 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
 
 export async function ImpactGridElement({ node }: { node: BuilderNode }) {
   const { getImpacts } = await import('@/lib/data/impacts');
-  const impactsList = await getImpacts();
+  const impactsList = node.content.query
+    ? await queryDynamicSource(node.content.query as any)
+    : await getImpacts();
   const limit = (node.content as any)?.limit || 6;
   const impacts = (impactsList || []).slice(0, limit);
 
@@ -184,13 +298,23 @@ export async function ImpactGridElement({ node }: { node: BuilderNode }) {
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '32px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gap: '30px',
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {impacts.map((item: any) => {
-        const coverImg = item.coverImage?.url || item.coverImageUrl || 'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp';
+        const coverImg =
+          item.coverImage?.url ||
+          item.coverImageUrl ||
+          (item as any).heroImage ||
+          'https://envintcms.s3.ap-south-1.amazonaws.com/images/services-sustainability.webp';
+        const excerptText =
+          item.cardExcerpt ||
+          item.summary ||
+          (item.excerpt ? String(item.excerpt).replace(/<[^>]+>/g, '').trim() : '');
+
         return (
           <Link
             key={item.slug}
@@ -198,35 +322,78 @@ export async function ImpactGridElement({ node }: { node: BuilderNode }) {
             style={{
               textDecoration: 'none',
               backgroundColor: '#ffffff',
-              borderRadius: '16px',
-              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              border: '1px solid rgba(0, 0, 0, 0.1)',
               overflow: 'hidden',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
               display: 'flex',
               flexDirection: 'column',
               transition: 'transform 0.2s ease, box-shadow 0.2s ease',
             }}
           >
-            <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '260px',
+                backgroundColor: '#f1f5f9',
+                overflow: 'hidden',
+              }}
+            >
               <img
                 src={coverImg}
                 alt={item.title}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#10B981', textTransform: 'uppercase' }}>
-                {item.service?.name || item.sector?.name || 'CASE STUDY'}
-              </span>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#004E35', marginTop: '8px', marginBottom: '12px', lineHeight: '1.4' }}>
+            <div
+              style={{
+                padding: '15px',
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+              }}
+            >
+              <h3
+                style={{
+                  fontFamily: '"Neue Montreal", sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 500,
+                  color: '#1E293B',
+                  lineHeight: 'normal',
+                  margin: '24px 0 0 0',
+                }}
+              >
                 {item.title}
               </h3>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', flex: 1 }}>
-                {item.cardExcerpt ? `${item.cardExcerpt.slice(0, 110)}...` : item.summary ? `${item.summary.slice(0, 110)}...` : ''}
-              </p>
-              <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: '13px', color: '#004E35', fontWeight: 600 }}>
-                <span>View Case Study &rarr;</span>
-              </div>
+              {excerptText && (
+                <p
+                  style={{
+                    fontFamily: '"Neue Montreal", sans-serif',
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    color: 'rgba(0, 0, 0, 0.5)',
+                    lineHeight: 'normal',
+                    margin: '10px 0 0 0',
+                    flex: 1,
+                  }}
+                >
+                  {excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}
+                </p>
+              )}
+              <span
+                style={{
+                  fontFamily: '"Neue Montreal", sans-serif',
+                  fontSize: '18px',
+                  fontWeight: 400,
+                  color: '#2F7ABE',
+                  display: 'block',
+                  textAlign: 'left',
+                  padding: '24px 0 10px 0',
+                  marginTop: '10px',
+                }}
+              >
+                Read More
+              </span>
             </div>
           </Link>
         );
