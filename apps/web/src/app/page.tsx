@@ -3,11 +3,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { getInsights } from '@/lib/data/insights';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
+import { resolvePublicRoute } from '@/lib/routes/resolve-public-route';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage('/');
+  const route = await resolvePublicRoute('/');
+  const page = route?.kind === 'page' ? route.page : null;
   return {
     title: page?.seoTitle || 'Sustainability & ESG Solutions Firm | Envint',
     description: page?.seoDescription || 'Envint is a sustainability and ESG solutions firm. We help clients integrate sustainability, channelize responsible investment and enable climate action.',
@@ -18,13 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [page, insights] = await Promise.all([
-    getPage('/'),
+  const [route, insights] = await Promise.all([
+    resolvePublicRoute('/'),
     getInsights(),
   ]);
 
-  if (pageHasRenderableContent(page)) {
-    return <DynamicPageRenderer page={page} />;
+  if (route?.kind === 'page') {
+    return <DynamicPageRenderer page={route.page} />;
   }
 
   return (

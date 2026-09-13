@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getInsightBySlug, getInsightAdjacentSlugs, getInsights } from '@/lib/data/insights';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
+import { resolvePublicRoute } from '@/lib/routes/resolve-public-route';
 import { JsonLd, articleSchema, breadcrumbSchema } from '@/components/seo/JsonLd';
 import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
 
@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   // Catch-all: rejoin segments (e.g. ['solutions', 'new-page'] -> '/solutions/new-page')
   const joined = (Array.isArray(slug) ? slug.join('/') : slug) || '';
   const cleanSlug = joined.startsWith('/') ? joined : `/${joined}`;
-  const cmsPage = await getPage(cleanSlug);
+  const route = await resolvePublicRoute(cleanSlug);
+  const cmsPage = route?.kind === 'page' ? route.page : null;
 
   if (cmsPage) {
     const title = cmsPage.seoTitle || `${cmsPage.title} - Envint`;
@@ -75,9 +76,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
   const joined = (Array.isArray(slug) ? slug.join('/') : slug) || '';
   const cleanSlug = joined.startsWith('/') ? joined : `/${joined}`;
-  const cmsPage = await getPage(cleanSlug);
+  const route = await resolvePublicRoute(cleanSlug);
+  const cmsPage = route?.kind === 'page' ? route.page : null;
 
-  if (pageHasRenderableContent(cmsPage)) {
+  if (cmsPage) {
     return (
       <main style={{ minHeight: '80vh' }}>
         <JsonLd

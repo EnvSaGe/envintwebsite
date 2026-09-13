@@ -210,7 +210,7 @@ git commit -m "feat: add editable CMS templates and bindings"
 - Produces: cache tag helpers `pageTag`, `templateTag`, `globalTag`, and `recordTag`.
 - Consumes: content templates and bindings from Task 2.
 
-- [ ] **Step 1: Write failing normalization and publication tests**
+- [x] **Step 1: Write failing normalization and publication tests**
 
 ```ts
 import assert from 'node:assert/strict';
@@ -226,13 +226,13 @@ assert.deepEqual(
 );
 ```
 
-- [ ] **Step 2: Run the test and verify failure**
+- [x] **Step 2: Run the test and verify failure**
 
 Run: `pnpm exec tsx scripts/verify-route-resolver.ts`
 
 Expected: FAIL because the route modules do not exist.
 
-- [ ] **Step 3: Implement the route union and public/preview split**
+- [x] **Step 3: Implement the route union and public/preview split**
 
 ```ts
 export type ResolvedPublicRoute =
@@ -243,15 +243,15 @@ export type ResolvedPublicRoute =
 
 Normal resolution must never fall back from `publishedBlocks` to `draftBlocks`. Preview resolution may use the saved draft or the authenticated preview store.
 
-- [ ] **Step 4: Attach stable cache tags**
+- [x] **Step 4: Attach stable cache tags**
 
 Use `unstable_cache` around database reads with tags such as `page:/about`, `template:article`, `record:insight:<slug>`, and `global:header`. Keep authenticated preview reads outside the public cache.
 
-- [ ] **Step 5: Route home and catch-all rendering through the resolver**
+- [x] **Step 5: Route home and catch-all rendering through the resolver**
 
 Keep the existing hard-coded page body as an explicit transitional fallback function, but call it only when the inventory marks the route as not yet migrated. Remove the `FORCE_STATIC` public cookie bypass because a visitor-controlled cookie must not change the production source of truth.
 
-- [ ] **Step 6: Run resolver, web type, and build checks**
+- [x] **Step 6: Run resolver, web type, and build checks**
 
 Run: `pnpm exec tsx scripts/verify-route-resolver.ts`
 
@@ -261,7 +261,7 @@ Run: `pnpm --filter @envint/web typecheck && pnpm --filter @envint/web build`
 
 Expected: both commands exit 0.
 
-- [ ] **Step 7: Commit the route resolver**
+- [x] **Step 7: Commit the route resolver**
 
 ```bash
 git add apps/web/src/lib/routes apps/web/src/lib/data/pages.ts apps/web/src/app/page.tsx apps/web/src/app/[...slug]/page.tsx scripts/verify-route-resolver.ts
