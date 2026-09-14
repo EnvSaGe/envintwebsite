@@ -25,7 +25,8 @@ const POLO_VALUES = [
     desc: 'Every day brings forth new developments in our field. Embracing a shared learning approach, we adapt to industry developments, filtering essential insights to stay ahead.',
   },
   {
-    title: 'Ownership',      desc: 'We recognize and reward team members with the courage and ownership to see through their commitments. Taking charge of one’s responsibilities and holding oneself accountable for one’s actions is a sure way to grow at Envint!',
+    title: 'Ownership',
+    desc: 'We recognize and reward team members with the courage to see through their commitments. Taking charge of one’s responsibilities is a sure way to grow at Envint!',
   },
 ];
 
@@ -64,12 +65,16 @@ export function createCareersPageTree(): PageBlockTree {
         backgroundOverlay:
           'linear-gradient(to top, rgba(0, 20, 15, 0.65) 0%, rgba(0, 20, 15, 0.2) 60%, transparent 100%)',
       },
-      'Careers Hero Banner'
+      'Careers Hero Banner',
+      {
+        tablet: { minHeight: '80vh', paddingBottom: '56px' },
+        mobile: { minHeight: '65vh', paddingBottom: '40px' },
+      }
     ),
     cont_car_hero: makeContainer(
       'cont_car_hero',
       'sec_car_hero',
-      ['h1_car_hero', 'sub_car_hero'],
+      ['h1_car_hero'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'Hero Content'
     ),
@@ -79,29 +84,20 @@ export function createCareersPageTree(): PageBlockTree {
       'Building a global sustainability team - second to none',
       'h1',
       {
-        fontSize: '64px',
+        fontSize: '76px',
         textColor: '#FFFFFF',
         fontWeight: 400,
         lineHeight: '1.15',
         fontFamily: 'Neue Montreal, sans-serif',
-        marginBottom: '16px',
+        textShadow: '0 2px 14px rgba(0, 0, 0, 0.4)',
+        marginBottom: '0',
         maxWidth: '1080px',
       },
       {
-        mobile: { fontSize: '36px' },
+        tablet: { fontSize: '64px' },
+        mobile: { fontSize: '36px', lineHeight: '1.25' },
       },
       'Hero Headline'
-    ),
-    sub_car_hero: makeParagraph(
-      'sub_car_hero',
-      'cont_car_hero',
-      '<p>Explore a career with us!</p>',
-      {
-        fontSize: '28px',
-        textColor: '#F5F5F0',
-        fontFamily: 'Neue Montreal, sans-serif',
-      },
-      'Hero Subtitle'
     ),
 
     // ─── 2. What We Do Section ──────────────────────────────────────────────────
@@ -115,7 +111,11 @@ export function createCareersPageTree(): PageBlockTree {
         paddingRight: '24px',
         backgroundColor: '#FFFFFF',
       },
-      'What We Do Section'
+      'What We Do Section',
+      {
+        tablet: { paddingTop: '60px', paddingBottom: '60px', paddingLeft: '20px', paddingRight: '20px' },
+        mobile: { paddingTop: '40px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' },
+      }
     ),
     cont_car_wdwd: makeContainer(
       'cont_car_wdwd',
@@ -136,6 +136,10 @@ export function createCareersPageTree(): PageBlockTree {
         marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
       },
+      {
+        tablet: { fontSize: '36px' },
+        mobile: { fontSize: '32px' },
+      },
       'What We Do Title'
     ),
     p_car_wdwd: makeParagraph(
@@ -143,11 +147,15 @@ export function createCareersPageTree(): PageBlockTree {
       'cont_car_wdwd',
       '<p>We are a global professional services firm. Our work involves a diverse range of client engagements, where we blend research, analysis, client interactions, site visits, and solution implementation to drive positive change. Explore our current career opportunities and join us in making an impact!</p>',
       {
-        fontSize: '22px',
-        lineHeight: '1.6',
+        fontSize: '24px',
+        lineHeight: '35px',
         textColor: '#393939',
         fontFamily: 'Neue Montreal, sans-serif',
         marginBottom: '40px',
+      },
+      {
+        tablet: { fontSize: '20px', lineHeight: '30px' },
+        mobile: { fontSize: '18px', lineHeight: '26px' },
       },
       'What We Do Paragraph'
     ),
@@ -185,7 +193,7 @@ export function createCareersPageTree(): PageBlockTree {
       'WDWD Photo 3'
     ),
 
-    // ─── 3. POLO Values Section ─────────────────────────────────────────────────
+    // ─── 3. POLO Values Section (Exact live oceanbg + 2x2 grid with gray-logo watermark) ───
     sec_car_polo: makeSection(
       'sec_car_polo',
       ['cont_car_polo'],
@@ -194,74 +202,127 @@ export function createCareersPageTree(): PageBlockTree {
         paddingBottom: '80px',
         paddingLeft: '24px',
         paddingRight: '24px',
-        backgroundColor: '#F8FAF7',
+        backgroundImage: resolveCmsImage('/images/Polo-bg.jpg'),
+        backgroundPosition: 'center center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
       },
-      'Our Culture & POLO Values Section'
+      'Our Culture & POLO Values Section',
+      {
+        tablet: { paddingTop: '60px', paddingBottom: '60px', paddingLeft: '20px', paddingRight: '20px' },
+        mobile: { paddingTop: '40px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' },
+      }
     ),
     cont_car_polo: makeContainer(
       'cont_car_polo',
       'sec_car_polo',
-      ['h2_car_polo', 'sub_car_polo', 'grid_car_polo_split'],
+      ['grid_car_polo_main'],
       { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
       'POLO Container'
     ),
+    grid_car_polo_main: {
+      id: 'grid_car_polo_main',
+      type: 'grid',
+      name: 'POLO Split Grid',
+      parentId: 'cont_car_polo',
+      children: ['col_polo_text', 'grid_polo_cards'],
+      content: {},
+      styles: {
+        display: 'grid',
+        gridColumns: '42% calc(58% - 48px)',
+        gap: '48px',
+        alignItems: 'flex-start',
+        width: '100%',
+      },
+      responsiveStyles: {
+        tablet: {
+          gridColumns: '1fr',
+          gap: '36px',
+        },
+        mobile: {
+          gridColumns: '1fr',
+          gap: '28px',
+        },
+      },
+      visibility: { desktop: true, tablet: true, mobile: true },
+    },
+    col_polo_text: makeContainer(
+      'col_polo_text',
+      'grid_car_polo_main',
+      ['h2_car_polo', 'sub_car_polo'],
+      {
+        display: 'flex',
+        flexDirection: 'column',
+        paddingTop: '20px',
+        width: '100%',
+      },
+      'POLO Text Column',
+      {
+        tablet: { paddingTop: '0px' },
+        mobile: { paddingTop: '0px' },
+      }
+    ),
     h2_car_polo: makeHeading(
       'h2_car_polo',
-      'cont_car_polo',
+      'col_polo_text',
       'What’s the way we work?',
       'h2',
       {
         fontSize: '48px',
         fontWeight: 400,
-        textColor: '#004E35',
-        marginBottom: '10px',
+        textColor: '#FFFFFF',
+        marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
+        lineHeight: '1.2',
+      },
+      {
+        tablet: { fontSize: '36px' },
+        mobile: { fontSize: '32px', lineHeight: '1.25' },
       },
       'Our Culture Title'
     ),
     sub_car_polo: makeParagraph(
       'sub_car_polo',
-      'cont_car_polo',
-      '<p>Our cultural DNA is defined by four key elements, encapsulated by the acronym POLO. Built and nurtured over the years, POLO symbolizes the way we work and interact with each other.</p>',
+      'col_polo_text',
+      '<p>Our cultural DNA is defined by four key elements, encapsulated by the acronym POLO.<br>Built and nurtured over the years, POLO symbolizes the way we work and interact with each other.</p>',
       {
         fontSize: '24px',
-        textColor: '#757575',
+        lineHeight: '35px',
+        textColor: '#FFFFFF',
         fontFamily: 'Neue Montreal, sans-serif',
-        marginBottom: '48px',
+        marginBottom: '0px',
+      },
+      {
+        tablet: { fontSize: '20px', lineHeight: '30px' },
+        mobile: { fontSize: '18px', lineHeight: '26px' },
       },
       'POLO Subtitle'
     ),
-    grid_car_polo_split: makeGrid(
-      'grid_car_polo_split',
-      'cont_car_polo',
-      '2',
-      '40px',
-      ['col_polo_img', 'col_polo_cards'],
-      {},
-      'POLO Split Layout'
-    ),
-    col_polo_img: makeContainer(
-      'col_polo_img',
-      'grid_car_polo_split',
-      ['img_polo_culture'],
-      {},
-      'POLO Image Column'
-    ),
-    img_polo_culture: makeImage(
-      'img_polo_culture',
-      'col_polo_img',
-      resolveCmsImage('/images/careers-polo-people.webp'),
-      'Envint team members collaborating',
-      { width: '100%', height: '100%', minHeight: '440px', borderRadius: '20px', objectFit: 'cover' },
-      'POLO Culture Photo'
-    ),
-    col_polo_cards: makeContainer(
-      'col_polo_cards',
-      'grid_car_polo_split',
-      POLO_VALUES.map((_, i) => `card_polo_${i + 1}`),
-      { display: 'flex', flexDirection: 'column', gap: '20px' },
-      'POLO Values Column'
-    ),
+    grid_polo_cards: {
+      id: 'grid_polo_cards',
+      type: 'grid',
+      name: 'POLO Cards 2x2 Grid',
+      parentId: 'grid_car_polo_main',
+      children: POLO_VALUES.map((_, i) => `card_polo_${i + 1}`),
+      content: {},
+      styles: {
+        display: 'grid',
+        gridColumns: 'repeat(2, minmax(0, 1fr))',
+        gap: '20px',
+        width: '100%',
+      },
+      responsiveStyles: {
+        tablet: {
+          gridColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: '16px',
+        },
+        mobile: {
+          gridColumns: '1fr',
+          gap: '16px',
+        },
+      },
+      visibility: { desktop: true, tablet: true, mobile: true },
+    },
 
     // ─── 4. What's A Typical Day Like? ──────────────────────────────────────────
     sec_car_typical: makeSection(
@@ -274,7 +335,11 @@ export function createCareersPageTree(): PageBlockTree {
         paddingRight: '24px',
         backgroundColor: '#FFFFFF',
       },
-      'Typical Day Section'
+      'Typical Day Section',
+      {
+        tablet: { paddingTop: '60px', paddingBottom: '60px', paddingLeft: '20px', paddingRight: '20px' },
+        mobile: { paddingTop: '40px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' },
+      }
     ),
     cont_car_typical: makeContainer(
       'cont_car_typical',
@@ -295,6 +360,10 @@ export function createCareersPageTree(): PageBlockTree {
         marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
       },
+      {
+        tablet: { fontSize: '36px' },
+        mobile: { fontSize: '32px' },
+      },
       'Typical Day Title'
     ),
     p_car_typical: makeParagraph(
@@ -302,11 +371,15 @@ export function createCareersPageTree(): PageBlockTree {
       'cont_car_typical',
       '<p>There is no typical day at Envint! Each day brings forth its own challenges, learnings and unique experiences. With operations across multiple locations in India and expanding globally, we embrace a hybrid work model, providing flexibility for our team to maintain their own work-life balance. Our cohesive engagement teams are often dispersed across various offices, and we regularly visit client sites across offices, factories, hospitals, farms, project sites, treatment plants and many more!</p>',
       {
-        fontSize: '22px',
-        lineHeight: '1.65',
+        fontSize: '24px',
+        lineHeight: '35px',
         textColor: '#393939',
         fontFamily: 'Neue Montreal, sans-serif',
         marginBottom: '40px',
+      },
+      {
+        tablet: { fontSize: '20px', lineHeight: '30px' },
+        mobile: { fontSize: '18px', lineHeight: '26px' },
       },
       'Typical Day Description'
     ),
@@ -315,7 +388,7 @@ export function createCareersPageTree(): PageBlockTree {
       'cont_car_typical',
       resolveCmsImage('/images/careers-typical-day.webp'),
       'Envint colleagues at a client site visit',
-      { width: '100%', height: 'auto', borderRadius: '16px', objectFit: 'cover' },
+      { width: '100%', height: 'auto', borderRadius: '20px', objectFit: 'cover' },
       'Typical Day Photo'
     ),
 
@@ -330,7 +403,11 @@ export function createCareersPageTree(): PageBlockTree {
         paddingRight: '24px',
         backgroundColor: '#FFFFFF',
       },
-      'What’s In It For You Section'
+      'What’s In It For You Section',
+      {
+        tablet: { paddingTop: '60px', paddingBottom: '60px', paddingLeft: '20px', paddingRight: '20px' },
+        mobile: { paddingTop: '40px', paddingBottom: '40px', paddingLeft: '16px', paddingRight: '16px' },
+      }
     ),
     cont_car_wifu: makeContainer(
       'cont_car_wifu',
@@ -351,6 +428,10 @@ export function createCareersPageTree(): PageBlockTree {
         marginBottom: '20px',
         fontFamily: 'Neue Montreal, sans-serif',
       },
+      {
+        tablet: { fontSize: '36px' },
+        mobile: { fontSize: '32px' },
+      },
       'WIFU Title'
     ),
     p_car_wifu: makeParagraph(
@@ -358,11 +439,15 @@ export function createCareersPageTree(): PageBlockTree {
       'cont_car_wifu',
       '<p>Whether you are a fresher or an experienced professional, we have a role for you at Envint. Expect significant responsibility, sustained learning opportunities, and collaboration with like-minded colleagues. Take charge of your development with plentiful leadership opportunities across domains like due diligence, reporting, sectors like built environment or healthcare, and functions such as marketing and communication. You can own your growth at Envint!</p>',
       {
-        fontSize: '22px',
-        lineHeight: '1.65',
+        fontSize: '24px',
+        lineHeight: '35px',
         textColor: '#393939',
         fontFamily: 'Neue Montreal, sans-serif',
         marginBottom: '40px',
+      },
+      {
+        tablet: { fontSize: '20px', lineHeight: '30px' },
+        mobile: { fontSize: '18px', lineHeight: '26px' },
       },
       'WIFU Description'
     ),
@@ -380,7 +465,7 @@ export function createCareersPageTree(): PageBlockTree {
       'grid_car_wifu',
       resolveCmsImage('/images/careers-wifu-1.webp'),
       'Envint team member working with a client',
-      { width: '100%', aspectRatio: '16/10', borderRadius: '16px', objectFit: 'cover' },
+      { width: '100%', aspectRatio: '16/10', borderRadius: '20px', objectFit: 'cover' },
       'WIFU Photo 1'
     ),
     img_wifu_2: makeImage(
@@ -388,7 +473,7 @@ export function createCareersPageTree(): PageBlockTree {
       'grid_car_wifu',
       resolveCmsImage('/images/careers-wifu-2.webp'),
       'Envint colleagues during an engagement',
-      { width: '100%', aspectRatio: '16/10', borderRadius: '16px', objectFit: 'cover' },
+      { width: '100%', aspectRatio: '16/10', borderRadius: '20px', objectFit: 'cover' },
       'WIFU Photo 2'
     ),
 
@@ -403,7 +488,11 @@ export function createCareersPageTree(): PageBlockTree {
         paddingRight: '24px',
         backgroundColor: '#FFFFFF',
       },
-      'Application CTA Section'
+      'Application CTA Section',
+      {
+        tablet: { paddingTop: '30px', paddingBottom: '70px', paddingLeft: '20px', paddingRight: '20px' },
+        mobile: { paddingTop: '20px', paddingBottom: '50px', paddingLeft: '16px', paddingRight: '16px' },
+      }
     ),
     cont_car_cta: makeContainer(
       'cont_car_cta',
@@ -434,7 +523,11 @@ export function createCareersPageTree(): PageBlockTree {
         gap: '20px',
         minHeight: '340px',
       },
-      'CTA Banner Card'
+      'CTA Banner Card',
+      {
+        tablet: { paddingTop: '60px', paddingBottom: '60px', paddingLeft: '30px', paddingRight: '30px' },
+        mobile: { paddingTop: '40px', paddingBottom: '40px', paddingLeft: '20px', paddingRight: '20px' },
+      }
     ),
     h3_car_cta: makeHeading(
       'h3_car_cta',
@@ -447,6 +540,10 @@ export function createCareersPageTree(): PageBlockTree {
         textColor: '#FFFFFF',
         fontFamily: 'Neue Montreal, sans-serif',
       },
+      {
+        tablet: { fontSize: '36px' },
+        mobile: { fontSize: '28px' },
+      },
       'CTA Title'
     ),
     p_car_cta: makeParagraph(
@@ -457,6 +554,9 @@ export function createCareersPageTree(): PageBlockTree {
         fontSize: '20px',
         textColor: '#F5F5F0',
         fontFamily: 'Neue Montreal, sans-serif',
+      },
+      {
+        mobile: { fontSize: '16px' },
       },
       'CTA Description'
     ),
@@ -488,23 +588,48 @@ export function createCareersPageTree(): PageBlockTree {
     const titleId = `polo_title_${idx + 1}`;
     const descId = `polo_desc_${idx + 1}`;
 
-    nodes[cardId] = makeContainer(
-      cardId,
-      'col_polo_cards',
-      [titleId, descId],
-      {
+    nodes[cardId] = {
+      id: cardId,
+      type: 'container',
+      name: `${v.title} Card`,
+      parentId: 'grid_polo_cards',
+      children: [titleId, descId],
+      content: {},
+      styles: {
         backgroundColor: '#FFFFFF',
-        borderRadius: '16px',
-        paddingTop: '24px',
-        paddingBottom: '24px',
-        paddingLeft: '28px',
-        paddingRight: '28px',
-        borderColor: 'rgba(0, 0, 0, 0.06)',
-        borderWidth: '1px',
-        borderStyle: 'solid',
+        backgroundImage: resolveCmsImage('/images/gray-logo.webp'),
+        backgroundPosition: 'bottom right',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '50% auto',
+        borderRadius: '20px',
+        paddingTop: '48px',
+        paddingBottom: '48px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+        width: '100%',
+        minHeight: '260px',
+        display: 'flex',
+        flexDirection: 'column',
       },
-      `${v.title} Card`
-    );
+      responsiveStyles: {
+        tablet: {
+          paddingTop: '36px',
+          paddingBottom: '36px',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          backgroundSize: '120px auto',
+        },
+        mobile: {
+          paddingTop: '30px',
+          paddingBottom: '30px',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          backgroundSize: '100px auto',
+        },
+      },
+      visibility: { desktop: true, tablet: true, mobile: true },
+    };
 
     nodes[titleId] = makeHeading(
       titleId,
@@ -515,8 +640,11 @@ export function createCareersPageTree(): PageBlockTree {
         fontSize: '24px',
         fontWeight: 500,
         textColor: '#C65102', // Exact live orange
-        marginBottom: '8px',
+        marginBottom: '12px',
         fontFamily: 'Neue Montreal, sans-serif',
+      },
+      {
+        mobile: { fontSize: '20px' },
       },
       `${v.title} Title`
     );
@@ -526,14 +654,27 @@ export function createCareersPageTree(): PageBlockTree {
       cardId,
       `<p>${v.desc}</p>`,
       {
-        fontSize: '16px',
-        lineHeight: '1.6',
-        textColor: '#4B5563',
+        fontSize: '18px',
+        lineHeight: '24px',
+        textColor: '#393939',
         fontFamily: 'Neue Montreal, sans-serif',
+      },
+      {
+        mobile: { fontSize: '16px', lineHeight: '22px' },
       },
       `${v.title} Description`
     );
   });
+
+  // CMS-editable responsive delivery hints keep Next/Image from selecting a
+  // 640px candidate for the 1280px-wide banner shown on desktop.
+  nodes.img_car_typical.content = { ...nodes.img_car_typical.content, sizes: '100vw', quality: 95 };
+  for (const id of ['img_wifu_1', 'img_wifu_2']) {
+    nodes[id].content = { ...nodes[id].content, sizes: '(max-width: 768px) 100vw, 50vw', quality: 95 };
+  }
+  for (const id of ['img_wdwd_1', 'img_wdwd_2', 'img_wdwd_3']) {
+    nodes[id].content = { ...nodes[id].content, sizes: '(max-width: 768px) 100vw, 33vw', quality: 90 };
+  }
 
   return assembleTree(rootIds, nodes);
 }

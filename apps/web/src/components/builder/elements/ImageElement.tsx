@@ -3,6 +3,29 @@ import Image from 'next/image';
 import { BuilderNode, resolveCmsImage } from '@envint/shared';
 import { elementStylesToCss } from '../style-utils';
 
+export function imageContainerStyles(styles: BuilderNode['styles']): React.CSSProperties {
+  const inlineStyles = elementStylesToCss(styles);
+  return {
+    position: 'relative',
+    overflow: 'hidden',
+    width: '100%',
+    ...inlineStyles,
+  };
+}
+
+export function imageDeliveryProps(content: BuilderNode['content']): { sizes: string; quality: number } {
+  const requestedQuality = Number(content?.quality);
+  return {
+    // A full-width default prevents Next.js from selecting a 640px candidate
+    // for wide CMS banners. Editors can provide a narrower responsive hint for
+    // grid/card images when bandwidth optimization matters.
+    sizes: String(content?.sizes || '100vw'),
+    quality: Number.isFinite(requestedQuality)
+      ? Math.max(50, Math.min(100, Math.round(requestedQuality)))
+      : 90,
+  };
+}
+
 export function ImageElement({ node }: { node: BuilderNode }) {
   const content = node.content || {};
   const rawSrc = content.src || 'https://envintcms.s3.ap-south-1.amazonaws.com/images/placeholder.webp';
@@ -12,22 +35,9 @@ export function ImageElement({ node }: { node: BuilderNode }) {
   const objectFit = (content.objectFit || 'cover') as React.CSSProperties['objectFit'];
   const objectPosition = content.objectPosition || 'center';
   const inlineStyles = elementStylesToCss(node.styles);
+  const delivery = imageDeliveryProps(content);
 
-  const containerStyles: React.CSSProperties = {
-    position: 'relative',
-    overflow: 'hidden',
-    width: inlineStyles.width || '100%',
-    maxWidth: inlineStyles.maxWidth,
-    height: inlineStyles.height || 'auto',
-    minHeight: inlineStyles.minHeight,
-    borderRadius: inlineStyles.borderRadius,
-    boxShadow: inlineStyles.boxShadow,
-    margin: inlineStyles.margin,
-    marginTop: inlineStyles.marginTop,
-    marginRight: inlineStyles.marginRight,
-    marginBottom: inlineStyles.marginBottom,
-    marginLeft: inlineStyles.marginLeft,
-  };
+  const containerStyles = imageContainerStyles(node.styles);
 
   const isRemote = src.startsWith('http://') || src.startsWith('https://');
 
@@ -46,7 +56,8 @@ export function ImageElement({ node }: { node: BuilderNode }) {
             objectPosition,
             display: 'block',
           }}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={delivery.sizes}
+          quality={delivery.quality}
         />
       ) : (
         <img

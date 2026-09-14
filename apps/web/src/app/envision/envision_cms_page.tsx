@@ -26,8 +26,8 @@ export default async function EnvisionPage() {
       {/* 1. HERO SECTION (Full-screen on desktop, responsive 58-60vh on mobile/tablet) */}
       <section className="page-hero">
         <Image
-          src="/images/envision-hero.webp"
-          alt="Boardwalk pier extending into calm sunset lake - Envint Envision"
+          src="/images/Envision-header.webp"
+          alt="Envision Strategic Insights - Envint"
           fill
           priority
           sizes="100vw"
@@ -50,7 +50,7 @@ export default async function EnvisionPage() {
             margin: 0,
             textShadow: '0 2px 12px rgba(0,0,0,0.3)',
           }}>
-            News &amp; Insights
+            Envision
           </h1>
         </div>
       </section>

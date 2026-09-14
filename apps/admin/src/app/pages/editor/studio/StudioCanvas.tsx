@@ -56,6 +56,7 @@ import {
   AccordionPrimitive,
   AccordionItemPrimitive,
   TeamGridPrimitive,
+  JourneyCarouselPrimitive,
   ServiceCardsPrimitive,
   InsightsGridPrimitive,
   ImpactGridPrimitive,
@@ -887,6 +888,9 @@ function NodeContentSwitch({
 
     case 'team-grid':
       return <TeamGridPrimitive node={node} members={state.teamMembers} />;
+
+    case 'journey-carousel':
+      return <JourneyCarouselPrimitive node={node} />;
 
     case 'insights-grid':
       return <InsightsGridPrimitive node={node} />;

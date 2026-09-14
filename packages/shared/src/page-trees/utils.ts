@@ -172,6 +172,16 @@ export function makeGrid(
       ...safeStyles(arg6),
     };
     name = typeof arg7 === 'string' ? arg7 : id;
+    const defaultTabletCols = String(cols) === '4' ? 'repeat(2, minmax(0, 1fr))' : String(cols) === '3' ? 'repeat(2, minmax(0, 1fr))' : '1fr';
+    const defaultMobileCols = '1fr';
+    responsiveStyles = safeResponsiveStyles(
+      typeof arg7 === 'object' && arg7 !== null
+        ? arg7
+        : {
+            tablet: { gridColumns: defaultTabletCols },
+            mobile: { gridColumns: defaultMobileCols },
+          }
+    );
   } else {
     name = typeof arg2 === 'string' ? arg2 : id;
     parentId = typeof arg3 === 'string' ? arg3 : '';

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ResolvedRouteRenderer } from '@/components/content/ResolvedRouteRenderer';
 import { resolvePublicRoute } from './resolve-public-route';
+import { resolveCmsImage } from '@envint/shared';
 
 function canonicalPath(pathname: string): string {
   return pathname === '/' ? '/' : `${pathname.replace(/\/+$/g, '')}/`;
@@ -14,7 +15,8 @@ export async function metadataForPublicPath(pathname: string): Promise<Metadata>
   const title = entity.seoTitle || entity.title || 'Envint';
   const description = entity.seoDescription || entity.description || entity.excerpt || entity.summary || '';
   const canonical = `https://envintglobal.com${canonicalPath(route.pathname)}`;
-  const image = entity.coverImageUrl || entity.heroImage || entity.avatarUrl || entity.coverImage?.url;
+  const rawImage = entity.coverImageUrl || entity.heroImage || entity.avatarUrl || entity.coverImage?.url;
+  const image = rawImage ? resolveCmsImage(rawImage) : undefined;
   return {
     title,
     description,

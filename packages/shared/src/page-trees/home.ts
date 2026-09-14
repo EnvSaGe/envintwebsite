@@ -881,27 +881,42 @@ export function createHomePageTree(): PageBlockTree {
     const descId = `${c.id}_desc`;
     const watermarkId = `${c.id}_watermark`;
 
-    nodes[c.id] = makeContainer(
-      c.id,
-      'grid_home_services',
-      [`${c.id}_content`, watermarkId],
-      {
-        position: 'relative',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        minHeight: '210px',
-        paddingTop: '44px',
-        paddingBottom: '36px',
-        paddingLeft: '40px',
-        paddingRight: '40px',
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.16)',
+    nodes[c.id] = {
+      ...makeContainer(
+        c.id,
+        'grid_home_services',
+        [`${c.id}_content`, watermarkId],
+        {
+          position: 'relative',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          minHeight: '210px',
+          paddingTop: '44px',
+          paddingBottom: '36px',
+          paddingLeft: '40px',
+          paddingRight: '40px',
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.16)',
+        },
+        `${c.title} Card`
+      ),
+      content: {
+        url: c.url,
+        className: 'servicebox01',
+        target: '_self',
       },
-      `${c.title} Card`
-    );
+      actions: [
+        {
+          type: 'link',
+          url: c.url,
+          target: '_self',
+          rel: 'noopener noreferrer',
+        },
+      ],
+    };
 
     nodes[`${c.id}_content`] = makeContainer(
       `${c.id}_content`,

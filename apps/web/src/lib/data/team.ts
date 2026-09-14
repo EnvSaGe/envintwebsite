@@ -19,7 +19,7 @@ export async function getTeamMembers() {
       }
       return localTeam;
     },
-    ['team-list'],
+    ['team-list-v2'],
     { tags: ['team:list'] }
   )();
 }

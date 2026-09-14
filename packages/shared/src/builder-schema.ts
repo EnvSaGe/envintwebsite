@@ -41,6 +41,7 @@ export const ElementTypeSchema = z.enum([
 
   // Business / Dynamic Modules
   'team-grid',
+  'journey-carousel',
   'insights-grid',
   'impact-grid',
   'service-cards',
@@ -80,6 +81,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
       'form',
       'modal-trigger',
       'team-grid',
+      'journey-carousel',
       'insights-grid',
       'impact-grid',
       'service-cards',
@@ -181,7 +183,7 @@ export const ElementStylesSchema = z.object({
   marginLeft: z.string().optional(),
 
   // Flexbox & Grid Layout Primitives (NOT free absolute positioning)
-  display: z.enum(['block', 'flex', 'grid', 'none']).optional(),
+  display: z.enum(['block', 'flex', 'inline-flex', 'inline-block', 'grid', 'none']).optional(),
   flexDirection: z.enum(['row', 'column', 'row-reverse', 'column-reverse']).optional(),
   flexWrap: z.enum(['nowrap', 'wrap', 'wrap-reverse']).optional(),
   justifyContent: z
@@ -212,7 +214,7 @@ export const ElementStylesSchema = z.object({
   // Background
   backgroundColor: z.string().optional(),
   backgroundImage: z.string().optional(),
-  backgroundSize: z.enum(['cover', 'contain', 'auto']).optional(),
+  backgroundSize: z.string().optional(),
   backgroundPosition: z.string().optional(),
   backgroundRepeat: z.enum(['no-repeat', 'repeat', 'repeat-x', 'repeat-y']).optional(),
   backgroundOverlay: z.string().optional(),
@@ -303,6 +305,8 @@ export const ImageContentSchema = z.object({
   aspectRatio: z.enum(['auto', '16/9', '4/3', '1/1', '3/2', '21/9']).default('auto'),
   objectFit: z.enum(['cover', 'contain', 'fill', 'none']).default('cover'),
   objectPosition: z.string().default('center'),
+  sizes: z.string().default('100vw'),
+  quality: z.number().int().min(50).max(100).default(90),
   action: ElementActionSchema.optional(),
 });
 
@@ -632,6 +636,12 @@ export function createDefaultNode(
         width: '100%',
         display: 'flex',
       };
+      break;
+
+    case 'journey-carousel':
+      name = 'Journey Carousel';
+      content = { title: 'Our Journey', milestones: [] };
+      styles = { width: '100%' };
       break;
   }
 

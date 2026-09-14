@@ -61,8 +61,16 @@ function avatarFor(member: TeamCardMember): string {
   return member.imageUrl || (member.slug ? `/images/team-${member.slug}.webp` : '');
 }
 
-export default function TeamGrid({ members }: { members: TeamCardMember[] }) {
+export default function TeamGrid({
+  members,
+  initialCount = 12,
+}: {
+  members: TeamCardMember[];
+  initialCount?: number;
+}) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const safeInitialCount = Math.max(1, Math.min(initialCount, members.length || 1));
+  const [visibleCount, setVisibleCount] = useState(safeInitialCount);
 
   const goPrev = () =>
     setActiveIndex((i) => (i === null ? i : (i - 1 + members.length) % members.length));
@@ -88,7 +96,7 @@ export default function TeamGrid({ members }: { members: TeamCardMember[] }) {
   return (
     <>
       <div className={styles.teamGrid}>
-        {members.map((member, index) => {
+        {members.slice(0, visibleCount).map((member, index) => {
           const role = member.roleTitle || member.role || '';
           const linkedin = member.linkedinUrl || '';
           const bio = bioTeaser(member.bioText || '');
@@ -141,6 +149,18 @@ export default function TeamGrid({ members }: { members: TeamCardMember[] }) {
           );
         })}
       </div>
+
+      {visibleCount < members.length && (
+        <div className={styles.teamLoadMoreWrap}>
+          <button
+            type="button"
+            className={styles.teamLoadMore}
+            onClick={() => setVisibleCount(members.length)}
+          >
+            Load More
+          </button>
+        </div>
+      )}
 
       {active && (
         <div className={styles.teamModalBackdrop} onClick={() => setActiveIndex(null)}>

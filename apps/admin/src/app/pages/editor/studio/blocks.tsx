@@ -296,19 +296,8 @@ export function ImagePrimitive({
   const containerStyles: React.CSSProperties = {
     position: 'relative',
     overflow: 'hidden',
-    width: elementStylesToCss(inlineStyles).width || '100%',
-    maxWidth: inlineStyles.maxWidth,
-    height: inlineStyles.height || 'auto',
-    minHeight: inlineStyles.minHeight,
-    maxHeight: inlineStyles.maxHeight,
-    aspectRatio: inlineStyles.aspectRatio,
-    borderRadius: inlineStyles.borderRadius,
-    boxShadow: inlineStyles.boxShadow,
-    margin: inlineStyles.margin,
-    marginTop: inlineStyles.marginTop,
-    marginRight: inlineStyles.marginRight,
-    marginBottom: inlineStyles.marginBottom,
-    marginLeft: inlineStyles.marginLeft,
+    width: '100%',
+    ...elementStylesToCss(inlineStyles),
   };
 
   return (
@@ -557,6 +546,30 @@ export function AccordionItemPrimitive({
 }
 
 /** Dynamic module: Team grid. Renders REAL team members passed from the page data layer. */
+export function JourneyCarouselPrimitive({ node }: { node: BuilderNode }) {
+  const milestones = Array.isArray(node.content?.milestones) ? node.content.milestones : [];
+  return (
+    <div data-builder-id={node.id} style={{ width: '100%' }}>
+      <h2 style={{ margin: '0 0 40px', textAlign: 'center', color: '#004E35', fontSize: '48px', fontWeight: 400 }}>
+        {node.content?.title || 'Our Journey'}
+      </h2>
+      <div style={{ display: 'flex', gap: '50px', overflow: 'hidden', width: '100%' }}>
+        {milestones.map((milestone: any, index: number) => (
+          <article key={`${milestone.year}-${index}`} style={{ flex: '0 0 300px' }}>
+            <p style={{ margin: '0 0 28px', color: '#008712', fontSize: '36px' }}>
+              {milestone.month ? `${milestone.month} ` : ''}{milestone.year}
+            </p>
+            <p style={{ minHeight: '70px', fontSize: '18px', lineHeight: '1.45' }}>{milestone.desc}</p>
+            {milestone.img && (
+              <img src={resolveCmsImage(milestone.img)} alt="" style={{ width: '245px', aspectRatio: '1/1', borderRadius: '20px', objectFit: 'cover' }} />
+            )}
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function TeamGridPrimitive({
   node,
   members,
@@ -703,25 +716,19 @@ export function ServiceCardsPrimitive({ node }: { node: BuilderNode }) {
 export function InsightsGridPrimitive({ node }: { node: BuilderNode }) {
   const sampleArticles = [
     {
-      title: "India's New Labour Codes: A Transformative Shift",
-      category: 'ENVISION',
-      summary: 'Analysis of India’s four consolidated labour codes covering wages, industrial relations, social security, and workplace safety.',
+      title: "India's New Labour Codes",
+      summary: 'India has implemented four Labour Codes from 21 November 2025. India’s Labour Codes include the Code on Wages...',
       coverImg: '/images/hero-wetland.webp',
-      readTime: '4 min read',
     },
     {
-      title: 'EU Carbon Border Adjustment Mechanism (CBAM) Guide',
-      category: 'BEHIND THE BUZZ',
-      summary: 'Navigating emissions disclosure, default values, and decarbonization strategies for metals and chemical exporters.',
+      title: 'Climate Risk Assessment: A Strategic Guide for Businesses',
+      summary: 'Navigating physical and transition climate risks under TCFD and ISSB frameworks with strategic scenario analysis...',
       coverImg: '/images/services-sustainability.webp',
-      readTime: '6 min read',
     },
     {
-      title: 'BRSR Core Assurance: Readiness and Methodologies',
-      category: 'HOW TO ARTICLES',
-      summary: 'Step-by-step guidance on implementing mandatory value-chain ESG disclosures and third-party verification.',
+      title: 'EcoVadis: Advancing ESG Across the Supply Chain',
+      summary: 'Step-by-step guidance on implementing supplier scorecards, carbon audits, and ESG rating improvements...',
       coverImg: '/images/about-hero.webp',
-      readTime: '5 min read',
     },
   ];
 
@@ -730,8 +737,8 @@ export function InsightsGridPrimitive({ node }: { node: BuilderNode }) {
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '32px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gap: '30px',
         width: '100%',
         boxSizing: 'border-box',
       }}
@@ -741,35 +748,60 @@ export function InsightsGridPrimitive({ node }: { node: BuilderNode }) {
           key={idx}
           style={{
             backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+          <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: '#f1f5f9' }}>
             <img
               src={resolveCmsImage(article.coverImg)}
               alt={article.title}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
-          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {article.category}
-            </span>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#004E35', marginTop: '8px', marginBottom: '12px', lineHeight: '1.4', fontFamily: 'Neue Montreal, sans-serif' }}>
+          <div style={{ padding: '15px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <h3
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '24px',
+                fontWeight: 500,
+                color: '#1E293B',
+                lineHeight: 'normal',
+                margin: '24px 0 0 0',
+              }}
+            >
               {article.title}
             </h3>
-            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', flex: 1, fontFamily: 'Neue Montreal, sans-serif' }}>
+            <p
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                color: 'rgba(0, 0, 0, 0.5)',
+                lineHeight: 'normal',
+                margin: '10px 0 0 0',
+                flex: 1,
+              }}
+            >
               {article.summary}
             </p>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8' }}>
-              <span>{article.readTime}</span>
-              <span style={{ color: '#004E35', fontWeight: 600 }}>Read Article &rarr;</span>
-            </div>
+            <span
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '18px',
+                fontWeight: 400,
+                color: '#2F7ABE',
+                display: 'block',
+                textAlign: 'left',
+                padding: '24px 0 10px 0',
+                marginTop: '10px',
+              }}
+            >
+              Read More
+            </span>
           </div>
         </div>
       ))}
@@ -782,19 +814,16 @@ export function ImpactGridPrimitive({ node }: { node: BuilderNode }) {
   const sampleCaseStudies = [
     {
       title: 'Decarbonization Roadmap for Major Cement Manufacturer',
-      sector: 'HEAVY MANUFACTURING',
       summary: 'Designed an SBTi-aligned net zero strategy reducing Scope 1 & 2 carbon intensity by 34% by 2030.',
       coverImg: '/images/services-sustainability.webp',
     },
     {
       title: 'BRSR Core & Scope 3 Supply Chain Due Diligence',
-      sector: 'PHARMACEUTICALS',
       summary: 'Implemented a standardized ESG assessment framework across 450 tier-1 suppliers across Asia.',
       coverImg: '/images/hero-wetland.webp',
     },
     {
       title: 'Renewable Energy Transition & PPA Structuring',
-      sector: 'AUTOMOTIVE & MOBILITY',
       summary: 'Procured 120 MW of round-the-clock green power, delivering 42% cost savings and direct emissions elimination.',
       coverImg: '/images/about-hero.webp',
     },
@@ -805,8 +834,8 @@ export function ImpactGridPrimitive({ node }: { node: BuilderNode }) {
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-        gap: '32px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gap: '30px',
         width: '100%',
         boxSizing: 'border-box',
       }}
@@ -816,34 +845,60 @@ export function ImpactGridPrimitive({ node }: { node: BuilderNode }) {
           key={idx}
           style={{
             backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+          <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: '#f1f5f9' }}>
             <img
               src={resolveCmsImage(item.coverImg)}
               alt={item.title}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
-          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {item.sector}
-            </span>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#004E35', marginTop: '8px', marginBottom: '12px', lineHeight: '1.4', fontFamily: 'Neue Montreal, sans-serif' }}>
+          <div style={{ padding: '15px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <h3
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '24px',
+                fontWeight: 500,
+                color: '#1E293B',
+                lineHeight: 'normal',
+                margin: '24px 0 0 0',
+              }}
+            >
               {item.title}
             </h3>
-            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', flex: 1, fontFamily: 'Neue Montreal, sans-serif' }}>
+            <p
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                color: 'rgba(0, 0, 0, 0.5)',
+                lineHeight: 'normal',
+                margin: '10px 0 0 0',
+                flex: 1,
+              }}
+            >
               {item.summary}
             </p>
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: '13px', color: '#004E35', fontWeight: 600 }}>
-              <span>View Case Study &rarr;</span>
-            </div>
+            <span
+              style={{
+                fontFamily: 'Neue Montreal, sans-serif',
+                fontSize: '18px',
+                fontWeight: 400,
+                color: '#2F7ABE',
+                display: 'block',
+                textAlign: 'left',
+                padding: '24px 0 10px 0',
+                marginTop: '10px',
+              }}
+            >
+              Read More
+            </span>
           </div>
         </div>
       ))}

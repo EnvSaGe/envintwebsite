@@ -15,7 +15,15 @@ const VIEWPORTS = [
   { name: 'mobile', width: 390, height: 844 },
 ] as const;
 
-interface VisualResult {
+function selectedViewports(): readonly (typeof VIEWPORTS)[number][] {
+  const requested = option('viewports')?.split(',').map((value) => value.trim()).filter(Boolean);
+  if (!requested?.length) return VIEWPORTS;
+  const selected = VIEWPORTS.filter((viewport) => requested.includes(viewport.name));
+  assert.ok(selected.length > 0, `No supported viewports matched: ${requested.join(', ')}`);
+  return selected;
+}
+
+export interface VisualResult {
   route: string;
   family: PublicRouteKind;
   viewport: string;
@@ -23,6 +31,7 @@ interface VisualResult {
   localScreenshot: string;
   diffRatio: number;
   headingCoverage: number;
+  textSimilarity: number;
   hasHorizontalOverflow: boolean;
   status: 'ok' | 'error';
   error?: string;
@@ -71,15 +80,58 @@ async function preparePage(page: any, url: string): Promise<void> {
   });
   await page.evaluate(async () => {
     if ('fonts' in document) await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+    const step = Math.max(window.innerHeight * 0.8, 500);
+    for (let top = 0; top < document.documentElement.scrollHeight; top += step) {
+      window.scrollTo(0, top);
+      await new Promise((resolve) => window.setTimeout(resolve, 40));
+    }
+    const images = Array.from(document.images);
+    await Promise.race([
+      Promise.all(images.map((image) => image.complete ? Promise.resolve() : image.decode().catch(() => undefined))),
+      new Promise((resolve) => window.setTimeout(resolve, 5_000)),
+    ]);
     window.scrollTo(0, 0);
     await new Promise((resolve) => window.setTimeout(resolve, 150));
-    const visibleImages = Array.from(document.images).filter((image) => image.getBoundingClientRect().top < window.innerHeight + 200);
-    await Promise.race([
-      Promise.all(visibleImages.map((image) => image.complete ? Promise.resolve() : image.decode().catch(() => undefined))),
-      new Promise((resolve) => window.setTimeout(resolve, 3_000)),
-    ]);
   });
   await page.waitForTimeout(350);
+}
+
+function normalizedVisibleText(value: string): string[] {
+  return value
+    .toLowerCase()
+    .replace(/[\u00a0\s]+/g, ' ')
+    .replace(/[^a-z0-9&’'\- ]+/g, ' ')
+    .split(' ')
+    .filter(Boolean);
+}
+
+function textSimilarity(left: string, right: string): number {
+  const a = normalizedVisibleText(left);
+  const b = normalizedVisibleText(right);
+  if (a.length === 0 && b.length === 0) return 1;
+  const counts = new Map<string, number>();
+  for (const token of a) counts.set(token, (counts.get(token) ?? 0) + 1);
+  let intersection = 0;
+  for (const token of b) {
+    const remaining = counts.get(token) ?? 0;
+    if (remaining > 0) {
+      intersection++;
+      counts.set(token, remaining - 1);
+    }
+  }
+  return (2 * intersection) / (a.length + b.length);
+}
+
+async function pageContentText(page: any): Promise<string> {
+  return page.evaluate(() => {
+    const candidates = [
+      document.querySelector('main'),
+      document.querySelector('#content'),
+      document.querySelector('.envint-dynamic-page-tree'),
+      document.querySelector('article'),
+    ].filter(Boolean) as HTMLElement[];
+    return (candidates[0] ?? document.body).innerText;
+  });
 }
 
 async function comparePngs(comparator: any, live: Buffer, local: Buffer): Promise<number> {
@@ -145,7 +197,7 @@ async function main(): Promise<void> {
   const results: VisualResult[] = [];
 
   for (const [routeIndex, route] of routes.entries()) {
-    for (const viewport of VIEWPORTS) {
+    for (const viewport of selectedViewports()) {
       const key = `${routeKey(route.path)}--${viewport.name}`;
       const livePath = path.join(OUTPUT_DIR, `${key}--live.png`);
       const localPath = path.join(OUTPUT_DIR, `${key}--local.png`);
@@ -157,6 +209,7 @@ async function main(): Promise<void> {
         localScreenshot: localPath,
         diffRatio: 1,
         headingCoverage: 0,
+        textSimilarity: 0,
         hasHorizontalOverflow: false,
         status: 'error',
       };
@@ -168,18 +221,20 @@ async function main(): Promise<void> {
           preparePage(livePage, new URL(route.path, LIVE_ORIGIN).toString()),
           preparePage(localPage, new URL(route.path, LOCAL_ORIGIN).toString()),
         ]);
-        const [liveHeadings, localText, overflow, livePng, localPng] = await Promise.all([
+        const [liveHeadings, liveText, localText, overflow, livePng, localPng] = await Promise.all([
           livePage.locator('h1,h2,h3').allTextContents(),
-          localPage.locator('body').innerText(),
+          pageContentText(livePage),
+          pageContentText(localPage),
           localPage.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1),
-          livePage.screenshot({ type: 'png' }),
-          localPage.screenshot({ type: 'png' }),
+          livePage.screenshot({ type: 'png', fullPage: true }),
+          localPage.screenshot({ type: 'png', fullPage: true }),
         ]);
         await Promise.all([writeFile(livePath, livePng), writeFile(localPath, localPng)]);
         const normalizedText = localText.replace(/\s+/g, ' ').toLowerCase();
         const meaningfulHeadings = liveHeadings.map((value: string) => value.replace(/\s+/g, ' ').trim()).filter(Boolean);
         const matched = meaningfulHeadings.filter((heading: string) => normalizedText.includes(heading.toLowerCase())).length;
         result.headingCoverage = meaningfulHeadings.length === 0 ? 1 : matched / meaningfulHeadings.length;
+        result.textSimilarity = textSimilarity(liveText, localText);
         result.hasHorizontalOverflow = overflow;
         result.diffRatio = await comparePngs(comparator, livePng, localPng);
         result.status = 'ok';
@@ -189,25 +244,33 @@ async function main(): Promise<void> {
         await context.close();
       }
       results.push(result);
-      console.log(`[visual ${routeIndex + 1}/${routes.length}] ${route.path} ${result.viewport} diff=${result.diffRatio.toFixed(4)} headings=${result.headingCoverage.toFixed(2)} overflow=${result.hasHorizontalOverflow}`);
+      console.log(`[visual ${routeIndex + 1}/${routes.length}] ${route.path} ${result.viewport} diff=${result.diffRatio.toFixed(4)} headings=${result.headingCoverage.toFixed(2)} text=${result.textSimilarity.toFixed(2)} overflow=${result.hasHorizontalOverflow}`);
     }
   }
   await browser.close();
   const reportPath = path.join(OUTPUT_DIR, 'report.json');
   await writeFile(reportPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), results }, null, 2)}\n`, 'utf8');
 
+  assertVisualResults(results, Number.parseFloat(option('max-diff') ?? '0.10'));
+  console.log(`[visual] ${results.length} viewport comparisons passed; report=${reportPath}`);
+}
+
+export function assertVisualResults(results: VisualResult[], maxDiffRatio = 0.1, minimumTextSimilarity = 0.98): void {
   for (const result of results) {
     assert.equal(result.status, 'ok', result.error ?? `Comparison failed for ${result.route}`);
     assert.equal(result.viewport.includes('x'), true);
     assert.ok(result.liveScreenshot && result.localScreenshot);
     assert.ok(result.diffRatio >= 0 && result.diffRatio <= 1);
+    assert.ok(result.diffRatio <= maxDiffRatio, `Visual difference exceeded ${maxDiffRatio} at ${result.route} (${result.viewport}): ${result.diffRatio.toFixed(4)}`);
     assert.equal(result.hasHorizontalOverflow, false, `Horizontal overflow at ${result.route} (${result.viewport})`);
     assert.ok(result.headingCoverage >= 0.8, `Heading coverage regressed at ${result.route} (${result.viewport})`);
+    assert.ok(result.textSimilarity >= minimumTextSimilarity, `Visible text differs at ${result.route} (${result.viewport}): ${result.textSimilarity.toFixed(4)}`);
   }
-  console.log(`[visual] ${results.length} viewport comparisons passed; report=${reportPath}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (process.argv[1]?.replace(/\\/g, '/').endsWith('/compare-live-local-visuals.ts')) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

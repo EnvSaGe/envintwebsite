@@ -43,6 +43,14 @@ docs/**
 scripts
 scripts/**
 
+# Local capture artifacts that are not production media
+apps/admin/public/media/uploads/pexels-charlotte-may-5965688.jpeg
+apps/admin/public/media/uploads/pexels-yuri-manei-2272853.jpeg
+apps/web/public/media/uploads/pexels-charlotte-may-5965688.jpeg
+apps/web/public/media/uploads/pexels-yuri-manei-2272853.jpeg
+apps/web/public/images/careers-polo-bg.jpg
+apps/web/public/images/mobilebg-scaled.jpg
+
 # Archives & DB dumps
 *.sql
 *.sql.gz

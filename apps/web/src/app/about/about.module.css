@@ -273,6 +273,29 @@
   gap: 40px 20px;
 }
 
+.teamLoadMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+.teamLoadMore {
+  border: 0;
+  border-radius: 999px;
+  background: #004e35;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Neue Montreal', sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  padding: 11px 22px;
+}
+
+.teamLoadMore:hover,
+.teamLoadMore:focus-visible {
+  background: #008712;
+}
+
 @media (max-width: 1200px) {
   .teamGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -365,8 +388,7 @@
   margin-top: 12px;
   padding-top: 4px;
   opacity: 0;
-  visibility: hidden;
-  height: 0;
+    height: 0;
   overflow: hidden;
   pointer-events: none;
   transition: opacity 0.25s ease-out 0.15s;
@@ -375,7 +397,6 @@
 .teamCard:hover .teamCardHover,
 .teamCard:focus-visible .teamCardHover {
   opacity: 1;
-  visibility: visible;
   height: auto;
   overflow: visible;
   pointer-events: auto;

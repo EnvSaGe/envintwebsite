@@ -92,6 +92,7 @@ const PALETTE_ITEMS: PaletteItemDef[] = [
 
   // ── DYNAMIC ───────────────────────────────────────────────────────────────
   { type: 'team-grid', label: 'Team Roster', category: 'dynamic', icon: <Users size={15} />, hint: 'Live leadership cards', keywords: ['team', 'people', 'members'] },
+  { type: 'journey-carousel', label: 'Journey Carousel', category: 'dynamic', icon: <Rows3 size={15} />, hint: 'Editable milestone timeline', keywords: ['journey', 'timeline', 'milestones'] },
   { type: 'service-cards', label: 'Service Cards', category: 'dynamic', icon: <Sparkles size={15} />, hint: 'Advisory pillar cards', keywords: ['services', 'pillars'] },
 ];
 

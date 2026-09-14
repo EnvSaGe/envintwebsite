@@ -1,8 +1,11 @@
 import React from 'react';
-import { BuilderNode } from '@envint/shared';
+import { BuilderNode, resolveCmsImage } from '@envint/shared';
 import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
+import JourneyCarousel, { type JourneyMilestone } from '@/components/about/JourneyCarousel';
+import { PopularArticlesCarousel } from '@/components/enviki/PopularArticlesCarousel';
 import Link from 'next/link';
 import { queryDynamicSource } from '@/lib/data/dynamic-sources';
+import { InteractiveImpactGrid } from './InteractiveImpactGrid';
 
 export async function TeamGridElement({
   node,
@@ -23,13 +26,30 @@ export async function TeamGridElement({
       role: member.role,
       bioText: String(member.bio ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
       linkedinUrl: member.linkedinUrl,
-      imageUrl: member.avatarUrl || member.avatar?.url || member.image?.url || null,
+      imageUrl: resolveCmsImage(member.avatarUrl || member.avatar?.url || member.image?.url || null),
       hasStandaloneRoute: member.hasStandaloneRoute,
     }));
   }
   return (
     <div data-builder-id={node.id} style={{ width: '100%' }}>
-      <TeamGrid members={members || []} />
+      <TeamGrid
+        members={members || []}
+        initialCount={Number(node.content.initialCount) || 12}
+      />
+    </div>
+  );
+}
+
+export function JourneyCarouselElement({ node }: { node: BuilderNode }) {
+  const milestones = Array.isArray(node.content.milestones)
+    ? node.content.milestones.map((milestone: JourneyMilestone) => ({
+        ...milestone,
+        img: resolveCmsImage(milestone.img),
+      }))
+    : [];
+  return (
+    <div data-builder-id={node.id} style={{ width: '100%' }}>
+      <JourneyCarousel title={String(node.content.title || 'Our Journey')} milestones={milestones} />
     </div>
   );
 }
@@ -154,6 +174,26 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
   const showExcerpt = (node.content as any)?.showExcerpt !== false;
   const cardBorder = Boolean((node.content as any)?.cardBorder);
 
+  if ((node.content as any)?.variant === 'carousel') {
+    const requestedSlugs = Array.isArray((node.content as any)?.slugs)
+      ? (node.content as any).slugs.map(String)
+      : [];
+    const ordered = requestedSlugs.length
+      ? requestedSlugs.map((slug: string) => articles.find((article: any) => article.slug === slug)).filter(Boolean)
+      : articles;
+    return (
+      <div data-builder-id={node.id} style={{ width: '100%' }}>
+        <PopularArticlesCarousel
+          articles={ordered.slice(0, limit).map((article: any) => ({
+            slug: article.slug,
+            title: article.title,
+            image: resolveCmsImage(article.coverImage?.url || article.coverImageUrl || article.heroImage),
+          }))}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       data-builder-id={node.id}
@@ -166,11 +206,12 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
       }}
     >
       {displayArticles.map((article: any) => {
-        const coverImg =
+        const coverImg = resolveCmsImage(
           article.coverImage?.url ||
           article.coverImageUrl ||
           (article as any).heroImage ||
-          'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp';
+          'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp'
+        );
         const excerptText =
           article.seoDescription ||
           article.summary ||
@@ -307,116 +348,10 @@ export async function ImpactGridElement({ node }: { node: BuilderNode }) {
   const impactsList = node.content.query
     ? await queryDynamicSource(node.content.query as any)
     : await getImpacts();
-  const limit = (node.content as any)?.limit || 6;
+  const limit = (node.content as any)?.limit || 50;
   const impacts = (impactsList || []).slice(0, limit);
 
-  return (
-    <div
-      data-builder-id={node.id}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
-        gap: '30px',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      {impacts.map((item: any) => {
-        const coverImg =
-          item.coverImage?.url ||
-          item.coverImageUrl ||
-          (item as any).heroImage ||
-          'https://envintcms.s3.ap-south-1.amazonaws.com/images/services-sustainability.webp';
-        const excerptText =
-          item.cardExcerpt ||
-          item.summary ||
-          (item.excerpt ? String(item.excerpt).replace(/<[^>]+>/g, '').trim() : '');
-
-        return (
-          <Link
-            key={item.slug}
-            href={`/impact/${item.slug}/`}
-            style={{
-              textDecoration: 'none',
-              backgroundColor: '#ffffff',
-              borderRadius: '12px',
-              border: '1px solid rgba(0, 0, 0, 0.1)',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            }}
-          >
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '260px',
-                backgroundColor: '#f1f5f9',
-                overflow: 'hidden',
-              }}
-            >
-              <img
-                src={coverImg}
-                alt={item.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            <div
-              style={{
-                padding: '15px',
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1,
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: '"Neue Montreal", sans-serif',
-                  fontSize: '24px',
-                  fontWeight: 500,
-                  color: '#1E293B',
-                  lineHeight: 'normal',
-                  margin: '24px 0 0 0',
-                }}
-              >
-                {item.title}
-              </h3>
-              {excerptText && (
-                <p
-                  style={{
-                    fontFamily: '"Neue Montreal", sans-serif',
-                    fontSize: '16px',
-                    fontWeight: 400,
-                    color: 'rgba(0, 0, 0, 0.5)',
-                    lineHeight: 'normal',
-                    margin: '10px 0 0 0',
-                    flex: 1,
-                  }}
-                >
-                  {excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}
-                </p>
-              )}
-              <span
-                style={{
-                  fontFamily: '"Neue Montreal", sans-serif',
-                  fontSize: '18px',
-                  fontWeight: 400,
-                  color: '#2F7ABE',
-                  display: 'block',
-                  textAlign: 'left',
-                  padding: '24px 0 10px 0',
-                  marginTop: '10px',
-                }}
-              >
-                Read More
-              </span>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
-  );
+  return <InteractiveImpactGrid impacts={impacts} builderId={node.id} />;
 }
 
 export function SocialShareElement({ node }: { node: BuilderNode }) {

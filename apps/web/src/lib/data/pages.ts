@@ -90,7 +90,11 @@ export async function getPublishedPage(slug: string): Promise<CmsPage | null> {
         return null;
       }
     },
-    [`published-page-v1-${slug}`],
+    // Bump this namespace whenever the canonical page-tree migration changes
+    // the persisted shape. Next's data cache survives production builds, so a
+    // stable key can otherwise keep serving a superseded CMS tree even though
+    // PostgreSQL contains the newly published version.
+    [`published-page-v2-${slug}`],
     { tags: [pageTag(slug)] },
   )();
 }

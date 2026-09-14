@@ -18,6 +18,7 @@ import {
 } from './elements/UtilityElements';
 import {
   TeamGridElement,
+  JourneyCarouselElement,
   ServiceCardsElement,
   InsightsGridElement,
   ImpactGridElement,
@@ -148,6 +149,9 @@ function RenderNode({
 
     case 'team-grid':
       return <TeamGridElement node={node} teamCards={teamCards} />;
+
+    case 'journey-carousel':
+      return <JourneyCarouselElement node={node} />;
 
     case 'service-cards':
       return <ServiceCardsElement node={node} />;

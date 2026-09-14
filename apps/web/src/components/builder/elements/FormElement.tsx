@@ -6,10 +6,47 @@ import { BuilderNode } from '@envint/shared';
 export function FormElement({ node }: { node: BuilderNode }) {
   const content = node.content || {};
   const isGbc = content.formType === 'gbc' || (content.action && content.action.includes('gbc'));
+  const isSearch = content.formType === 'search';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  if (isSearch) {
+    return (
+      <form
+        data-builder-id={node.id}
+        action={content.action || '/'}
+        method="GET"
+        role="search"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: 'min(460px, 100%)',
+          margin: '0 auto',
+          padding: '6px 8px 6px 24px',
+          borderRadius: '999px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 10px 25px rgba(0,0,0,.10)',
+        }}
+      >
+        <input
+          type="search"
+          name={content.queryName || 's'}
+          aria-label={content.ariaLabel || 'Search Enviki'}
+          placeholder={content.placeholder || 'What are you seeking?'}
+          style={{ width: '100%', border: 0, outline: 0, background: 'transparent', color: '#393939', font: '16px Neue Montreal, sans-serif' }}
+        />
+        <button
+          type="submit"
+          aria-label="Search"
+          style={{ width: 40, height: 40, flex: '0 0 40px', border: 0, borderRadius: '50%', background: '#2F7ABE', color: '#fff', cursor: 'pointer', fontSize: 19 }}
+        >
+          &#128269;
+        </button>
+      </form>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

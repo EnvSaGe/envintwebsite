@@ -277,16 +277,19 @@ export function convertArticleToPageTree(article: ArticleInput): PageBlockTree {
     resolveCmsImage(coverUrl),
     article.title || 'Article Cover Banner',
     {
-      width: '100%',
-      height: '380px',
+      width: '80%',
+      aspectRatio: '16/9',
       objectFit: 'cover',
-      borderRadius: '0',
+      borderRadius: '20px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      display: 'block',
     },
-    { mobile: { height: '240px' } },
+    { tablet: { width: '90%' }, mobile: { width: '100%', height: '240px', borderRadius: '14px' } },
     'Cover Banner Image'
   );
 
-  // 2. Floating Article Header Card (overlapping the banner with marginTop: -60px)
+  // 2. Floating Article Header Card (overlapping the banner with marginTop: -80px)
   const secHeaderId = `sec_${prefix}_header`;
   const contCardWrapperId = `cont_${prefix}_card_wrapper`;
   const contCardId = `cont_${prefix}_card`;
@@ -315,7 +318,7 @@ export function convertArticleToPageTree(article: ArticleInput): PageBlockTree {
     secHeaderId,
     [contCardId],
     {
-      maxWidth: '860px',
+      maxWidth: '960px',
       marginLeft: 'auto',
       marginRight: 'auto',
       width: '100%',
@@ -331,16 +334,16 @@ export function convertArticleToPageTree(article: ArticleInput): PageBlockTree {
     contCardWrapperId,
     cardChildren,
     {
-      marginTop: '-60px',
+      marginTop: '-80px',
       position: 'relative',
-      zIndex: 10,
+      zIndex: 9,
       backgroundColor: '#FFFFFF',
-      borderRadius: '16px',
-      boxShadow: '0 20px 50px rgba(18, 17, 39, 0.08)',
-      paddingTop: '40px',
-      paddingBottom: '40px',
-      paddingLeft: '48px',
-      paddingRight: '48px',
+      borderRadius: '4px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+      paddingTop: '56px',
+      paddingBottom: '24px',
+      paddingLeft: '64px',
+      paddingRight: '64px',
       marginBottom: '40px',
     },
     { mobile: { paddingLeft: '20px', paddingRight: '20px', marginTop: '-40px' } },
@@ -353,9 +356,9 @@ export function convertArticleToPageTree(article: ArticleInput): PageBlockTree {
     article.title || 'Untitled Article',
     'h1',
     {
-      fontSize: '42px',
-      fontWeight: 500,
-      textColor: '#004E35',
+      fontSize: '32px',
+      fontWeight: 400,
+      textColor: '#1e293b',
       lineHeight: '1.2',
       fontFamily: 'Neue Montreal, sans-serif',
       marginBottom: '16px',

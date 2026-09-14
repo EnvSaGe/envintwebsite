@@ -11,7 +11,7 @@ export type JourneyMilestone = {
   desc: string;
 };
 
-export default function JourneyCarousel({ milestones }: { milestones: JourneyMilestone[] }) {
+export default function JourneyCarousel({ title = 'Our Journey', milestones }: { title?: string; milestones: JourneyMilestone[] }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
   const lastIndex = milestones.length - 1;
@@ -85,7 +85,7 @@ export default function JourneyCarousel({ milestones }: { milestones: JourneyMil
   return (
     <div className={styles.journeyCarouselRoot}>
       <div className={styles.journeyHead}>
-        <h2 className={styles.journeyTitle}>Our Journey</h2>
+        <h2 className={styles.journeyTitle}>{title}</h2>
         <div className={styles.journeyNav}>
           <button
             type="button"
@@ -122,7 +122,7 @@ export default function JourneyCarousel({ milestones }: { milestones: JourneyMil
           {milestones.map((m, i) => (
             <article className={`${styles.journeySlide} slide`} key={m.year} aria-label={`${m.month ? m.month + ' ' : ''}${m.year}`}>
               <p className={styles.journeyYear}>
-                {m.month && <span>{m.month}</span>}
+                {m.month && <span>{m.month} </span>}
                 {m.year}
               </p>
               <span

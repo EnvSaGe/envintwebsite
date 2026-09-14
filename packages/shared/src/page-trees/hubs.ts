@@ -22,7 +22,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'sec_imp_hero',
           ['cont_imp_hero'],
           {
-            minHeight: '65vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
@@ -36,7 +36,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundOverlay:
               'linear-gradient(to top, rgba(0, 20, 15, 0.6) 0%, rgba(0, 20, 15, 0.15) 60%, transparent 100%)',
           },
-          'Impact Hero Banner'
+          'Impact Hero Banner',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_imp_hero: makeContainer(
           'cont_imp_hero',
@@ -50,8 +54,12 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'cont_imp_hero',
           'Sustainability and ESG Case Studies',
           'h1',
-          { fontSize: '64px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
-          'Headline'
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '34px' },
+          }
         ),
 
         sec_imp_grid: makeSection(
@@ -76,7 +84,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
             fontWeight: 400,
             textColor: '#393939',
             lineHeight: '35px',
-            marginBottom: '50px',
+            marginBottom: '40px',
             paddingRight: '10%',
             fontFamily: 'Neue Montreal, sans-serif',
           },
@@ -91,19 +99,17 @@ export function createHubPageTree(slug: string): PageBlockTree {
     }
 
     case '/enviki': {
-      const rootIds = ['sec_wiki_hero', 'sec_wiki_articles'];
+      const rootIds = ['sec_wiki_hero', 'sec_wiki_intro', 'sec_wiki_articles', 'sec_wiki_subhubs', 'sec_wiki_vantage'];
       const nodes: Record<string, BuilderNode> = {
         sec_wiki_hero: makeSection(
           'sec_wiki_hero',
           ['cont_wiki_hero'],
           {
-            minHeight: '70vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            paddingTop: '140px',
+            justifyContent: 'flex-end',
+            paddingTop: '160px',
             paddingBottom: '80px',
             paddingLeft: '24px',
             paddingRight: '24px',
@@ -111,15 +117,19 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundOverlay:
-              'linear-gradient(to top, rgba(0, 30, 20, 0.7) 0%, rgba(0, 30, 20, 0.3) 100%)',
+              'linear-gradient(to top, rgba(0, 30, 20, 0.7) 0%, rgba(0, 30, 20, 0.25) 60%, transparent 100%)',
           },
-          'Enviki Hero Banner'
+          'Enviki Hero Banner',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_wiki_hero: makeContainer(
           'cont_wiki_hero',
           'sec_wiki_hero',
-          ['h1_wiki_h', 'p_wiki_h'],
-          { maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+          ['h1_wiki_h'],
+          { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
           'Hero Content'
         ),
         h1_wiki_h: makeHeading(
@@ -127,21 +137,53 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'cont_wiki_hero',
           'Enviki',
           'h1',
-          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif', marginBottom: '16px' },
-          'Headline'
-        ),
-        p_wiki_h: makeParagraph(
-          'p_wiki_h',
-          'cont_wiki_hero',
-          '<p>Explore Enviki for insights, explainers and practical guides on ESG, sustainability, climate and responsible investment.</p>',
-          { fontSize: '24px', textColor: '#F5F5F0', fontFamily: 'Neue Montreal, sans-serif' },
-          'Subtitle'
+          { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '36px' },
+          }
         ),
 
+        // 2. Intro Section
+        sec_wiki_intro: makeSection(
+          'sec_wiki_intro',
+          ['cont_wiki_intro'],
+          { backgroundColor: '#FFFFFF', paddingTop: '60px', paddingBottom: '30px', paddingLeft: '24px', paddingRight: '24px' },
+          'Enviki Intro Section'
+        ),
+        cont_wiki_intro: makeContainer(
+          'cont_wiki_intro',
+          'sec_wiki_intro',
+          ['h2_wiki_intro', 'p_wiki_intro'],
+          { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+          'Intro Container'
+        ),
+        h2_wiki_intro: makeHeading(
+          'h2_wiki_intro',
+          'cont_wiki_intro',
+          'Decoding Sustainability and ESG',
+          'h2',
+          { fontSize: '42px', textColor: '#004E35', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif', marginBottom: '20px' },
+          'Intro Headline',
+          {
+            mobile: { fontSize: '28px' },
+          }
+        ),
+        p_wiki_intro: makeParagraph(
+          'p_wiki_intro',
+          'cont_wiki_intro',
+          '<p>Enviki is a sustainability and ESG knowledge platform designed for professionals, students, and anyone curious about the ESG field. From sustainable development and climate risk to ESG frameworks and responsible investing, it helps you grasp the essentials while staying current with emerging regulations, best practices and trends.</p>',
+          { fontSize: '22px', lineHeight: '1.65', textColor: '#393939', fontFamily: 'Neue Montreal, sans-serif' },
+          { mobile: { fontSize: '18px', lineHeight: '1.5' } },
+          'Intro Paragraph'
+        ),
+
+        // 3. Popular Articles Section
         sec_wiki_articles: makeSection(
           'sec_wiki_articles',
           ['cont_wiki_articles'],
-          { backgroundColor: '#FFFFFF', paddingTop: '80px', paddingBottom: '90px', paddingLeft: '24px', paddingRight: '24px' },
+          { backgroundColor: '#FFFFFF', paddingTop: '40px', paddingBottom: '60px', paddingLeft: '24px', paddingRight: '24px' },
           'Popular Articles Section'
         ),
         cont_wiki_articles: makeContainer(
@@ -160,6 +202,64 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'Articles Title'
         ),
         mod_wiki_grid: makeDynamicModule('mod_wiki_grid', 'insights-grid', 'Enviki Articles Grid', 'cont_wiki_articles', { category: 'enviki', limit: 30 }),
+
+        // 4. Sub-Hubs Category Cards Section
+        sec_wiki_subhubs: makeSection(
+          'sec_wiki_subhubs',
+          ['cont_wiki_subhubs'],
+          { backgroundColor: '#FFFFFF', paddingTop: '30px', paddingBottom: '50px', paddingLeft: '24px', paddingRight: '24px' },
+          'Enviki Subhubs Section'
+        ),
+        cont_wiki_subhubs: makeContainer(
+          'cont_wiki_subhubs',
+          'sec_wiki_subhubs',
+          ['p_wiki_subhubs'],
+          { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+          'Subhubs Container'
+        ),
+        p_wiki_subhubs: makeParagraph(
+          'p_wiki_subhubs',
+          'cont_wiki_subhubs',
+          `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:30px; width:100%; box-sizing:border-box;">
+            <a href="/behind-the-buzz/" style="text-decoration:none; display:flex; flex-direction:column; justify-content:flex-end; min-height:340px; padding:200px 24px 24px 24px; border-radius:25px; background-image:url('${resolveCmsImage('/images/buzz-updated.avif')}'); background-size:cover; background-position:center; transition:transform 0.2s ease, box-shadow 0.2s ease; box-shadow:0 8px 24px rgba(0,0,0,0.06);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <h3 style="color:#FFFFFF; font-size:32px; font-weight:500; font-family:'Neue Montreal', sans-serif; margin:0; line-height:1.2;">Behind <br />the Buzz</h3>
+            </a>
+            <a href="/glossary-zone/" style="text-decoration:none; display:flex; flex-direction:column; justify-content:flex-end; min-height:340px; padding:200px 24px 24px 24px; border-radius:25px; background-image:url('${resolveCmsImage('/images/glossary-zone-enviki.avif')}'); background-size:cover; background-position:center; transition:transform 0.2s ease, box-shadow 0.2s ease; box-shadow:0 8px 24px rgba(0,0,0,0.06);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <h3 style="color:#FFFFFF; font-size:32px; font-weight:500; font-family:'Neue Montreal', sans-serif; margin:0; line-height:1.2;">Glossary <br />Zone</h3>
+            </a>
+            <a href="/how-to-articles/" style="text-decoration:none; display:flex; flex-direction:column; justify-content:flex-end; min-height:340px; padding:200px 24px 24px 24px; border-radius:25px; background-image:url('${resolveCmsImage('/images/how-to-article.avif')}'); background-size:cover; background-position:center; transition:transform 0.2s ease, box-shadow 0.2s ease; box-shadow:0 8px 24px rgba(0,0,0,0.06);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <h3 style="color:#FFFFFF; font-size:32px; font-weight:500; font-family:'Neue Montreal', sans-serif; margin:0; line-height:1.2;">How to <br />Articles</h3>
+            </a>
+          </div>`,
+          {},
+          'Sub-Hubs Cards Grid'
+        ),
+
+        // 5. Vantage 2025 Report Banner Section
+        sec_wiki_vantage: makeSection(
+          'sec_wiki_vantage',
+          ['cont_wiki_vantage'],
+          { backgroundColor: '#FFFFFF', paddingTop: '20px', paddingBottom: '90px', paddingLeft: '24px', paddingRight: '24px' },
+          'Vantage Banner Section'
+        ),
+        cont_wiki_vantage: makeContainer(
+          'cont_wiki_vantage',
+          'sec_wiki_vantage',
+          ['p_wiki_vantage_card'],
+          { maxWidth: '1280px', marginLeft: 'auto', marginRight: 'auto', width: '100%' },
+          'Vantage Container'
+        ),
+        p_wiki_vantage_card: makeParagraph(
+          'p_wiki_vantage_card',
+          'cont_wiki_vantage',
+          `<div style="border-radius:25px; background-image:url('${resolveCmsImage('/images/vantage-bg-image.avif')}'); background-size:cover; background-position:center; padding:56px 48px; color:#FFFFFF; display:flex; flex-direction:column; align-items:flex-start; box-shadow:0 12px 36px rgba(0,0,0,0.08);">
+            <h2 style="color:#FFFFFF; font-size:36px; font-weight:500; font-family:'Neue Montreal', sans-serif; margin:0 0 16px 0; line-height:1.2;">Vantage 2025: The ESG Reset Opportunity</h2>
+            <p style="color:#FFFFFF; font-size:18px; line-height:1.6; font-family:'Neue Montreal', sans-serif; max-width:680px; margin:0 0 28px 0;">Despite global pushback, ESG momentum in India is rising. This report shows that a strong rebound is underway, as responsible practices remain essential for long-term business growth and resilience. Our report, Vantage, offers expert insights to navigate this evolving ESG landscape.</p>
+            <a href="https://envintglobal.com/wp-content/uploads/2025/06/Envint-Vantage-ESG-Reset.pdf" target="_blank" rel="noopener noreferrer" style="display:inline-block; background-color:#FFFFFF; color:#004E35; font-size:16px; font-weight:500; font-family:'Neue Montreal', sans-serif; text-decoration:none; padding:12px 28px; border-radius:9999px; transition:all 0.2s ease;">Read the report now</a>
+          </div>`,
+          {},
+          'Vantage 2025 Promo Card'
+        ),
       };
       return assembleTree(rootIds, nodes);
     }
@@ -171,7 +271,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'sec_env_hero',
           ['cont_env_hero'],
           {
-            minHeight: '65vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
@@ -185,7 +285,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundOverlay:
               'linear-gradient(to top, rgba(0, 25, 20, 0.75) 0%, rgba(0, 25, 20, 0.2) 55%, transparent 100%)',
           },
-          'Envision Hero Banner'
+          'Envision Hero Banner',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_env_hero: makeContainer(
           'cont_env_hero',
@@ -197,10 +301,14 @@ export function createHubPageTree(slug: string): PageBlockTree {
         h1_env_h: makeHeading(
           'h1_env_h',
           'cont_env_hero',
-          'Envision',
+          'News & Insights',
           'h1',
           { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
-          'Headline'
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '36px' },
+          }
         ),
 
         sec_env_articles: makeSection(
@@ -228,7 +336,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'sec_btb_hero',
           ['cont_btb_hero'],
           {
-            minHeight: '65vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
@@ -241,7 +349,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundPosition: 'center',
             backgroundOverlay: 'rgba(41, 37, 37, 0.5)',
           },
-          'Behind the Buzz Hero'
+          'Behind the Buzz Hero',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_btb_hero: makeContainer(
           'cont_btb_hero',
@@ -256,7 +368,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'Behind the Buzz',
           'h1',
           { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
-          'Headline'
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '36px' },
+          }
         ),
 
         sec_btb_articles: makeSection(
@@ -284,7 +400,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'sec_hta_hero',
           ['cont_hta_hero'],
           {
-            minHeight: '65vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
@@ -297,7 +413,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundPosition: 'center',
             backgroundOverlay: 'rgba(41, 37, 37, 0.5)',
           },
-          'How To Articles Hero'
+          'How To Articles Hero',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_hta_hero: makeContainer(
           'cont_hta_hero',
@@ -312,7 +432,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'How to Articles',
           'h1',
           { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
-          'Headline'
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '36px' },
+          }
         ),
 
         sec_hta_articles: makeSection(
@@ -340,7 +464,7 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'sec_glo_hero',
           ['cont_glo_hero'],
           {
-            minHeight: '65vh',
+            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
@@ -353,7 +477,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
             backgroundPosition: 'center',
             backgroundOverlay: 'rgba(41, 37, 37, 0.5)',
           },
-          'Glossary Zone Hero'
+          'Glossary Zone Hero',
+          {
+            tablet: { minHeight: '80vh', paddingBottom: '56px' },
+            mobile: { minHeight: '65vh', paddingBottom: '40px' },
+          }
         ),
         cont_glo_hero: makeContainer(
           'cont_glo_hero',
@@ -368,7 +496,11 @@ export function createHubPageTree(slug: string): PageBlockTree {
           'Glossary Zone',
           'h1',
           { fontSize: '76px', textColor: '#FFFFFF', fontWeight: 400, fontFamily: 'Neue Montreal, sans-serif' },
-          'Headline'
+          'Headline',
+          {
+            tablet: { fontSize: '64px' },
+            mobile: { fontSize: '36px' },
+          }
         ),
 
         sec_glo_articles: makeSection(

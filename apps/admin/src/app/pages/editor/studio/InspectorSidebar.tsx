@@ -404,6 +404,90 @@ function ContentPanel({
   onOpenMediaPicker: () => void;
 }) {
   switch (node.type) {
+    case 'form':
+      return (
+        <>
+          <FieldRow label="Form type">
+            <select
+              value={node.content?.formType || 'contact'}
+              onChange={(event) => onUpdateContent(node.id, { formType: event.target.value })}
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="contact">Contact</option>
+              <option value="gbc">GBC registration</option>
+              <option value="search">Search</option>
+            </select>
+          </FieldRow>
+          {node.content?.formType === 'search' && (
+            <>
+              <FieldRow label="Placeholder">
+                <input value={node.content?.placeholder || ''} onChange={(event) => onUpdateContent(node.id, { placeholder: event.target.value })} className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100" />
+              </FieldRow>
+              <FieldRow label="Search results path">
+                <input value={node.content?.action || '/'} onChange={(event) => onUpdateContent(node.id, { action: event.target.value })} className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100" />
+              </FieldRow>
+            </>
+          )}
+        </>
+      );
+
+    case 'team-grid':
+      return (
+        <>
+          <FieldRow label="Initially visible profiles" hint="remaining profiles appear after Load More">
+            <input
+              type="number"
+              min={1}
+              step={1}
+              value={Number(node.content?.initialCount) || 12}
+              onChange={(event) => onUpdateContent(node.id, { initialCount: Math.max(1, Number(event.target.value) || 1) })}
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+            />
+          </FieldRow>
+          <SectionHint text="Profiles and their order are managed in the Team Members area of the CMS." />
+        </>
+      );
+
+    case 'journey-carousel': {
+      const milestones = Array.isArray(node.content?.milestones) ? node.content.milestones : [];
+      const updateMilestone = (index: number, field: string, value: string) => {
+        const next = milestones.map((item: any, itemIndex: number) =>
+          itemIndex === index ? { ...item, [field]: value } : item,
+        );
+        onUpdateContent(node.id, { milestones: next });
+      };
+      return (
+        <>
+          <FieldRow label="Section title">
+            <input
+              value={node.content?.title || ''}
+              onChange={(event) => onUpdateContent(node.id, { title: event.target.value })}
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+            />
+          </FieldRow>
+          {milestones.map((milestone: any, index: number) => (
+            <div key={`${milestone.year}-${index}`} className="mb-3 rounded-lg border border-slate-800 bg-slate-950/50 p-2.5">
+              <p className="mb-2 text-[11px] font-semibold text-emerald-300">Milestone {index + 1}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <FieldRow label="Month">
+                  <input value={milestone.month || ''} onChange={(event) => updateMilestone(index, 'month', event.target.value)} className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100" />
+                </FieldRow>
+                <FieldRow label="Year">
+                  <input value={milestone.year || ''} onChange={(event) => updateMilestone(index, 'year', event.target.value)} className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100" />
+                </FieldRow>
+              </div>
+              <FieldRow label="Description">
+                <textarea rows={3} value={milestone.desc || ''} onChange={(event) => updateMilestone(index, 'desc', event.target.value)} className="w-full resize-y rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100" />
+              </FieldRow>
+              <FieldRow label="Image URL">
+                <input value={milestone.img || ''} onChange={(event) => updateMilestone(index, 'img', event.target.value)} className="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-slate-100" />
+              </FieldRow>
+            </div>
+          ))}
+        </>
+      );
+    }
+
     case 'heading':
       return (
         <>
@@ -583,6 +667,24 @@ function ContentPanel({
               <PositionGrid
                 value={node.content?.objectPosition || 'center'}
                 onChange={(v) => onUpdateContent(node.id, { objectPosition: v })}
+              />
+            </FieldRow>
+            <FieldRow label="Responsive size hint" hint="100vw for banners; 50vw for two-column images">
+              <input
+                type="text"
+                value={node.content?.sizes || '100vw'}
+                onChange={(e) => onUpdateContent(node.id, { sizes: e.target.value })}
+                className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 font-mono text-[10px] text-slate-100"
+              />
+            </FieldRow>
+            <FieldRow label="Delivery quality" hint="50–100">
+              <input
+                type="number"
+                min={50}
+                max={100}
+                value={Number(node.content?.quality) || 90}
+                onChange={(e) => onUpdateContent(node.id, { quality: Math.max(50, Math.min(100, Number(e.target.value) || 90)) })}
+                className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100"
               />
             </FieldRow>
           </AdvancedDisclosure>
@@ -803,8 +905,59 @@ function ContentPanel({
       );
     }
 
+    case 'container': {
+      const linkUrl =
+        node.content?.url ||
+        node.actions?.find((a: any) => a.type === 'link')?.url ||
+        '';
+      const openInNewTab =
+        node.content?.target === '_blank' ||
+        node.actions?.find((a: any) => a.type === 'link')?.target === '_blank';
+
+      return (
+        <div className="space-y-3">
+          <FieldRow label="Link URL" hint="Makes this container a clickable link/card">
+            <input
+              type="text"
+              value={linkUrl}
+              onChange={(e) => {
+                const url = e.target.value;
+                onUpdateContent(node.id, {
+                  url,
+                  target: openInNewTab ? '_blank' : '_self',
+                });
+              }}
+              placeholder="/services or https://…"
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 font-mono text-[11px] text-slate-100 shadow-inner transition placeholder:text-slate-600 focus:border-emerald-500 focus:outline-none"
+            />
+          </FieldRow>
+          {linkUrl ? (
+            <SimpleToggle
+              label="Open in new tab"
+              checked={openInNewTab}
+              onChange={(v) =>
+                onUpdateContent(node.id, {
+                  target: v ? '_blank' : '_self',
+                })
+              }
+            />
+          ) : null}
+          <div className="rounded-xl border border-slate-800/80 bg-[#111831]/70 p-3">
+            <p className="text-[11px] font-semibold text-slate-300">Container Element</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+              This element wraps other blocks. Use <strong className="text-slate-300">Design</strong> for
+              background, radius & shadow, and <strong className="text-slate-300">Layout</strong> for alignment.
+            </p>
+            <p className="mt-2 text-[10px] text-slate-500">
+              Children: <span className="font-mono font-semibold text-emerald-400">{node.children?.length || 0}</span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     default: {
-      if (['section', 'container', 'grid', 'flex', 'columns'].includes(node.type)) {
+      if (['section', 'grid', 'flex', 'columns'].includes(node.type)) {
         return (
           <div className="rounded-xl border border-slate-800/80 bg-[#111831]/70 p-3">
             <p className="text-[11px] font-semibold text-slate-300">Layout container</p>

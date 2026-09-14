@@ -23,7 +23,7 @@ async function loadPublishedTemplate(slug: string): Promise<ContentTemplateRecor
 export function getPublishedTemplate(slug: string): Promise<ContentTemplateRecord | null> {
   return unstable_cache(
     () => loadPublishedTemplate(slug),
-    ['published-content-template', slug],
+    ['published-content-template-v2', slug],
     { tags: [templateTag(slug)], revalidate: 3600 },
   )();
 }

@@ -68,6 +68,7 @@ const COMPONENTS: Array<{ type: ElementType; label: string; icon: React.ReactNod
   { type: 'divider', label: 'Divider', icon: <Minus size={14} /> },
   { type: 'accordion', label: 'Accordion', icon: <ChevronDown size={14} /> },
   { type: 'team-grid', label: 'Team Roster', icon: <Users size={14} /> },
+  { type: 'journey-carousel', label: 'Journey Carousel', icon: <Rows3 size={14} /> },
   { type: 'service-cards', label: 'Service Cards', icon: <Sparkles size={14} /> },
   { type: 'social-share', label: 'Social Share Bar', icon: <Share2 size={14} /> },
 ];

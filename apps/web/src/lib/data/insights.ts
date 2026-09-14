@@ -1,6 +1,7 @@
 import { db, insights, eq, and, desc } from '@envint/db';
 import { unstable_cache } from 'next/cache';
 import localInsights from '@/data/insights.json';
+import { resolveCmsImage } from '@envint/shared';
 
 const localBySlug = new Map((localInsights as any[]).map((l: any) => [l.slug, l]));
 
@@ -10,11 +11,12 @@ function enrichRecord(record: any, categoriesList?: string[]) {
   const categories = (categoriesList && categoriesList.length > 0)
     ? categoriesList
     : (record.categories && record.categories.length > 0 ? record.categories : (local?.categories || []));
-  const heroImage =
+  const heroImage = resolveCmsImage(
     record.coverImageUrl ||
     record.coverImage?.url ||
     local?.heroImage ||
-    '/images/services-climate.webp';
+    '/images/services-climate.webp'
+  );
 
   return {
     ...local,
@@ -22,7 +24,7 @@ function enrichRecord(record: any, categoriesList?: string[]) {
     categories,
     tags: record.tags || local?.tags || [],
     heroImage,
-    coverImage: record.coverImage || (heroImage ? { url: heroImage } : null),
+    coverImage: heroImage ? { ...(record.coverImage || {}), url: heroImage } : null,
   };
 }
 
@@ -59,7 +61,7 @@ export async function getInsights() {
       }
       return (localInsights as any[]).map((l: any) => enrichRecord(l));
     },
-    ['insights-list-enriched-v2'],
+    ['insights-list-enriched-v5'],
     { tags: ['insights:list'] }
   )();
 }
@@ -92,7 +94,7 @@ export async function getInsight(slug: string) {
       const found = localInsights.find((item: any) => item.slug === slug);
       return found ? enrichRecord(found) : null;
     },
-    [`insight-enriched-v2-${slug}`],
+    [`insight-enriched-v3-${slug}`],
     { tags: [`insight:${slug}`] }
   )();
 }

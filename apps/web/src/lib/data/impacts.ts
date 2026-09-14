@@ -1,16 +1,18 @@
 import { db, impactCaseStudies, eq, and, asc } from '@envint/db';
 import { unstable_cache } from 'next/cache';
 import localImpacts from '@/data/impacts.json';
+import { resolveCmsImage } from '@envint/shared';
 
 function sanitizeImpact(item: any) {
   if (!item) return null;
   const local = (localImpacts as any[]).find((l: any) => l.slug === item.slug);
-  const heroImage =
+  const heroImage = resolveCmsImage(
     item.coverImageUrl ||
     item.coverImage?.url ||
     local?.heroImage ||
     local?.coverImage?.url ||
-    '/images/services-sustainability.webp';
+    '/images/services-sustainability.webp'
+  );
 
   return {
     ...local,
@@ -19,7 +21,7 @@ function sanitizeImpact(item: any) {
     summary: item.summary ? String(item.summary).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : (local?.summary || ''),
     cardExcerpt: item.cardExcerpt || local?.cardExcerpt || item.summary || local?.summary || '',
     heroImage,
-    coverImage: item.coverImage || { url: heroImage },
+    coverImage: { ...(item.coverImage || {}), url: heroImage },
     categories: (item.categories && item.categories.length > 0) ? item.categories : (local?.categories || []),
   };
 }
@@ -41,7 +43,7 @@ export async function getImpacts() {
       }
       return (localImpacts as any[]).map(sanitizeImpact);
     },
-    ['impacts-list-clean-v3'],
+    ['impacts-list-clean-v4'],
     { tags: ['impacts:list'] }
   )();
 }
@@ -61,7 +63,7 @@ export async function getImpact(slug: string) {
       const found = localImpacts.find((item: any) => item.slug === slug);
       return found ? sanitizeImpact(found) : null;
     },
-    [`impact-clean-v3-${slug}`],
+    [`impact-clean-v4-${slug}`],
     { tags: [`impact:${slug}`] }
   )();
 }
