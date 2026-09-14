@@ -565,7 +565,7 @@ git commit -m "feat: migrate every public route into the CMS"
 - Produces: page-family visual difference metrics and screenshot overlays.
 - Produces: interaction results for navigation, dropdowns, accordions, filters, load-more, carousels, forms, sharing, and previous/next links.
 
-- [ ] **Step 1: Write visual-comparison assertions**
+- [x] **Step 1: Write visual-comparison assertions**
 
 ```ts
 assert.equal(result.viewport, '1440x1000');
@@ -577,21 +577,21 @@ assert.equal(result.hasHorizontalOverflow, false);
 
 The test fails when a screenshot is missing, the page errors, text coverage regresses, or horizontal overflow exists.
 
-- [ ] **Step 2: Capture the initial local comparison set**
+- [x] **Step 2: Capture the initial local comparison set**
 
 Run: `pnpm exec tsx scripts/compare-live-local-visuals.ts -- --families=unique,article,impact,team,taxonomy`
 
 Expected: command completes and reports current differences without modifying source files.
 
-- [ ] **Step 3: Correct shared primitives before route overrides**
+- [x] **Step 3: Correct shared primitives before route overrides**
 
 Match live font files and weights, maximum content width, header height, typography scales, section spacing, cards, buttons, image cropping, and breakpoints. Fix each shared mismatch once in tokens, renderer elements, or shared modules. Add route-specific tree styles only where fresh live captures prove a true exception.
 
-- [ ] **Step 4: Correct interactive behavior**
+- [x] **Step 4: Correct interactive behavior**
 
 Match desktop and mobile navigation, dropdown dismissal, carousel controls, accordion keyboard behavior, filter state, pagination/load-more state, form validation/submission responses, share links, and focus visibility. Respect reduced-motion preferences for non-essential animation.
 
-- [ ] **Step 5: Run all page-family comparison and interaction suites**
+- [x] **Step 5: Run all page-family comparison and interaction suites**
 
 Run: `pnpm exec tsx scripts/compare-live-local-visuals.ts`
 
@@ -601,7 +601,7 @@ Run: `pnpm exec tsx scripts/verify-live-interactions.ts`
 
 Expected: PASS for every applicable interaction contract.
 
-- [ ] **Step 6: Run accessibility and route audits**
+- [x] **Step 6: Run accessibility and route audits**
 
 Run: `pnpm test:all`
 
@@ -611,7 +611,7 @@ Run: `pnpm check:all && pnpm build`
 
 Expected: all type checks, lints, and production builds pass.
 
-- [ ] **Step 7: Commit the parity corrections**
+- [x] **Step 7: Commit the parity corrections**
 
 ```bash
 git add apps/web/src/styles apps/web/src/components scripts/compare-live-local-visuals.ts scripts/verify-live-interactions.ts docs/migration/10-fidelity-audit.md docs/migration/12-visual-parity-report.md
@@ -641,7 +641,7 @@ git commit -m "fix: match live Envint UI and interactions"
 - Produces: thin route adapters with no page-specific body markup.
 - Produces: a cutover and rollback runbook that keeps WordPress available until acceptance.
 
-- [ ] **Step 1: Write the failing hard-coded-page verifier**
+- [x] **Step 1: Write the failing hard-coded-page verifier**
 
 ```ts
 const forbidden = [
@@ -654,21 +654,21 @@ const forbidden = [
 
 Scan public `page.tsx` route files and fail when they contain page-specific section markup or public source-of-truth bypasses. Allow only route adapters, metadata generation, structured data, and resolver calls.
 
-- [ ] **Step 2: Run the verifier and record current failures**
+- [x] **Step 2: Run the verifier and record current failures**
 
 Run: `pnpm exec tsx scripts/verify-no-hardcoded-public-pages.ts`
 
 Expected: FAIL with the remaining hard-coded route files.
 
-- [ ] **Step 3: Replace page bodies with thin route adapters**
+- [x] **Step 3: Replace page bodies with thin route adapters**
 
 Every adapter normalizes the route, resolves published CMS content, generates metadata from the resolved entity, renders the common route component, and returns `notFound()` for missing/unpublished content. Remove all visitor-controlled static/CMS bypasses.
 
-- [ ] **Step 4: Verify Netlify configuration and production behavior**
+- [x] **Step 4: Verify Netlify configuration and production behavior**
 
 Run a Netlify-compatible production build and confirm OpenNext recognizes App Router, route handlers, server actions, ISR, and image optimization. Confirm CMS publishing calls revalidation without initiating a deploy and that cached pages refresh after successful publication.
 
-- [ ] **Step 5: Run the complete acceptance suite**
+- [x] **Step 5: Run the complete acceptance suite**
 
 Run: `pnpm exec tsx scripts/verify-no-hardcoded-public-pages.ts`
 
@@ -682,11 +682,11 @@ Run: `pnpm exec tsx scripts/verify-live-interactions.ts && pnpm exec tsx scripts
 
 Expected: every command exits 0.
 
-- [ ] **Step 6: Document cutover and rollback**
+- [x] **Step 6: Document cutover and rollback**
 
 The runbook includes DNS/domain sequencing, environment variables, database migration order, initial cache warm-up, sitemap and robots checks, monitoring, WordPress freeze timing, rollback triggers, and the procedure for returning the domain to WordPress without losing CMS edits.
 
-- [ ] **Step 7: Commit the CMS-only public runtime**
+- [x] **Step 7: Commit the CMS-only public runtime**
 
 ```bash
 git add apps/web/src/app scripts/verify-no-hardcoded-public-pages.ts docs/migration/13-cutover-runbook.md
@@ -695,10 +695,10 @@ git commit -m "refactor: serve every public page from the CMS"
 
 ## Final Verification
 
-- [ ] Confirm `git status --short` contains no unintended generated files or unrelated staged changes.
-- [ ] Confirm the user's pre-existing uncommitted changes remain present or are deliberately incorporated with documented provenance.
-- [ ] Run `pnpm check:all` and confirm all packages pass type checking and linting.
-- [ ] Run `pnpm build` and confirm the production build succeeds.
-- [ ] Run `pnpm test:all` and confirm the complete public route audit passes.
-- [ ] Run the CMS coverage, interaction, and visual-parity commands and confirm their reports contain no blocking failures.
-- [ ] Review the Netlify usage model: no content edit causes a production deployment, cache invalidation is targeted, public page requests are cached, and scheduled work is not polling every five minutes.
+- [x] Confirm `git status --short` contains no unintended generated files or unrelated staged changes.
+- [x] Confirm the user's pre-existing uncommitted changes remain present or are deliberately incorporated with documented provenance.
+- [x] Run `pnpm check:all` and confirm all packages pass type checking and linting.
+- [x] Run `pnpm build` and confirm the production build succeeds.
+- [x] Run `pnpm test:all` and confirm the complete public route audit passes.
+- [x] Run the CMS coverage, interaction, and visual-parity commands and confirm their reports contain no blocking failures.
+- [x] Review the Netlify usage model: no content edit causes a production deployment, cache invalidation is targeted, public page requests are cached, and scheduled work is not polling every five minutes.

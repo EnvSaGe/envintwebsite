@@ -34,43 +34,44 @@ async function open(page: any, route = '/'): Promise<void> {
 async function main(): Promise<void> {
   const chromium = await loadChromium();
   const browser = await chromium.launch({ executablePath: chromeExecutable(), headless: true });
+  try {
+    const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    await open(desktop);
+    const services = desktop.locator('a[aria-controls="desktop-menu-services"]');
+    await services.hover();
+    const serviceChild = desktop.locator('#desktop-menu-services').getByRole('link', { name: 'Sustainability Integration', exact: true });
+    await serviceChild.waitFor({ state: 'visible', timeout: 5_000 });
+    await desktop.keyboard.press('Escape');
+    assert.equal(await serviceChild.isVisible(), false, 'Desktop dropdown did not close with Escape');
 
-  const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  await open(desktop);
-  const services = desktop.locator('a[aria-controls="desktop-menu-services"]');
-  await services.hover();
-  const serviceChild = desktop.locator('#desktop-menu-services').getByRole('link', { name: 'Sustainability Integration', exact: true });
-  await serviceChild.waitFor({ state: 'visible', timeout: 5_000 });
-  await desktop.keyboard.press('Escape');
-  assert.equal(await serviceChild.isVisible(), false, 'Desktop dropdown did not close with Escape');
+    const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await open(mobile);
+    const toggle = mobile.getByRole('button', { name: 'Toggle Navigation Menu' });
+    await toggle.click();
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'true', 'Mobile menu did not open');
+    await mobile.keyboard.press('Escape');
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'Mobile menu did not close with Escape');
+    await toggle.click();
+    const mobileServices = mobile.locator('button[aria-controls="mobile-menu-services"]');
+    await mobileServices.click();
+    assert.equal(await mobileServices.getAttribute('aria-expanded'), 'true', 'Mobile Services group did not expand');
+    await mobileServices.press('Enter');
+    assert.equal(await mobileServices.getAttribute('aria-expanded'), 'false', 'Mobile Services group did not collapse with keyboard input');
 
-  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await open(mobile);
-  const toggle = mobile.getByRole('button', { name: 'Toggle Navigation Menu' });
-  await toggle.click();
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'true', 'Mobile menu did not open');
-  await mobile.keyboard.press('Escape');
-  assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 'Mobile menu did not close with Escape');
-  await toggle.click();
-  const mobileServices = mobile.locator('button[aria-controls="mobile-menu-services"]');
-  await mobileServices.click();
-  assert.equal(await mobileServices.getAttribute('aria-expanded'), 'true', 'Mobile Services group did not expand');
-  await mobileServices.press('Enter');
-  assert.equal(await mobileServices.getAttribute('aria-expanded'), 'false', 'Mobile Services group did not collapse with keyboard input');
+    for (const route of ['/', '/about/', '/services/', '/impact/', '/envision/', '/connect/']) {
+      await open(mobile, route);
+      const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+      assert.equal(overflow, false, `Horizontal overflow on mobile route ${route}`);
+    }
 
-  for (const route of ['/', '/about/', '/services/', '/impact/', '/envision/', '/connect/']) {
-    await open(mobile, route);
-    const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
-    assert.equal(overflow, false, `Horizontal overflow on mobile route ${route}`);
+    await open(desktop, '/connect/');
+    const form = desktop.locator('form').first();
+    if (await form.count()) {
+      assert.equal(await form.evaluate((element: HTMLFormElement) => element.checkValidity()), false, 'Empty contact form should be invalid');
+    }
+  } finally {
+    await browser.close();
   }
-
-  await open(desktop, '/connect/');
-  const form = desktop.locator('form').first();
-  if (await form.count()) {
-    assert.equal(await form.evaluate((element: HTMLFormElement) => element.checkValidity()), false, 'Empty contact form should be invalid');
-  }
-
-  await browser.close();
   console.log('[interactions] navigation, keyboard, responsive overflow, and form validation contracts pass');
 }
 
