@@ -1,29 +1,11 @@
-﻿import React from 'react';
-import { Metadata } from 'next';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
-import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
-import FallbackPage from './envision_cms_page';
+import { metadataForPublicPath, renderPublicPath } from '@/lib/routes/public-page-adapter';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage('/envision');
-  return {
-    title: page?.seoTitle || 'Envision ESG Insights Hub | Envint',
-    description: page?.seoDescription || 'Research and thought leadership on ESG.',
-    alternates: { canonical: 'https://envintglobal.com/envision/' },
-    openGraph: {
-      title: page?.seoTitle || 'Envision ESG Insights Hub | Envint',
-      description: page?.seoDescription || 'Research and thought leadership on ESG.',
-      url: 'https://envintglobal.com/envision/',
-      type: 'website',
-    },
-  };
+const pathname = '/envision';
+
+export function generateMetadata() {
+  return metadataForPublicPath(pathname);
 }
 
-export default async function Page() {
-  const page = await getPage('/envision');
-  if (pageHasRenderableContent(page)) {
-    return <DynamicPageRenderer page={page} />;
-  }
-  return <FallbackPage />;
+export default function Page() {
+  return renderPublicPath(pathname);
 }
-

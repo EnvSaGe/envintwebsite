@@ -1,29 +1,11 @@
-﻿import React from 'react';
-import { Metadata } from 'next';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
-import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
-import FallbackPage from './how_to_articles_cms_page';
+import { metadataForPublicPath, renderPublicPath } from '@/lib/routes/public-page-adapter';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage('/how-to-articles');
-  return {
-    title: page?.seoTitle || 'How-To ESG Guides | Envint',
-    description: page?.seoDescription || 'Step-by-step ESG implementation guides.',
-    alternates: { canonical: 'https://envintglobal.com/how-to-articles/' },
-    openGraph: {
-      title: page?.seoTitle || 'How-To ESG Guides | Envint',
-      description: page?.seoDescription || 'Step-by-step ESG implementation guides.',
-      url: 'https://envintglobal.com/how-to-articles/',
-      type: 'website',
-    },
-  };
+const pathname = '/how-to-articles';
+
+export function generateMetadata() {
+  return metadataForPublicPath(pathname);
 }
 
-export default async function Page() {
-  const page = await getPage('/how-to-articles');
-  if (pageHasRenderableContent(page)) {
-    return <DynamicPageRenderer page={page} />;
-  }
-  return <FallbackPage />;
+export default function Page() {
+  return renderPublicPath(pathname);
 }
-

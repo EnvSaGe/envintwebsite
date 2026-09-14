@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -68,6 +68,7 @@ interface DropdownProps {
 }
 
 function Dropdown({ label, href, items, linkColor, open, onOpen, onClose }: DropdownProps) {
+  const menuId = `desktop-menu-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   return (
     <div
       style={{ position: 'relative', marginRight: 20 }}
@@ -76,6 +77,9 @@ function Dropdown({ label, href, items, linkColor, open, onOpen, onClose }: Drop
     >
       <Link
         href={href}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
         style={{
           height: 80,
           display: 'flex',
@@ -115,6 +119,8 @@ function Dropdown({ label, href, items, linkColor, open, onOpen, onClose }: Drop
 
       {open && (
         <ul
+          id={menuId}
+          role="menu"
           style={{
             position: 'absolute',
             top: '100%',
@@ -197,6 +203,7 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
   const [desktopOpen, setDesktopOpen] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileGroupOpen, setMobileGroupOpen] = useState<string | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -212,6 +219,26 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const closeMenus = () => {
+      setDesktopOpen(null);
+      setMobileOpen(false);
+      setMobileGroupOpen(null);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMenus();
+    };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) closeMenus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, []);
+
   // Live behavior: transparent over the hero, then a white fixed bar with #393939
   // links once scrolled. While transparent, dark-image heroes get white links and
   // light/white heroes get dark links so the navbar is always readable.
@@ -220,6 +247,7 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
 
   const transparent = (isDarkHeroPage || isLightHeroPage) && !scrolled;
   const linkColor = transparent && isDarkHeroPage ? '#ffffff' : '#393939';
+  const mobileIconColor = transparent ? '#777777' : linkColor;
 
   const topLevelLinkStyle = (active: boolean): React.CSSProperties => ({
     height: 80,
@@ -238,6 +266,7 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
 
   return (
     <header
+      ref={headerRef}
       className="envint-header"
       style={{
         position: 'fixed',
@@ -333,6 +362,7 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
             className="mobile-nav-toggle"
             aria-label="Toggle Navigation Menu"
             aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
             style={{
               background: 'none',
               border: 'none',
@@ -342,11 +372,11 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={linkColor} strokeWidth="2" strokeLinecap="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={mobileIconColor} strokeWidth="2" strokeLinecap="round">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             ) : (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={linkColor} strokeWidth="2" strokeLinecap="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={mobileIconColor} strokeWidth="2" strokeLinecap="round">
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             )}
@@ -357,6 +387,7 @@ export function Header({ navigation = [] }: { navigation?: HeaderNavEntry[] }) {
       {/* Mobile Menu Drawer */}
       {mobileOpen && (
         <div
+          id="mobile-navigation"
           style={{
             position: 'absolute',
             top: '100%',
@@ -454,12 +485,14 @@ function MobileGroup({
   items: { label: string; href: string }[];
   onNavigate: () => void;
 }) {
+  const menuId = `mobile-menu-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   return (
     <div>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
+        aria-controls={menuId}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -480,7 +513,7 @@ function MobileGroup({
         <span style={{ fontSize: 14, color: '#2F7ABE' }}>{open ? '−' : '+'}</span>
       </button>
       {open && (
-        <div style={{ paddingLeft: 16 }}>
+        <div id={menuId} style={{ paddingLeft: 16 }}>
           {items.map((item) => (
             <Link
               key={item.href}

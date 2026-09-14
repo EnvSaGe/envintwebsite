@@ -1,6 +1,6 @@
 # 10 — Full 168-Page Fidelity Audit (live captures vs current build)
 
-> **2026-09-14 live inventory refresh:** the repeatable sitemap inventory now discovers 152 public content routes across 11 WordPress content sitemaps: 54 articles, 26 impact studies, 15 team-member pages, 39 taxonomy archives, 2 author archives, and 16 unique pages. Elementor/header template sitemaps are intentionally excluded because they are implementation records rather than public content pages. Run `pnpm audit:inventory` for contract checks and `pnpm audit:capture-live -- --limit 3` for a bounded live capture smoke test. The historical audit below remains the comparison baseline until the full refreshed visual run replaces it.
+> **2026-09-14 live inventory refresh:** the repeatable sitemap inventory now discovers 152 public content routes across 11 WordPress content sitemaps: 54 articles, 26 impact studies, 15 team-member pages, 39 taxonomy archives, 2 author archives, and 16 unique pages. Elementor/header template sitemaps are intentionally excluded because they are implementation records rather than public content pages. Every route is now covered by CMS data and an editable page or shared template. See `12-visual-parity-report.md` for the new fixed-viewport visual and interaction results.
 
 Reference captures: `C:\Users\rahul\Desktop\Envint\envintwebsite\envintmigration\site-capture\html`  ·  Build base: `http://localhost:3000`
 

@@ -51,10 +51,18 @@ export async function Footer() {
   const contactEmail = textSetting(settings, 'contact.email', 'connect@envintglobal.com');
   const copyright = textSetting(settings, 'footer.copyright', '© 2024 Envint Services LLP. All Rights Reserved');
   const designCredit = textSetting(settings, 'footer.designCredit', 'Designed by Envint Team');
-  const socialLinks = socialNavigation.length > 0 ? socialNavigation : [
+  const rawSocialLinks = socialNavigation.length > 0 ? socialNavigation : [
     { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/envintglobal/', openInNewTab: true },
     { id: 'twitter', label: 'Twitter', href: 'https://twitter.com/envintglobal', openInNewTab: true },
   ];
+  const socialLinks = Array.from(
+    rawSocialLinks.reduce((links, item) => {
+      const key = item.label.toLowerCase();
+      const current = links.get(key);
+      if (!current || item.href.toLowerCase().includes('envintglobal')) links.set(key, item);
+      return links;
+    }, new Map<string, (typeof rawSocialLinks)[number]>()),
+  ).map(([, item]) => item);
 
   return (
     <footer style={{ backgroundColor: '#F0F0F0', marginTop: 'auto', padding: '32px 0' }}>
@@ -164,8 +172,8 @@ export async function Footer() {
               Quick Links
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {quickLinks.map((item) => (
-                <Link key={item.href} href={item.href} style={linkStyle}>
+              {quickLinks.map((item, index) => (
+                <Link key={`${item.label}:${item.href}:${index}`} href={item.href} style={linkStyle}>
                   {item.label}
                 </Link>
               ))}
@@ -186,8 +194,8 @@ export async function Footer() {
               Services
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {serviceLinks.map((item) => (
-                <Link key={item.href} href={item.href} style={linkStyle}>
+              {serviceLinks.map((item, index) => (
+                <Link key={`${item.label}:${item.href}:${index}`} href={item.href} style={linkStyle}>
                   {item.label}
                 </Link>
               ))}

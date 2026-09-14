@@ -43,11 +43,12 @@ function comparable(value: unknown): string | number {
 }
 
 function includesValue(actual: unknown, expected: string): boolean {
-  const needle = expected.toLocaleLowerCase('en-US');
+  const normalize = (value: unknown) => String(value ?? '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().toLocaleLowerCase('en-US');
+  const needle = normalize(expected);
   if (Array.isArray(actual)) {
-    return actual.some((value) => String(value).toLocaleLowerCase('en-US').includes(needle));
+    return actual.some((value) => normalize(value).includes(needle));
   }
-  return String(actual ?? '').toLocaleLowerCase('en-US').includes(needle);
+  return normalize(actual).includes(needle);
 }
 
 function matchesFilter(record: DynamicRecord, filter: DynamicFilter): boolean {

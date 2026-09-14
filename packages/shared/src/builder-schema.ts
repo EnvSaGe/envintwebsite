@@ -361,6 +361,7 @@ const BINDABLE_FIELDS: Partial<Record<ElementType, ReadonlySet<string>>> = {
   badge: new Set(['text']),
   quote: new Set(['quote', 'attribution', 'role']),
   counter: new Set(['value', 'label', 'prefix', 'suffix']),
+  'social-share': new Set(['title', 'url']),
 };
 
 export const BuilderNodeSchema = z.object({

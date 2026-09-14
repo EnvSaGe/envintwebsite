@@ -1,29 +1,11 @@
-﻿import React from 'react';
-import { Metadata } from 'next';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
-import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
-import FallbackPage from './enviki_cms_page';
+import { metadataForPublicPath, renderPublicPath } from '@/lib/routes/public-page-adapter';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage('/enviki');
-  return {
-    title: page?.seoTitle || 'Enviki - Sustainability Wiki | Envint',
-    description: page?.seoDescription || 'Comprehensive sustainability knowledge base.',
-    alternates: { canonical: 'https://envintglobal.com/enviki/' },
-    openGraph: {
-      title: page?.seoTitle || 'Enviki - Sustainability Wiki | Envint',
-      description: page?.seoDescription || 'Comprehensive sustainability knowledge base.',
-      url: 'https://envintglobal.com/enviki/',
-      type: 'website',
-    },
-  };
+const pathname = '/enviki';
+
+export function generateMetadata() {
+  return metadataForPublicPath(pathname);
 }
 
-export default async function Page() {
-  const page = await getPage('/enviki');
-  if (pageHasRenderableContent(page)) {
-    return <DynamicPageRenderer page={page} />;
-  }
-  return <FallbackPage />;
+export default function Page() {
+  return renderPublicPath(pathname);
 }
-

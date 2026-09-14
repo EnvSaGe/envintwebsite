@@ -50,8 +50,8 @@ export function makeSection(
   if (Array.isArray(arg2)) {
     children = arg2;
     styles = safeStyles(arg3);
-    name = typeof arg4 === 'string' ? arg4 : id;
-    responsiveStyles = safeResponsiveStyles(arg4);
+    name = typeof arg4 === 'string' ? arg4 : typeof arg5 === 'string' ? arg5 : id;
+    responsiveStyles = safeResponsiveStyles(typeof arg4 === 'object' ? arg4 : arg5);
   } else {
     name = typeof arg2 === 'string' ? arg2 : id;
     children = Array.isArray(arg3) ? arg3 : [];

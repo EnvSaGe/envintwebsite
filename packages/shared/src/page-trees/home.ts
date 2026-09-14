@@ -108,7 +108,11 @@ export function createHomePageTree(): PageBlockTree {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       },
-      'Hero Banner'
+      'Hero Banner',
+      {
+        tablet: { minHeight: '80vh', paddingTop: '100px', paddingBottom: '36px' },
+        mobile: { minHeight: '65vh', paddingTop: '80px', paddingBottom: '36px' },
+      }
     ),
     cont_home_hero: makeContainer(
       'cont_home_hero',
@@ -139,7 +143,7 @@ export function createHomePageTree(): PageBlockTree {
       },
       {
         tablet: { fontSize: '64px' },
-        mobile: { fontSize: '32px', lineHeight: '1.1' },
+        mobile: { fontSize: '38px', lineHeight: '1.08' },
       },
       'Hero Tagline'
     ),
@@ -155,13 +159,13 @@ export function createHomePageTree(): PageBlockTree {
         lineHeight: '1.25',
         textColor: '#FFFFFF',
         textShadow: '0 1px 8px rgba(0, 0, 0, 0.4)',
-        marginTop: '20px',
+        marginTop: '60px',
         marginBottom: '0',
-        maxWidth: '980px',
+        maxWidth: '720px',
       },
       {
-        tablet: { fontSize: '24px' },
-        mobile: { fontSize: '16px', lineHeight: '1.35', marginTop: '14px' },
+        tablet: { fontSize: '24px', maxWidth: '560px', marginTop: '36px' },
+        mobile: { fontSize: '18px', lineHeight: '1.35', maxWidth: '320px', marginTop: '90px' },
       },
       'Hero Headline'
     ),

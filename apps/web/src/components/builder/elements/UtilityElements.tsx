@@ -96,6 +96,8 @@ export function AccordionItemElement({
   const title = content.title || 'Accordion Item';
   const [isOpen, setIsOpen] = useState(Boolean(content.defaultOpen));
   const inlineStyles = elementStylesToCss(node.styles);
+  const buttonId = `${node.id}-trigger`;
+  const panelId = `${node.id}-panel`;
 
   return (
     <div
@@ -107,8 +109,11 @@ export function AccordionItemElement({
       }}
     >
       <button
+        id={buttonId}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -134,7 +139,7 @@ export function AccordionItemElement({
           }}
         />
       </button>
-      {isOpen && <div style={{ paddingTop: '12px' }}>{children}</div>}
+      {isOpen && <div id={panelId} role="region" aria-labelledby={buttonId} style={{ paddingTop: '12px' }}>{children}</div>}
     </div>
   );
 }

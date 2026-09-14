@@ -1,29 +1,11 @@
-﻿import React from 'react';
-import { Metadata } from 'next';
-import { getPage, pageHasRenderableContent } from '@/lib/data/pages';
-import { DynamicPageRenderer } from '@/components/content/DynamicPageRenderer';
-import FallbackPage from './sustainability_integration_cms_page';
+import { metadataForPublicPath, renderPublicPath } from '@/lib/routes/public-page-adapter';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage('/sustainability-integration');
-  return {
-    title: page?.seoTitle || 'Sustainability Integration Advisory - Envint',
-    description: page?.seoDescription || 'ESG strategy, governance design, and reporting.',
-    alternates: { canonical: 'https://envintglobal.com/sustainability-integration/' },
-    openGraph: {
-      title: page?.seoTitle || 'Sustainability Integration Advisory - Envint',
-      description: page?.seoDescription || 'ESG strategy, governance design, and reporting.',
-      url: 'https://envintglobal.com/sustainability-integration/',
-      type: 'website',
-    },
-  };
+const pathname = '/sustainability-integration';
+
+export function generateMetadata() {
+  return metadataForPublicPath(pathname);
 }
 
-export default async function Page() {
-  const page = await getPage('/sustainability-integration');
-  if (pageHasRenderableContent(page)) {
-    return <DynamicPageRenderer page={page} />;
-  }
-  return <FallbackPage />;
+export default function Page() {
+  return renderPublicPath(pathname);
 }
-

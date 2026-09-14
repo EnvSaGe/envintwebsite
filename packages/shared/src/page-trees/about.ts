@@ -39,7 +39,11 @@ export function createAboutPageTree(): PageBlockTree {
         backgroundImage: `url(${resolveCmsImage('/images/about-hero.webp')})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundOverlay: 'linear-gradient(to top, rgba(0, 46, 32, 0.88) 0%, rgba(0, 46, 32, 0.35) 100%)',
+        backgroundOverlay: 'linear-gradient(to top, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0) 58%)',
+      },
+      {
+        tablet: { minHeight: '72vh', paddingBottom: '56px' },
+        mobile: { minHeight: '65vh', paddingBottom: '42px', paddingLeft: '20px', paddingRight: '20px' },
       }
     ),
     cont_about_hero: makeContainer(
@@ -61,6 +65,7 @@ export function createAboutPageTree(): PageBlockTree {
       'h1',
       {
         fontSize: '64px',
+        maxWidth: '780px',
         textColor: '#FBF4EB',
         lineHeight: '1.15',
         margin: '0',

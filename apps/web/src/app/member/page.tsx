@@ -1,6 +1,6 @@
 import { metadataForPublicPath, renderPublicPath } from '@/lib/routes/public-page-adapter';
 
-const pathname = '/connect';
+const pathname = '/member';
 
 export function generateMetadata() {
   return metadataForPublicPath(pathname);

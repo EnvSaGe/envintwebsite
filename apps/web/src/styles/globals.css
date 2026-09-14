@@ -78,6 +78,11 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid #f5a623;
+  outline-offset: 3px;
+}
+
 .container {
   width: 100%;
   max-width: var(--max-width);
@@ -306,6 +311,10 @@ h1, h2, h3, h4, h5, h6 {
   .envint-header {
     height: 60px !important;
   }
+  .envint-header img {
+    width: 80px !important;
+    height: auto !important;
+  }
 }
 
 /* About split layout (title column + intro column), matching live */
@@ -412,22 +421,44 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Lists inside builder-rendered rich text (paragraph/rich-text nodes)
    get the same treatment so migrated pages match the original site. */
-.envint-dynamic-page-tree ol,
-.envint-dynamic-page-tree ul {
+.builder-rich-text ol,
+.builder-rich-text ul {
   margin: 0 0 1.35em 0;
   padding-left: 2.5em;
   list-style: revert;
 }
 
-.envint-dynamic-page-tree p {
+.builder-rich-text p {
   margin: 0 0 1.35em 0;
 }
 
-.envint-dynamic-page-tree li {
+.builder-rich-text li {
   margin: 0 0 0.6em 0;
 }
 
-.envint-dynamic-page-tree li > ol,
-.envint-dynamic-page-tree li > ul {
+.builder-rich-text li > ol,
+.builder-rich-text li > ul {
   margin: 0.6em 0 0 0;
+}
+
+.builder-rich-text blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.25em;
+  border-left: 4px solid var(--color-brand-blue);
+}
+
+.builder-rich-text figure,
+.builder-rich-text img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

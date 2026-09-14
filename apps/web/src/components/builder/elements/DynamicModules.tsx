@@ -4,16 +4,32 @@ import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
 import Link from 'next/link';
 import { queryDynamicSource } from '@/lib/data/dynamic-sources';
 
-export function TeamGridElement({
+export async function TeamGridElement({
   node,
   teamCards,
 }: {
   node: BuilderNode;
   teamCards?: TeamCardMember[];
 }) {
+  let members = teamCards;
+  if (!members || members.length === 0) {
+    const records = node.content.query
+      ? await queryDynamicSource(node.content.query as any)
+      : await (await import('@/lib/data/team')).getTeamMembers();
+    members = records.map((member: any) => ({
+      name: member.name,
+      slug: member.slug,
+      roleTitle: member.roleTitle,
+      role: member.role,
+      bioText: String(member.bio ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(),
+      linkedinUrl: member.linkedinUrl,
+      imageUrl: member.avatarUrl || member.avatar?.url || member.image?.url || null,
+      hasStandaloneRoute: member.hasStandaloneRoute,
+    }));
+  }
   return (
     <div data-builder-id={node.id} style={{ width: '100%' }}>
-      <TeamGrid members={teamCards || []} />
+      <TeamGrid members={members || []} />
     </div>
   );
 }
@@ -135,6 +151,7 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
   const displayArticles = articles.slice(0, limit);
   const showReadMore = Boolean((node.content as any)?.showReadMore);
   const showDate = (node.content as any)?.showDate !== false;
+  const showExcerpt = (node.content as any)?.showExcerpt !== false;
   const cardBorder = Boolean((node.content as any)?.cardBorder);
 
   return (
@@ -142,7 +159,7 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
         gap: '30px',
         width: '100%',
         boxSizing: 'border-box',
@@ -232,7 +249,7 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
               >
                 {article.title}
               </h3>
-              {excerptText && (
+              {showExcerpt && excerptText && (
                 <p
                   style={{
                     fontFamily: '"Neue Montreal", sans-serif',
@@ -298,7 +315,7 @@ export async function ImpactGridElement({ node }: { node: BuilderNode }) {
       data-builder-id={node.id}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
         gap: '30px',
         width: '100%',
         boxSizing: 'border-box',
@@ -414,6 +431,8 @@ export function SocialShareElement({ node }: { node: BuilderNode }) {
   const radius = content.borderRadius ?? 4;
   const gap = content.gap ?? 10;
   const alignment = content.alignment || 'left';
+  const shareUrl = encodeURIComponent(String(content.url || 'https://envintglobal.com/'));
+  const shareTitle = encodeURIComponent(String(content.title || 'Envint'));
 
   const justifyMap: Record<string, string> = {
     left: 'flex-start',
@@ -456,11 +475,18 @@ export function SocialShareElement({ node }: { node: BuilderNode }) {
         }
 
         const bgColor = c.color || defaultColor;
+        const shareUrls: Record<string, string> = {
+          email: `mailto:?subject=${shareTitle}&body=${shareUrl}`,
+          linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`,
+          twitter: `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`,
+          facebook: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+          whatsapp: `https://wa.me/?text=${shareTitle}%20${shareUrl}`,
+        };
 
         return (
           <a
             key={c.id}
-            href={c.url || '#'}
+            href={c.url || shareUrls[c.id] || String(content.url || '/')}
             target={c.id === 'email' ? '_self' : '_blank'}
             rel="noopener noreferrer"
             aria-label={`Share via ${c.name || c.id}`}
