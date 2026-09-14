@@ -50,7 +50,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { fetchPageBySlug, fetchPageTreeAction, savePageAction } from '../actions';
-import { PageBlockTree, createStarterPageTree } from '@envint/shared';
+import { PageBlockTree, createStarterPageTree, type StudioDynamicModules } from '@envint/shared';
 import { VisualStudioEditor } from './studio/VisualStudioEditor';
 import { MediaPickerModal, PickedMedia } from '../../../components/MediaPickerModal';
 import { BlockSection, BlockLayout, LiveCanvasRenderer } from './LiveCanvasRenderer';
@@ -373,6 +373,7 @@ function PageBuilderContent() {
   const [studioTeamMembers, setStudioTeamMembers] = useState<
     Array<{ name: string; role?: string | null; imageUrl?: string | null }>
   >([]);
+  const [studioDynamicModules, setStudioDynamicModules] = useState<StudioDynamicModules>({});
   const [studioScheduledAt, setStudioScheduledAt] = useState<string | null>(null);
   const [editorEngine, setEditorEngine] = useState<'studio' | 'legacy'>('studio');
 
@@ -414,6 +415,7 @@ function PageBuilderContent() {
           if (Array.isArray(treeData.teamMembers)) {
             setStudioTeamMembers(treeData.teamMembers);
           }
+          setStudioDynamicModules(treeData.dynamicModules || {});
         }
 
         // 2. Fetch Schema v1 legacy blocks as fallback
@@ -614,6 +616,7 @@ function PageBuilderContent() {
       <VisualStudioEditor
         initialTree={studioTree}
         teamMembers={studioTeamMembers}
+        dynamicModules={studioDynamicModules}
         slug={slug}
         pageTitle={pageTitle || (slug === '/about' ? 'About Envint' : slug)}
         seoTitle={seoTitle}

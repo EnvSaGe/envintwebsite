@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useReducer, useEffect, useState, useRef, useCallback } from 'react';
-import { PageBlockTree, ElementType, createDefaultNode, ElementStyles } from '@envint/shared';
+import { PageBlockTree, ElementType, createDefaultNode, ElementStyles, type StudioDynamicModules } from '@envint/shared';
 import { createInitialStudioState, studioReducer, StudioState } from './StudioState';
 import { StudioTopbar } from './StudioTopbar';
 import { PaletteSidebar } from './PaletteSidebar';
@@ -27,6 +27,7 @@ import { GlobalImpactWarning } from './GlobalImpactWarning';
 interface VisualStudioEditorProps {
   initialTree: PageBlockTree;
   teamMembers?: Array<{ name: string; role?: string | null; imageUrl?: string | null }>;
+  dynamicModules?: StudioDynamicModules;
   slug: string;
   pageTitle: string;
   seoTitle?: string;
@@ -75,6 +76,7 @@ function loadPanelPrefs(): PanelPrefs {
 export function VisualStudioEditor({
   initialTree,
   teamMembers,
+  dynamicModules,
   slug,
   pageTitle,
   seoTitle,
@@ -84,7 +86,10 @@ export function VisualStudioEditor({
   contentScope = 'Page',
   dependencyCount = 0,
 }: VisualStudioEditorProps) {
-  const [state, dispatch] = useReducer(studioReducer, createInitialStudioState(initialTree, teamMembers));
+  const [state, dispatch] = useReducer(
+    studioReducer,
+    createInitialStudioState(initialTree, teamMembers, dynamicModules),
+  );
 
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);

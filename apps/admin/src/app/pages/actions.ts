@@ -1,6 +1,6 @@
 'use server';
 
-import { db, pages, pageRevisions, teamMembers, insights, impactCaseStudies, eq, asc, or } from '@envint/db';
+import { db, pages, pageRevisions, teamMembers, insights, impactCaseStudies, eq, asc, desc, or } from '@envint/db';
 import { requireRole, getCurrentUserInfo } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';
 import {
@@ -13,6 +13,8 @@ import {
   convertCaseStudyToPageTree,
   getCanonicalPageTree,
   ALL_CANONICAL_PAGE_SLUGS,
+  buildStudioDynamicModules,
+  type StudioDynamicRecord,
 } from '@envint/shared';
 
 import pagesContentJson from '@/data/pages-content.json';
@@ -486,6 +488,78 @@ export async function fetchPageTreeAction(slug: string) {
     studioTeamMembers = [];
   }
 
+  const nodeTypes = new Set(Object.values(tree?.nodes || {}).map((node) => node.type));
+  let studioInsights: StudioDynamicRecord[] = [];
+  let studioImpacts: StudioDynamicRecord[] = [];
+
+  if (nodeTypes.has('insights-grid')) {
+    try {
+      const records = await db.query.insights.findMany({
+        where: eq(insights.status, 'PUBLISHED'),
+        orderBy: [desc(insights.publishedAt)],
+        with: {
+          coverImage: true,
+          categories: { with: { category: true } },
+        },
+      });
+      studioInsights = records.map((record) => ({
+        slug: record.slug,
+        title: record.title,
+        excerpt: record.excerpt,
+        seoDescription: record.seoDescription,
+        coverImageUrl: record.coverImageUrl || record.coverImage?.url || null,
+        heroImage: record.coverImageUrl || record.coverImage?.url || null,
+        publishedAt: record.publishedAt?.toISOString() || null,
+        categories: record.categories
+          .map((link) => link.category?.name)
+          .filter((name): name is string => Boolean(name)),
+      }));
+    } catch {
+      studioInsights = [];
+    }
+  }
+
+  if (nodeTypes.has('impact-grid')) {
+    try {
+      const records = await db.query.impactCaseStudies.findMany({
+        where: eq(impactCaseStudies.status, 'PUBLISHED'),
+        orderBy: [asc(impactCaseStudies.orderIndex)],
+        with: { service: true, sector: true, theme: true, coverImage: true },
+      });
+      studioImpacts = records.map((record) => {
+        const service = record.service
+          ? { name: record.service.title, slug: record.service.slug }
+          : null;
+        const sector = record.sector
+          ? { name: record.sector.name, slug: record.sector.slug }
+          : null;
+        const theme = record.theme
+          ? { name: record.theme.name, slug: record.theme.slug }
+          : null;
+        return {
+          slug: record.slug,
+          title: record.title,
+          summary: record.summary,
+          cardExcerpt: record.summary,
+          coverImageUrl: record.coverImageUrl || record.coverImage?.url || null,
+          heroImage: record.coverImageUrl || record.coverImage?.url || null,
+          categories: [service?.name, sector?.name, theme?.name].filter(
+            (name): name is string => Boolean(name),
+          ),
+          service,
+          sector,
+          theme,
+        };
+      });
+    } catch {
+      studioImpacts = [];
+    }
+  }
+
+  const dynamicModules = tree
+    ? buildStudioDynamicModules(tree, { insights: studioInsights, impacts: studioImpacts })
+    : {};
+
   return {
     slug: pathSlug,
     title: pageTitle || record?.title || (pathSlug === '/about' ? 'About Envint' : pathSlug),
@@ -497,6 +571,7 @@ export async function fetchPageTreeAction(slug: string) {
     tree,
     hasDraft: Boolean(record?.draftBlocks && (record.draftBlocks as any).rootIds),
     teamMembers: studioTeamMembers,
+    dynamicModules,
   };
 }
 

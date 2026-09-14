@@ -20,6 +20,7 @@
     "audit:visual": "tsx scripts/compare-live-local-visuals.ts",
     "audit:visual-contract": "tsx scripts/verify-visual-audit-contract.ts",
     "test:builder-image-layout": "tsx scripts/verify-builder-image-layout.tsx",
+    "test:studio-dynamic-preview": "tsx scripts/verify-studio-dynamic-preview.ts",
     "test:about-parity-tree": "tsx scripts/verify-about-parity-tree.ts",
     "cms:sync-team-order": "tsx scripts/sync-live-team-order.ts",
     "audit:interactions": "tsx scripts/verify-live-interactions.ts",

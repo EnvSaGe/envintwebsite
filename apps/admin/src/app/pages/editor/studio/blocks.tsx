@@ -15,7 +15,7 @@
 
 import React from 'react';
 import { AlertTriangle, ImageOff, icons as Icons } from 'lucide-react';
-import { BuilderNode, ElementStyles, resolveCmsImage } from '@envint/shared';
+import { BuilderNode, ElementStyles, resolveCmsImage, selectDynamicPreviewRecords, type StudioDynamicRecord } from '@envint/shared';
 import { elementStylesToCss } from './style-utils';
 
 /** Editor-only visual warning chip. Never published; studio chrome only. */
@@ -712,196 +712,123 @@ export function ServiceCardsPrimitive({ node }: { node: BuilderNode }) {
   );
 }
 
-/** Authentic Insights Grid Primitive for Studio Canvas */
-export function InsightsGridPrimitive({ node }: { node: BuilderNode }) {
-  const sampleArticles = [
-    {
-      title: "India's New Labour Codes",
-      summary: 'India has implemented four Labour Codes from 21 November 2025. India’s Labour Codes include the Code on Wages...',
-      coverImg: '/images/hero-wetland.webp',
-    },
-    {
-      title: 'Climate Risk Assessment: A Strategic Guide for Businesses',
-      summary: 'Navigating physical and transition climate risks under TCFD and ISSB frameworks with strategic scenario analysis...',
-      coverImg: '/images/services-sustainability.webp',
-    },
-    {
-      title: 'EcoVadis: Advancing ESG Across the Supply Chain',
-      summary: 'Step-by-step guidance on implementing supplier scorecards, carbon audits, and ESG rating improvements...',
-      coverImg: '/images/about-hero.webp',
-    },
-  ];
+/** Dynamic insights grid backed by the same CMS records as the public page. */
+export function InsightsGridPrimitive({
+  node,
+  records = [],
+}: {
+  node: BuilderNode;
+  records?: StudioDynamicRecord[];
+}) {
+  const displayRecords = selectDynamicPreviewRecords(records, node.content || {});
+  if (displayRecords.length === 0) {
+    return <EditorWarning label="No published insights match this module's filters." />;
+  }
+  const showReadMore = Boolean(node.content?.showReadMore);
+  const showDate = node.content?.showDate !== false;
+  const showExcerpt = node.content?.showExcerpt !== false;
+  const cardBorder = Boolean(node.content?.cardBorder);
 
   return (
-    <div
-      data-builder-id={node.id}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-        gap: '30px',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      {sampleArticles.map((article, idx) => (
-        <div
-          key={idx}
-          style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: '#f1f5f9' }}>
-            <img
-              src={resolveCmsImage(article.coverImg)}
-              alt={article.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-          <div style={{ padding: '15px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <h3
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '24px',
-                fontWeight: 500,
-                color: '#1E293B',
-                lineHeight: 'normal',
-                margin: '24px 0 0 0',
-              }}
-            >
-              {article.title}
-            </h3>
-            <p
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '16px',
-                fontWeight: 400,
-                color: 'rgba(0, 0, 0, 0.5)',
-                lineHeight: 'normal',
-                margin: '10px 0 0 0',
-                flex: 1,
-              }}
-            >
-              {article.summary}
-            </p>
-            <span
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '18px',
-                fontWeight: 400,
-                color: '#2F7ABE',
-                display: 'block',
-                textAlign: 'left',
-                padding: '24px 0 10px 0',
-                marginTop: '10px',
-              }}
-            >
-              Read More
-            </span>
-          </div>
-        </div>
-      ))}
+    <div data-builder-id={node.id} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: '30px', width: '100%', boxSizing: 'border-box' }}>
+      {displayRecords.map((article) => {
+        const coverImg = resolveCmsImage(article.coverImageUrl || article.heroImage || '/images/about-hero.webp');
+        const excerptText = article.seoDescription || article.summary || String(article.excerpt || '').replace(/<[^>]+>/g, '').trim();
+        const date = article.publishedAt ? new Date(article.publishedAt) : null;
+        const formattedDate = date && !Number.isNaN(date.getTime())
+          ? date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+          : '';
+        return (
+          <article key={article.slug} style={{ textDecoration: 'none', backgroundColor: cardBorder ? '#ffffff' : 'transparent', borderRadius: cardBorder ? '12px' : 0, border: cardBorder ? '1px solid rgba(0, 0, 0, 0.1)' : 'none', overflow: 'visible', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ position: 'relative', width: '100%', height: '240px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
+              <img src={coverImg} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <div style={{ padding: cardBorder ? '16px' : '20px 0 0', display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <h3 style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '24px', fontWeight: 400, color: '#1E1E1E', lineHeight: 1.3, margin: '0 0 12px' }}>{article.title}</h3>
+              {showExcerpt && excerptText && <p style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '16px', color: '#555555', lineHeight: 1.5, margin: '0 0 16px', flex: 1 }}>{excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}</p>}
+              {showDate && formattedDate && <div style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '15px', color: '#8C8C8C', marginTop: 'auto', paddingTop: '4px' }}>{formattedDate}</div>}
+              {showReadMore && <span style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '18px', color: '#2F7ABE', display: 'block', paddingTop: '16px', marginTop: 'auto' }}>Read More</span>}
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
 
-/** Authentic Impact Case Studies Grid Primitive for Studio Canvas */
-export function ImpactGridPrimitive({ node }: { node: BuilderNode }) {
-  const sampleCaseStudies = [
-    {
-      title: 'Decarbonization Roadmap for Major Cement Manufacturer',
-      summary: 'Designed an SBTi-aligned net zero strategy reducing Scope 1 & 2 carbon intensity by 34% by 2030.',
-      coverImg: '/images/services-sustainability.webp',
-    },
-    {
-      title: 'BRSR Core & Scope 3 Supply Chain Due Diligence',
-      summary: 'Implemented a standardized ESG assessment framework across 450 tier-1 suppliers across Asia.',
-      coverImg: '/images/hero-wetland.webp',
-    },
-    {
-      title: 'Renewable Energy Transition & PPA Structuring',
-      summary: 'Procured 120 MW of round-the-clock green power, delivering 42% cost savings and direct emissions elimination.',
-      coverImg: '/images/about-hero.webp',
-    },
-  ];
+const IMPACT_PREVIEW_TABS = [
+  ['all', 'All', ''],
+  ['sustainability-integration', 'Sustainability Integration', 'Sustainability Integration'],
+  ['responsible-investment', 'Responsible Investment', 'Responsible Investment'],
+  ['climate-action', 'Climate Action', 'Climate Action'],
+  ['infrastructure-real-estate', 'Infrastructure & Real Estate', 'Real Estate'],
+  ['manufacturing', 'Manufacturing', 'Manufacturing'],
+  ['energy', 'Energy', 'Energy'],
+  ['agriculture', 'Agriculture', 'Agriculture'],
+  ['bfsi', 'BFSI', 'BFSI'],
+  ['mining', 'Mining', 'Mining'],
+  ['healthcare', 'Healthcare', 'Healthcare'],
+  ['technology', 'Technology', 'Technology'],
+  ['supply-chain', 'Supply Chain', 'Supply Chain'],
+  ['dei', 'DEI', 'DEI'],
+  ['bhr', 'BHR', 'BHR'],
+] as const;
+
+/** Dynamic impact grid backed by all published CMS case studies. */
+export function ImpactGridPrimitive({
+  node,
+  records = [],
+}: {
+  node: BuilderNode;
+  records?: StudioDynamicRecord[];
+}) {
+  const configuredRecords = selectDynamicPreviewRecords(records, node.content || {});
+  const [activeTab, setActiveTab] = React.useState('all');
+  const activeCategory = IMPACT_PREVIEW_TABS.find(([id]) => id === activeTab)?.[2].toLocaleLowerCase('en-US') || '';
+  const visibleRecords = activeCategory
+    ? configuredRecords.filter((record) => {
+        const searchable = [record.title, record.summary, ...(record.categories || []), record.service?.name, record.sector?.name, record.theme?.name]
+          .filter(Boolean)
+          .join(' ')
+          .toLocaleLowerCase('en-US');
+        return searchable.includes(activeCategory);
+      })
+    : configuredRecords;
+
+  if (configuredRecords.length === 0) {
+    return <EditorWarning label="No published impact case studies match this module's filters." />;
+  }
 
   return (
-    <div
-      data-builder-id={node.id}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-        gap: '30px',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      {sampleCaseStudies.map((item, idx) => (
-        <div
-          key={idx}
-          style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: '#f1f5f9' }}>
-            <img
-              src={resolveCmsImage(item.coverImg)}
-              alt={item.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-          <div style={{ padding: '15px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <h3
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '24px',
-                fontWeight: 500,
-                color: '#1E293B',
-                lineHeight: 'normal',
-                margin: '24px 0 0 0',
-              }}
-            >
-              {item.title}
-            </h3>
-            <p
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '16px',
-                fontWeight: 400,
-                color: 'rgba(0, 0, 0, 0.5)',
-                lineHeight: 'normal',
-                margin: '10px 0 0 0',
-                flex: 1,
-              }}
-            >
-              {item.summary}
-            </p>
-            <span
-              style={{
-                fontFamily: 'Neue Montreal, sans-serif',
-                fontSize: '18px',
-                fontWeight: 400,
-                color: '#2F7ABE',
-                display: 'block',
-                textAlign: 'left',
-                padding: '24px 0 10px 0',
-                marginTop: '10px',
-              }}
-            >
-              Read More
-            </span>
-          </div>
+    <div data-builder-id={node.id} style={{ width: '100%' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', rowGap: '14px', marginBottom: '44px', width: '100%', overflowX: 'auto', paddingBottom: '6px' }}>
+        {IMPACT_PREVIEW_TABS.map(([id, label]) => {
+          const active = id === activeTab;
+          return <button key={id} type="button" onClick={(event) => { event.stopPropagation(); setActiveTab(id); }} style={{ backgroundColor: active ? '#0074FD' : '#FFFFFF', color: active ? '#FFFFFF' : 'rgba(0,0,0,.7)', border: active ? '0.5px solid #0074FD' : '0.5px solid rgba(0,0,0,.45)', borderRadius: '56px', padding: '8px 24px', fontSize: '16px', fontFamily: 'Neue Montreal, sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>{label}</button>;
+        })}
+      </div>
+      {visibleRecords.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '70px 20px', color: '#666666', fontSize: '18px' }}>No case studies found for this category.</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: '30px', width: '100%', boxSizing: 'border-box' }}>
+          {visibleRecords.map((item) => {
+            const coverImg = resolveCmsImage(item.coverImageUrl || item.heroImage || '/images/services-sustainability.webp');
+            const excerptText = item.cardExcerpt || item.summary || String(item.excerpt || '').replace(/<[^>]+>/g, '').trim();
+            return (
+              <article key={item.slug} style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid rgba(0,0,0,.1)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', height: '260px', backgroundColor: '#f1f5f9', overflow: 'hidden' }}>
+                  <img src={coverImg} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <h3 style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '24px', fontWeight: 500, color: '#1E293B', lineHeight: 1.3, margin: '0 0 12px' }}>{item.title}</h3>
+                  {excerptText && <p style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '16px', color: 'rgba(0,0,0,.6)', lineHeight: 1.5, margin: '0 0 16px', flex: 1 }}>{excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}</p>}
+                  <span style={{ fontFamily: 'Neue Montreal, sans-serif', fontSize: '18px', fontWeight: 500, color: '#2F7ABE', display: 'block', marginTop: 'auto', paddingTop: '8px' }}>Read More</span>
+                </div>
+              </article>
+            );
+          })}
         </div>
-      ))}
+      )}
     </div>
   );
 }

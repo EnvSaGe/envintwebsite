@@ -6,3 +6,4 @@ export * from './content-bindings';
 export * from './legacy-converter';
 export * from './page-trees';
 export * from './page-templates';
+export * from './studio-dynamic-preview';

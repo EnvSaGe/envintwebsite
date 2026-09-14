@@ -6,7 +6,11 @@ import {
   ElementStyles,
   type ContentBinding,
   type DynamicQueryConfig,
+  type StudioDynamicModules,
+  selectDynamicPreviewRecords,
 } from '@envint/shared';
+
+export { selectDynamicPreviewRecords };
 
 export type Breakpoint = 'desktop' | 'tablet' | 'mobile';
 
@@ -28,6 +32,8 @@ export interface StudioState {
   saveStatus: 'saved' | 'saving' | 'unsaved' | 'published';
   /** Real team members from the CMS database — powers team-grid parity on the canvas. */
   teamMembers?: Array<{ name: string; role?: string | null; imageUrl?: string | null }>;
+  /** Server-resolved records keyed by dynamic builder node id. */
+  dynamicModules: StudioDynamicModules;
 }
 
 export type StudioAction =
@@ -65,6 +71,7 @@ function pushHistory(state: StudioState): { past: PageBlockTree[]; future: PageB
 export function createInitialStudioState(
   tree: PageBlockTree,
   teamMembers?: StudioState['teamMembers'],
+  dynamicModules: StudioDynamicModules = {},
 ): StudioState {
   return {
     tree,
@@ -80,6 +87,7 @@ export function createInitialStudioState(
     isDirty: false,
     saveStatus: 'saved',
     teamMembers,
+    dynamicModules,
   };
 }
 

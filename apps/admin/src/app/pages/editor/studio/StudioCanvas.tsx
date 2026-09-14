@@ -893,10 +893,10 @@ function NodeContentSwitch({
       return <JourneyCarouselPrimitive node={node} />;
 
     case 'insights-grid':
-      return <InsightsGridPrimitive node={node} />;
+      return <InsightsGridPrimitive node={node} records={state.dynamicModules[node.id]} />;
 
     case 'impact-grid':
-      return <ImpactGridPrimitive node={node} />;
+      return <ImpactGridPrimitive node={node} records={state.dynamicModules[node.id]} />;
 
     case 'service-cards':
       return <ServiceCardsPrimitive node={node} />;
