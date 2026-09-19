@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, pageviews } from '@envint/db';
-import { sql } from 'drizzle-orm';
+import { db, pageviews, sql } from '@envint/db';
 import { requireRole } from '@/lib/clerk-rbac';
 
 export const runtime = 'nodejs';

@@ -59,6 +59,9 @@ importers:
       '@envint/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@neondatabase/serverless@0.10.4)(@types/pg@8.23.1)(@upstash/redis@1.38.4)(gel@2.2.0(supports-color@7.2.0))(pg@8.23.0)
       lucide-react:
         specifier: ^1.42.0
         version: 1.42.0(react@19.2.8)
