@@ -29,10 +29,10 @@ export function AnalyticsBeacon() {
 
     // sendBeacon works even if the user navigates away immediately
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/telemetry', new Blob([payload], { type: 'application/json' }));
+      navigator.sendBeacon('/api/telemetry/', new Blob([payload], { type: 'application/json' }));
     } else {
       // Fallback for older browsers
-      fetch('/api/telemetry', {
+      fetch('/api/telemetry/', {
         method: 'POST',
         body: payload,
         headers: { 'Content-Type': 'application/json' },
