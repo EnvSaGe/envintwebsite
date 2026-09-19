@@ -9,12 +9,14 @@ import {
   Image as ImageIcon, 
   Settings,
   ExternalLink,
-  Layers3
+  Layers3,
+  BarChart2
 } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 
 const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { label: 'Analytics & AI', href: '/analytics', icon: BarChart2 },
   { label: 'Pages & Layouts', href: '/pages', icon: FileText },
   { label: 'Shared Templates', href: '/templates', icon: Layers3 },
   { label: 'Insights & Articles', href: '/insights', icon: BookOpen },

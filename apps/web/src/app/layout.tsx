@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { JsonLd, organizationSchema, webSiteSchema } from '@/components/seo/JsonLd';
 import { getNavigationItems } from '@/lib/data/navigation';
 import { buildHeaderNavigation } from '@/lib/data/layout-content';
+import { AnalyticsBeacon } from '@/components/AnalyticsBeacon';
 
 const SITE_URL = 'https://envintglobal.com';
 
@@ -88,6 +89,7 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <JsonLd data={[organizationSchema(), webSiteSchema()]} />
+        <AnalyticsBeacon />
         <Header navigation={editableHeaderNavigation} />
         <main>{children}</main>
         <Footer />

@@ -1,0 +1,146 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createHash } from 'crypto';
+import { db, pageviews } from '@envint/db';
+
+// Known AI crawler user-agent patterns
+const AI_BOT_PATTERNS: Record<string, string> = {
+  GPTBot: 'GPTBot',
+  ChatGPT: 'ChatGPT',
+  'Google-Extended': 'Google-Extended',
+  PerplexityBot: 'PerplexityBot',
+  ClaudeBot: 'ClaudeBot',
+  Anthropic: 'Anthropic',
+  YouBot: 'YouBot',
+  GrokBot: 'GrokBot',
+  Applebot: 'Applebot',
+  'cohere-ai': 'cohere-ai',
+};
+
+// Map referrer hostnames to normalized source names
+function classifyReferrer(referrerUrl: string | null): string {
+  if (!referrerUrl) return 'direct';
+  try {
+    const host = new URL(referrerUrl).hostname.toLowerCase().replace('www.', '');
+    if (host.includes('chatgpt.com') || host.includes('chat.openai.com')) return 'chatgpt';
+    if (host.includes('perplexity.ai')) return 'perplexity';
+    if (host.includes('claude.ai')) return 'claude';
+    if (host.includes('copilot.microsoft.com') || host.includes('bing.com')) return 'copilot';
+    if (host.includes('grok') || host.includes('x.com') || host.includes('twitter.com')) return 'grok';
+    if (host.includes('gemini.google.com')) return 'gemini';
+    if (host.includes('google.')) return 'google';
+    if (host.includes('linkedin.com')) return 'linkedin';
+    if (host.includes('instagram.com') || host.includes('facebook.com')) return 'social';
+    if (host.includes('twitter.com') || host.includes('t.co')) return 'twitter';
+    if (host.includes('envintglobal.com') || host === '') return 'direct';
+    return 'other';
+  } catch {
+    return 'direct';
+  }
+}
+
+function detectDevice(ua: string): 'mobile' | 'tablet' | 'desktop' | 'bot' {
+  const u = ua.toLowerCase();
+  // Check bots first
+  for (const pattern of Object.keys(AI_BOT_PATTERNS)) {
+    if (ua.includes(pattern)) return 'bot';
+  }
+  if (/(googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebot|ia_archiver)/i.test(ua)) return 'bot';
+  if (/tablet|ipad/i.test(u)) return 'tablet';
+  if (/mobile|iphone|android.*mobile|blackberry|windows phone/i.test(u)) return 'mobile';
+  return 'desktop';
+}
+
+function detectBotAgent(ua: string): string | null {
+  for (const [pattern, name] of Object.entries(AI_BOT_PATTERNS)) {
+    if (ua.includes(pattern)) return name;
+  }
+  if (/googlebot/i.test(ua)) return 'Googlebot';
+  if (/bingbot/i.test(ua)) return 'Bingbot';
+  if (/slurp/i.test(ua)) return 'YahooBot';
+  if (/duckduckbot/i.test(ua)) return 'DuckDuckBot';
+  return null;
+}
+
+// Anonymized daily hash — rotates at midnight UTC, no PII ever stored
+function buildVisitorHash(ip: string, ua: string): string {
+  const today = new Date().toISOString().slice(0, 10); // "2026-09-19"
+  const salt = process.env.ANALYTICS_SALT || 'envint-analytics-salt-2026';
+  return createHash('sha256').update(`${ip}|${ua}|${today}|${salt}`).digest('hex').slice(0, 64);
+}
+
+export const runtime = 'edge';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json() as { path?: string; title?: string; referrer?: string };
+    const path = body.path || '/';
+    const pageTitle = body.title || null;
+    const referrerUrl = body.referrer || null;
+
+    // Gather request metadata from Vercel edge headers
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
+    const ua = req.headers.get('user-agent') || '';
+    const country = req.headers.get('x-vercel-ip-country') || null;
+    const city = req.headers.get('x-vercel-ip-city') 
+      ? decodeURIComponent(req.headers.get('x-vercel-ip-city') as string) 
+      : null;
+
+    const visitorHash = buildVisitorHash(ip, ua);
+    const referrerSource = classifyReferrer(referrerUrl);
+    const deviceType = detectDevice(ua);
+    const botAgent = detectBotAgent(ua);
+
+    await db.insert(pageviews).values({
+      visitorHash,
+      path,
+      referrerSource,
+      referrerUrl,
+      country,
+      city,
+      deviceType,
+      botAgent,
+      pageTitle,
+    });
+
+    return NextResponse.json({ ok: true }, { status: 201 });
+  } catch (err) {
+    // Fail silently — never break the public site for analytics
+    console.error('[telemetry]', err);
+    return NextResponse.json({ ok: false }, { status: 200 });
+  }
+}
+
+// Handle AI bot crawls via GET (when bots fetch the page, not POST)
+export async function GET(req: NextRequest) {
+  const path = new URL(req.url).searchParams.get('path') || '/';
+  const ua = req.headers.get('user-agent') || '';
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const country = req.headers.get('x-vercel-ip-country') || null;
+  const city = req.headers.get('x-vercel-ip-city')
+    ? decodeURIComponent(req.headers.get('x-vercel-ip-city') as string)
+    : null;
+
+  const botAgent = detectBotAgent(ua);
+  if (!botAgent) return NextResponse.json({ ok: false }, { status: 204 });
+
+  try {
+    await db.insert(pageviews).values({
+      visitorHash: buildVisitorHash(ip, ua),
+      path,
+      referrerSource: 'bot',
+      referrerUrl: null,
+      country,
+      city,
+      deviceType: 'bot',
+      botAgent,
+      pageTitle: null,
+    });
+  } catch {
+    // silent
+  }
+
+  return NextResponse.json({ ok: true });
+}

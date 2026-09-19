@@ -445,3 +445,30 @@ export const navigationItemsRelations = relations(navigationItems, ({ one, many 
   parent: one(navigationItems, { fields: [navigationItems.parentId], references: [navigationItems.id] }),
   children: many(navigationItems),
 }));
+
+// --- Analytics: First-Party Pageview Tracking ---
+// Privacy-safe: visitor_hash is a daily-rotating SHA-256 of IP+UA (no PII stored).
+// Stores AI referral, country, city, device for Fiona's marketing dashboard.
+export const pageviews = pgTable('pageviews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  // Anonymized daily hash: SHA256(ip + ua + date_salt) — rotates every midnight
+  visitorHash: varchar('visitor_hash', { length: 64 }).notNull(),
+  // Page visited, e.g. "/services/esq"
+  path: varchar('path', { length: 500 }).notNull(),
+  // Normalized referrer source: "chatgpt" | "perplexity" | "grok" | "google" | "linkedin" | "direct" | "other"
+  referrerSource: varchar('referrer_source', { length: 64 }).notNull().default('direct'),
+  // Full referrer URL for drill-down
+  referrerUrl: text('referrer_url'),
+  // ISO 3166-1 alpha-2 country code from Vercel edge headers
+  country: varchar('country', { length: 2 }),
+  // City from Vercel edge headers
+  city: varchar('city', { length: 100 }),
+  // "desktop" | "mobile" | "tablet" | "bot"
+  deviceType: varchar('device_type', { length: 20 }).notNull().default('desktop'),
+  // Was this request from a known AI bot? "GPTBot" | "PerplexityBot" | "ClaudeBot" | "Google-Extended" | etc.
+  botAgent: varchar('bot_agent', { length: 100 }),
+  // Page title for easier grouping
+  pageTitle: varchar('page_title', { length: 255 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
