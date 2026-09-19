@@ -68,7 +68,7 @@ function buildVisitorHash(ip: string, ua: string): string {
   return createHash('sha256').update(`${ip}|${ua}|${today}|${salt}`).digest('hex').slice(0, 64);
 }
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
