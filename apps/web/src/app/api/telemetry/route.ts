@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
-import { db, pageviews } from '@envint/db';
 
 // Known AI crawler user-agent patterns
 const AI_BOT_PATTERNS: Record<string, string> = {
@@ -68,10 +67,45 @@ function buildVisitorHash(ip: string, ua: string): string {
   return createHash('sha256').update(`${ip}|${ua}|${today}|${salt}`).digest('hex').slice(0, 64);
 }
 
+import { db, pageviews, sql } from '@envint/db';
+
+let isTableInitialized = false;
+
+async function ensureTableExists() {
+  if (isTableInitialized) return;
+  try {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "pageviews" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        "visitor_hash" varchar(64) NOT NULL,
+        "path" varchar(500) NOT NULL,
+        "referrer_source" varchar(64) DEFAULT 'direct' NOT NULL,
+        "referrer_url" text,
+        "country" varchar(2),
+        "city" varchar(100),
+        "device_type" varchar(20) DEFAULT 'desktop' NOT NULL,
+        "bot_agent" varchar(100),
+        "page_title" varchar(255),
+        "created_at" timestamp with time zone DEFAULT now() NOT NULL
+      )
+    `);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_created_at" ON "pageviews" ("created_at")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_visitor_date" ON "pageviews" ("visitor_hash", "created_at")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_referrer_source" ON "pageviews" ("referrer_source")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_path" ON "pageviews" ("path")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_country" ON "pageviews" ("country")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_bot_agent" ON "pageviews" ("bot_agent")`);
+    isTableInitialized = true;
+  } catch (e) {
+    console.error('[ensureTableExists]', e);
+  }
+}
+
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
+    await ensureTableExists();
     const body = await req.json() as { path?: string; title?: string; referrer?: string };
     const path = body.path || '/';
     const pageTitle = body.title || null;

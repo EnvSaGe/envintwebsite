@@ -5,6 +5,38 @@ import { requireRole } from '@/lib/clerk-rbac';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+let isTableInitialized = false;
+
+async function ensureTableExists() {
+  if (isTableInitialized) return;
+  try {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "pageviews" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        "visitor_hash" varchar(64) NOT NULL,
+        "path" varchar(500) NOT NULL,
+        "referrer_source" varchar(64) DEFAULT 'direct' NOT NULL,
+        "referrer_url" text,
+        "country" varchar(2),
+        "city" varchar(100),
+        "device_type" varchar(20) DEFAULT 'desktop' NOT NULL,
+        "bot_agent" varchar(100),
+        "page_title" varchar(255),
+        "created_at" timestamp with time zone DEFAULT now() NOT NULL
+      )
+    `);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_created_at" ON "pageviews" ("created_at")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_visitor_date" ON "pageviews" ("visitor_hash", "created_at")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_referrer_source" ON "pageviews" ("referrer_source")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_path" ON "pageviews" ("path")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_country" ON "pageviews" ("country")`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS "idx_pageviews_bot_agent" ON "pageviews" ("bot_agent")`);
+    isTableInitialized = true;
+  } catch (e) {
+    console.error('[ensureTableExists]', e);
+  }
+}
+
 function dateRangeFilter(days: number) {
   return sql`"created_at" >= NOW() - INTERVAL '${sql.raw(String(days))} days'`;
 }
@@ -16,6 +48,8 @@ export async function GET(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  await ensureTableExists();
 
   const { searchParams } = new URL(req.url);
   const days = Math.min(parseInt(searchParams.get('days') || '30', 10), 365);
