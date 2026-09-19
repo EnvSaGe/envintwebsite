@@ -37,6 +37,8 @@ import {
   Smartphone,
   Type as TypeIcon,
   Keyboard,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { BuilderNode, ElementType, canAcceptChild } from '@envint/shared';
 import { StudioState, Breakpoint } from './StudioState';
@@ -62,6 +64,7 @@ import {
   ImpactGridPrimitive,
   SocialSharePrimitive,
   FormPrimitive,
+  SearchBarPrimitive,
   DynamicModulePlaceholder,
 } from './blocks';
 
@@ -419,31 +422,32 @@ function computeDropPosition(
 const MemoCanvasNode = React.memo(CanvasNodeRenderer, (prev, next) => {
   if (prev.nodeId !== next.nodeId) return false;
   if (prev.inlineEditId !== next.inlineEditId) return false;
+
+  // If the tree was modified (content, styles, layout, structure), re-render immediately with 0 delay!
+  if (prev.state.tree !== next.state.tree) return false;
+
+  // Drop-target indicator changes during drag-and-drop
   if (
     prev.dropTargetId !== next.dropTargetId ||
     prev.dropPosition !== next.dropPosition ||
     prev.isDragActive !== next.isDragActive
   ) {
-    return false; // re-render: drop indicators may have moved
+    return false;
   }
-  const p = prev.state.tree.nodes[prev.nodeId];
-  const n = next.state.tree.nodes[next.nodeId];
-  if (p !== n) return false;
-  const flagChanged =
-    prev.state.selectedId !== next.state.selectedId ||
-    prev.state.hoveredId !== next.state.hoveredId ||
-    prev.state.breakpoint !== next.state.breakpoint;
-  if (flagChanged) {
-    // Only re-render if THIS node's flags actually changed.
-    const wasSel = prev.state.selectedId === prev.nodeId;
-    const isSel = next.state.selectedId === next.nodeId;
-    const wasHov = prev.state.hoveredId === prev.nodeId;
-    const isHov = next.state.hoveredId === next.nodeId;
-    if (wasSel !== isSel || wasHov !== isHov || prev.state.breakpoint !== next.state.breakpoint) {
-      return false;
-    }
-  }
-  // Children identity via node object equality (children arrays live on nodes).
+
+  // Breakpoint switcher changes
+  if (prev.state.breakpoint !== next.state.breakpoint) return false;
+
+  // Selection / hover state changes specifically for this node
+  const wasSel = prev.state.selectedId === prev.nodeId;
+  const isSel = next.state.selectedId === next.nodeId;
+  if (wasSel !== isSel) return false;
+
+  const wasHov = prev.state.hoveredId === prev.nodeId;
+  const isHov = next.state.hoveredId === next.nodeId;
+  if (wasHov !== isHov) return false;
+
+  // Tree is identical and this node's interaction flags did not change -> skip re-render
   return true;
 });
 
@@ -511,7 +515,21 @@ function CanvasNodeRenderer({
     }
   };
 
+  const parentId = node.parentId;
+  const siblings = parentId ? state.tree.nodes[parentId]?.children ?? [] : state.tree.rootIds;
+  const currentIndex = siblings.indexOf(node.id);
+  const canMoveUp = currentIndex > 0;
+  const canMoveDown = currentIndex >= 0 && currentIndex < siblings.length - 1;
 
+  const handleMoveUp = () => {
+    if (!canMoveUp) return;
+    onMoveNode(node.id, parentId ?? null, currentIndex - 1);
+  };
+
+  const handleMoveDown = () => {
+    if (!canMoveDown) return;
+    onMoveNode(node.id, parentId ?? null, currentIndex + 1);
+  };
 
   return (
     <div
@@ -553,15 +571,15 @@ function CanvasNodeRenderer({
             onMoveNode(existingId, node.id, (node.children || []).length);
           } else {
             // Sibling move: insert relative to this node within its parent
-            const parentId = node.parentId;
-            const siblings = parentId ? state.tree.nodes[parentId]?.children ?? [] : state.tree.rootIds;
-            let idx = siblings.indexOf(node.id);
+            const pId = node.parentId;
+            const sibs = pId ? state.tree.nodes[pId]?.children ?? [] : state.tree.rootIds;
+            let idx = sibs.indexOf(node.id);
             if (pos === 'after') idx += 1;
             // Moving within the same parent: adjust index for the removal shift
-            const sameParent = existingId && state.tree.nodes[existingId]?.parentId === parentId;
-            const oldIdx = sameParent ? siblings.indexOf(existingId) : -1;
+            const sameParent = existingId && state.tree.nodes[existingId]?.parentId === pId;
+            const oldIdx = sameParent ? sibs.indexOf(existingId) : -1;
             const adjusted = sameParent && oldIdx !== -1 && oldIdx < idx ? idx - 1 : idx;
-            if (parentId) onMoveNode(existingId, parentId, adjusted);
+            onMoveNode(existingId, pId ?? null, adjusted);
           }
           return;
         }
@@ -578,14 +596,14 @@ function CanvasNodeRenderer({
         position: 'relative',
         opacity: isVisible ? undefined : 0.35,
         outline: isDropInside
-          ? '2px dashed #10B981'
+          ? '2px dashed #45B653'
           : isSelected
-            ? '2px solid #10B981'
+            ? '2px solid #3079BD'
             : isHovered
               ? '1px solid rgba(100,116,139,0.55)'
               : undefined,
         outlineOffset: '-1px',
-        backgroundColor: isDropInside ? 'rgba(16, 185, 129, 0.06)' : undefined,
+        backgroundColor: isDropInside ? 'rgba(69, 182, 83, 0.08)' : undefined,
       }}
     >
       {/* ── Drop-position indicators (editor chrome only) ──────────────────── */}
@@ -613,7 +631,7 @@ function CanvasNodeRenderer({
           onClick={(e) => e.stopPropagation()}
           className={`absolute -top-[22px] left-0 z-30 flex h-[20px] items-center gap-0.5 whitespace-nowrap rounded-[5px] px-1 shadow-md ${
             isSelected
-              ? 'bg-emerald-500 text-slate-950'
+              ? 'bg-[#3079bd] text-white'
               : 'bg-slate-700/95 text-slate-200'
           }`}
         >
@@ -624,6 +642,16 @@ function CanvasNodeRenderer({
           {isSelected && (
             <>
               <span className="mx-0.5 h-2.5 w-px bg-current opacity-30" />
+              {canMoveUp && (
+                <ToolButton title="Move up (swap before)" onClick={handleMoveUp}>
+                  <ArrowUp size={10} />
+                </ToolButton>
+              )}
+              {canMoveDown && (
+                <ToolButton title="Move down (swap after)" onClick={handleMoveDown}>
+                  <ArrowDown size={10} />
+                </ToolButton>
+              )}
               <ToolButton
                 title={isVisible ? `Hide on ${breakpoint}` : `Show on ${breakpoint}`}
                 onClick={() => onToggleVisibility(node.id)}
@@ -903,6 +931,9 @@ function NodeContentSwitch({
 
     case 'form':
       return <FormPrimitive node={node} isSelected={isSelected} />;
+
+    case 'search-bar':
+      return <SearchBarPrimitive node={node} isSelected={isSelected} />;
 
     case 'social-share':
       return <SocialSharePrimitive node={node} isSelected={isSelected} />;

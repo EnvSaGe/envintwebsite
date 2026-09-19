@@ -227,7 +227,7 @@ export function ButtonPrimitive({ node }: { node: BuilderNode }) {
 
   const variantDefaults: Record<string, React.CSSProperties> = {
     primary: { backgroundColor: '#004E35', color: '#ffffff', border: 'none' },
-    secondary: { backgroundColor: '#10B981', color: '#ffffff', border: 'none' },
+    secondary: { backgroundColor: '#45b653', color: '#ffffff', border: 'none' },
     outline: { backgroundColor: 'transparent', color: '#004E35', border: '1px solid #004E35' },
     ghost: { backgroundColor: 'transparent', color: '#004E35', border: 'none' },
     text: { backgroundColor: 'transparent', color: '#004E35', border: 'none', padding: '0' },
@@ -670,7 +670,7 @@ export function ServiceCardsPrimitive({ node }: { node: BuilderNode }) {
               style={{
                 fontSize: '12px',
                 fontWeight: 600,
-                color: '#10B981',
+                color: '#45b653',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
               }}
@@ -1149,6 +1149,90 @@ export function FormPrimitive({
       >
         Send Message
       </button>
+    </div>
+  );
+}
+
+export function SearchBarPrimitive({ node, isSelected }: { node: BuilderNode; isSelected?: boolean }) {
+  const content = node.content || {};
+  const placeholder = content.placeholder || 'Search by keyword, topic, or sector...';
+  const buttonText = content.buttonText || 'Search';
+  const showButton = content.showButton !== false;
+  const inlineStyles = elementStylesToCss(node.styles);
+
+  return (
+    <div
+      data-builder-id={node.id}
+      style={{
+        width: '100%',
+        maxWidth: node.styles?.maxWidth || '680px',
+        margin: '0 auto',
+        ...inlineStyles,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          backgroundColor: '#ffffff',
+          borderRadius: '9999px',
+          padding: '6px 8px 6px 20px',
+          boxShadow: '0 4px 20px rgba(0, 78, 53, 0.07)',
+          border: isSelected ? '2px solid #3079bd' : '1px solid #E2E8F0',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#64748b"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ flexShrink: 0 }}
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+
+        <input
+          type="text"
+          readOnly
+          placeholder={placeholder}
+          style={{
+            flex: 1,
+            border: 'none',
+            outline: 'none',
+            fontSize: '15px',
+            color: '#1e293b',
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+            padding: '8px 0',
+          }}
+        />
+
+        {showButton && (
+          <button
+            type="button"
+            style={{
+              backgroundColor: '#004E35',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '8px 20px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {buttonText}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

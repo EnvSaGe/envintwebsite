@@ -1,12 +1,35 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { JsonLd, contactPageSchema } from '@/components/seo/JsonLd';
 
 export const metadata: Metadata = {
   title: 'Connect with Envint - Contact & Office Locations',
   description: 'Reach out to Envint’s sustainability advisory team. Connect with our offices across Mumbai, Bangalore, Pune, Delhi NCR, Kolkata, and Hyderabad.',
+  keywords: [
+    'Contact Envint',
+    'Sustainability Consulting Contact',
+    'ESG Advisory Mumbai Bangalore Pune Delhi',
+    'Envint Office Locations',
+    'Envint Services LLP',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/connect/',
+  },
+  openGraph: {
+    title: 'Connect with Envint - Contact & Office Locations',
+    description: 'Reach out to Envint’s sustainability advisory team. Connect with our offices across Mumbai, Bangalore, Pune, Delhi NCR, Kolkata, and Hyderabad.',
+    url: 'https://envintglobal.com/connect/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/connect-header.webp', alt: 'Connect with Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Connect with Envint - Contact & Office Locations',
+    description: 'Reach out to Envint’s sustainability advisory team. Connect with our offices across Mumbai, Bangalore, Pune, Delhi NCR, Kolkata, and Hyderabad.',
+    images: ['https://envintglobal.com/images/connect-header.webp'],
   },
 };
 
@@ -22,6 +45,7 @@ const officeLocations = [
 export default function ConnectPage() {
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '80vh' }}>
+      <JsonLd data={[contactPageSchema()]} />
       {/* 1. HERO IMAGE (live match: 333px / 30vh, no text overlay) */}
       <div style={{ position: 'relative', height: 'clamp(320px, 35vh, 400px)', width: '100%', overflow: 'hidden' }}>
         <Image

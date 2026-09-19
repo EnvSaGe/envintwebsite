@@ -222,77 +222,178 @@ export async function createPageAction(newPage: {
   title: string;
   slug: string;
   seoDescription?: string;
-}) {
-  await requireRole(['super_admin', 'editor']);
+}): Promise<{ success: boolean; slug?: string; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
 
-  let cleanSlug = newPage.slug.trim().toLowerCase().replace(/[^a-z0-9-/]/g, '-');
-  if (!cleanSlug.startsWith('/')) cleanSlug = `/${cleanSlug}`;
+    const pageTitle = newPage.title?.trim() || '';
+    if (!pageTitle) {
+      return { success: false, error: 'Page title is required.' };
+    }
 
-  const pageTitle = newPage.title.trim();
+    let cleanSlug = newPage.slug?.trim().toLowerCase().replace(/[^a-z0-9-/]/g, '-') || '';
+    if (!cleanSlug.startsWith('/')) cleanSlug = `/${cleanSlug}`;
+    if (!cleanSlug || cleanSlug === '/') {
+      return { success: false, error: 'A valid page URL slug is required.' };
+    }
 
-  const defaultBlocks = [
-    {
-      id: `block_hero_${Date.now()}`,
-      name: 'Hero Banner Section',
-      type: 'hero-banner',
-      enabled: true,
-      props: {
+    const starterTree = createStarterPageTree(pageTitle);
+    const userInfo = await getCurrentUserInfo();
+
+    await db.insert(pages).values({
+      slug: cleanSlug,
+      title: pageTitle,
+      seoTitle: pageTitle,
+      seoDescription: newPage.seoDescription || '',
+      layoutTemplate: 'standard',
+      contentBlocks: [],
+      draftBlocks: starterTree,
+      publishedBlocks: starterTree,
+      schemaVersion: 2,
+      status: 'DRAFT',
+      updatedAt: new Date(),
+    }).onConflictDoUpdate({
+      target: pages.slug,
+      set: {
         title: pageTitle,
-        subtitle: newPage.seoDescription || `Comprehensive advisory solutions for ${pageTitle}.`,
-        bgImage: '/images/about-hero.webp',
-        ctaLabel: 'Get in Touch',
-        ctaUrl: '/connect',
+        seoTitle: pageTitle,
+        seoDescription: newPage.seoDescription || '',
+        draftBlocks: starterTree,
+        updatedAt: new Date(),
       },
-    },
-    {
-      id: `block_story_${Date.now() + 1}`,
-      name: 'Overview & Narrative',
-      type: 'story-narrative',
-      enabled: true,
-      props: {
-        tagline: 'OVERVIEW',
-        headline: `Strategic focus and solutions for ${pageTitle}.`,
-        description: newPage.seoDescription || `Our advisory solutions combine deep technical rigor with commercial insight to deliver lasting value.`,
-      },
-    },
-    {
-      id: `block_cta_${Date.now() + 2}`,
-      name: 'Call to Action Banner',
-      type: 'cta-banner',
-      enabled: true,
-      props: {
-        headline: `Partner with Envint on ${pageTitle}`,
-        subtext: 'Speak with our advisory leaders to initiate a tailored consultation.',
-        buttonLabel: 'Connect With Us',
-        buttonUrl: '/connect',
-      },
-    },
-  ];
+    });
 
-  await savePageAction({
-    slug: cleanSlug,
-    title: pageTitle,
-    seoTitle: pageTitle,
-    seoDescription: newPage.seoDescription || '',
-    contentBlocks: defaultBlocks,
-    layoutTemplate: 'standard',
-    status: 'DRAFT',
-  });
+    await db.insert(pageRevisions).values({
+      pageSlug: cleanSlug,
+      contentBlocks: starterTree as any,
+      schemaVersion: 2,
+      status: 'DRAFT',
+      savedByClerkId: userInfo?.clerkId ?? null,
+      savedByName: userInfo?.name ?? null,
+      note: 'Initial page creation',
+      savedAt: new Date(),
+    });
 
-  return { success: true, slug: cleanSlug };
+    return { success: true, slug: cleanSlug };
+  } catch (err: any) {
+    console.error('createPageAction error:', err);
+    return { success: false, error: err.message || 'Failed to create page' };
+  }
 }
 
-export async function deletePageAction(slug: string) {
-  await requireRole(['super_admin']);
+export async function duplicatePageAction(input: {
+  sourceSlug: string;
+  newSlug: string;
+  newTitle: string;
+}): Promise<{ success: boolean; slug?: string; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
 
-  await db.delete(pages).where(eq(pages.slug, slug));
+    const newTitle = input.newTitle?.trim() || '';
+    if (!newTitle) return { success: false, error: 'New page title is required.' };
 
-  const revalidation = await dispatchRevalidation({
-    tags: [`page:${slug}`],
-    paths: [slug === '/' ? '/' : slug],
-  });
+    let cleanNewSlug = input.newSlug?.trim().toLowerCase().replace(/[^a-z0-9-/]/g, '-') || '';
+    if (!cleanNewSlug.startsWith('/')) cleanNewSlug = `/${cleanNewSlug}`;
+    if (!cleanNewSlug || cleanNewSlug === '/') {
+      return { success: false, error: 'A valid, unique URL slug is required.' };
+    }
 
-  return { success: true, revalidation };
+    // Check if destination slug already exists in pages table
+    const existing = await db.query.pages.findFirst({
+      where: eq(pages.slug, cleanNewSlug),
+    });
+    if (existing) {
+      return { success: false, error: `A page with URL path "${cleanNewSlug}" already exists. Please choose a different slug.` };
+    }
+
+    // Fetch the source page tree
+    const sourceResult = await fetchPageTreeAction(input.sourceSlug);
+    let treeToClone: PageBlockTree;
+
+    if (sourceResult.tree && sourceResult.tree.rootIds && sourceResult.tree.nodes) {
+      treeToClone = JSON.parse(JSON.stringify(sourceResult.tree));
+    } else {
+      treeToClone = createStarterPageTree(newTitle);
+    }
+
+    const userInfo = await getCurrentUserInfo();
+
+    // Insert cloned page as DRAFT
+    await db.insert(pages).values({
+      slug: cleanNewSlug,
+      title: newTitle,
+      seoTitle: newTitle,
+      seoDescription: sourceResult.seoDescription || `Copy of ${sourceResult.title}`,
+      layoutTemplate: 'standard',
+      contentBlocks: [],
+      draftBlocks: treeToClone,
+      publishedBlocks: treeToClone,
+      schemaVersion: 2,
+      status: 'DRAFT',
+      updatedAt: new Date(),
+    });
+
+    // Record audit revision
+    await db.insert(pageRevisions).values({
+      pageSlug: cleanNewSlug,
+      contentBlocks: treeToClone as any,
+      schemaVersion: 2,
+      status: 'DRAFT',
+      savedByClerkId: userInfo?.clerkId ?? null,
+      savedByName: userInfo?.name ?? null,
+      note: `Duplicated from ${input.sourceSlug}`,
+      savedAt: new Date(),
+    });
+
+    return { success: true, slug: cleanNewSlug };
+  } catch (err: any) {
+    console.error('duplicatePageAction error:', err);
+    return { success: false, error: err.message || 'Failed to duplicate page.' };
+  }
+}
+
+export async function deletePageAction(slug: string): Promise<{ success: boolean; error?: string; revalidation?: any }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
+
+    const protectedSlugs = [
+      '/',
+      '/about',
+      '/services',
+      '/careers-at-envint',
+      '/connect',
+      '/impact',
+      '/disclaimer',
+      '/sustainability-integration',
+      '/climate-action',
+      '/responsible-investment',
+      '/envision',
+      '/behind-the-buzz',
+      '/how-to-articles',
+      '/enviki',
+      '/glossary-zone',
+      '/esq',
+      '/mapsense',
+      '/connect-gbc2024',
+    ];
+
+    if (protectedSlugs.includes(slug)) {
+      return { success: false, error: 'Core website pages cannot be deleted.' };
+    }
+
+    await db.delete(pageRevisions).where(eq(pageRevisions.pageSlug, slug));
+    await db.delete(pages).where(eq(pages.slug, slug));
+
+    const revalidation = await dispatchRevalidation({
+      tags: [`page:${slug}`],
+      paths: [slug === '/' ? '/' : slug],
+    });
+
+    return { success: true, revalidation };
+  } catch (err: any) {
+    console.error('deletePageAction error:', err);
+    return { success: false, error: err.message || 'Failed to delete page.' };
+  }
 }
 
 export async function fetchPageRevisions(slug: string) {
@@ -463,12 +564,30 @@ export async function fetchPageTreeAction(slug: string) {
           sectorName: caseStudy.sector?.name,
           themeName: caseStudy.theme?.name,
           serviceName: caseStudy.service?.title,
+          publishedAt: caseStudy.publishedAt || caseStudy.createdAt,
         });
       } else {
         // Fresh starter tree
         tree = createStarterPageTree(record?.title || cleanSlug.replace(/-/g, ' '));
       }
     }
+  }
+
+  // If this is an individual impact case study, strip any legacy badge or CTA sections to match public case study layout
+  if (pathSlug.startsWith('/impact/') && pathSlug !== '/impact' && tree) {
+    const rootIds = tree.rootIds.filter((id) => !id.includes('cta'));
+    const nodes: Record<string, any> = {};
+    for (const [id, node] of Object.entries(tree.nodes)) {
+      if (id.includes('badge_') || id.includes('cta')) continue;
+      const cleanNode = { ...node };
+      if (Array.isArray(cleanNode.children)) {
+        cleanNode.children = cleanNode.children.filter(
+          (childId) => !childId.includes('badge_') && !childId.includes('cta')
+        );
+      }
+      nodes[id] = cleanNode;
+    }
+    tree = { ...tree, rootIds, nodes };
   }
 
   // Real team members so dynamic team-grid modules render with live data in the studio canvas

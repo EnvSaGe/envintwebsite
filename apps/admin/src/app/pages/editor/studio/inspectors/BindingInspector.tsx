@@ -49,8 +49,10 @@ interface BindingInspectorProps {
   onChange: (field: string, binding: ContentBinding | null) => void;
 }
 
+const EMPTY_FIELDS: string[] = [];
+
 export function BindingInspector({ node, onChange }: BindingInspectorProps) {
-  const fields = FIELDS_BY_TYPE[node.type] ?? [];
+  const fields = FIELDS_BY_TYPE[node.type] ?? EMPTY_FIELDS;
   const [field, setField] = React.useState(fields[0] ?? '');
   const current = field ? node.content.bindings?.[field] as ContentBinding | undefined : undefined;
 

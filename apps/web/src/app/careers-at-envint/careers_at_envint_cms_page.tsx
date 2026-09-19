@@ -1,13 +1,38 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { JsonLd, breadcrumbSchema } from '@/components/seo/JsonLd';
 
 export const metadata: Metadata = {
   title: 'Careers at Envint - Building a Global Sustainability Team',
   description:
     'Join Envint, a global professional services firm working across sustainability and ESG. Discover our culture — POLO: Professionalism, Openness, Learning, Ownership — and explore a career with us.',
+  keywords: [
+    'Careers at Envint',
+    'ESG Jobs India',
+    'Sustainability Consultant Careers',
+    'Climate Action Analyst Jobs',
+    'Envint Culture POLO',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/careers-at-envint/',
+  },
+  openGraph: {
+    title: 'Careers at Envint - Building a Global Sustainability Team',
+    description:
+      'Join Envint, a global professional services firm working across sustainability and ESG. Discover our culture — POLO: Professionalism, Openness, Learning, Ownership — and explore a career with us.',
+    url: 'https://envintglobal.com/careers-at-envint/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/careers-hero.webp', alt: 'Careers at Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Careers at Envint - Building a Global Sustainability Team',
+    description:
+      'Join Envint, a global professional services firm working across sustainability and ESG. Discover our culture — POLO: Professionalism, Openness, Learning, Ownership — and explore a career with us.',
+    images: ['https://envintglobal.com/images/careers-hero.webp'],
   },
 };
 
@@ -96,6 +121,14 @@ const paraStyle: React.CSSProperties = {
 export default function CareersPage() {
   return (
     <div className="careers-root" style={{ backgroundColor: '#ffffff', minHeight: '80vh' }}>
+      <JsonLd
+        data={[
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Careers', path: '/careers-at-envint/' },
+          ]),
+        ]}
+      />
       {/* 1. HERO (full-screen on desktop, responsive 58-60vh on mobile/tablet) */}
       <section className="page-hero">
         <Image

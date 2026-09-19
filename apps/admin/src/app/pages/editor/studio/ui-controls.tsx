@@ -100,6 +100,14 @@ export function ScrubNumber({
 
   const commit = (n: number) => onChange(`${Math.round(n * 100) / 100}${rawUnit}`);
 
+  const rafRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (num === null) return;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -109,9 +117,14 @@ export function ScrubNumber({
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!dragging) return;
-    commit(clamp(startVal.current + (e.clientX - startX.current) * step));
+    const clientX = e.clientX;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      commit(clamp(startVal.current + (clientX - startX.current) * step));
+    });
   };
   const onPointerUp = (e: React.PointerEvent) => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     setDragging(false);
   };
@@ -299,9 +312,10 @@ export function AlignMatrix({
 /* ─────────────────────────────── Color popover ──────────────────────────── */
 
 export const BRAND_COLORS = [
-  { label: 'Brand Forest', hex: '#002E20' },
-  { label: 'Brand Green', hex: '#004E35' },
-  { label: 'Emerald Mint', hex: '#10B981' },
+  { label: 'Brand Blue', hex: '#3079BD' },
+  { label: 'Brand Green', hex: '#45B653' },
+  { label: 'Deep Blue', hex: '#1E40AF' },
+  { label: 'Forest Green', hex: '#004E35' },
   { label: 'Soft Mint', hex: '#E6F4EA' },
   { label: 'Cream White', hex: '#FBF4EB' },
   { label: 'Pure White', hex: '#FFFFFF' },
@@ -609,7 +623,7 @@ export function BoxModel({
             className="flex h-[24px] items-center gap-1 rounded-md border px-1.5 text-[11px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
             style={
               linked
-                ? { borderColor: '#34D399', backgroundColor: 'rgba(16,185,129,0.15)', color: '#6EE7B7' }
+                ? { borderColor: '#3079bd', backgroundColor: 'rgba(48,121,189,0.15)', color: '#60a5fa' }
                 : { borderColor: '#334155', color: '#94A3B8' }
             }
           >

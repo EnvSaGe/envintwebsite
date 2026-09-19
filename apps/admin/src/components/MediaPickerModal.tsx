@@ -132,7 +132,7 @@ export function MediaPickerModal({ open, onClose, onSelect, title = 'Select Medi
                 alignItems: 'center',
                 gap: '6px',
                 padding: '6px 12px',
-                backgroundColor: '#10b981',
+                backgroundColor: '#3079bd',
                 color: '#fff',
                 borderRadius: '6px',
                 fontSize: '0.8rem',

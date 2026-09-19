@@ -116,12 +116,14 @@ export default function InsightsPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+              boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
+              cursor: 'pointer',
+              border: 'none',
             }}
           >
             <Plus size={18} />
@@ -130,7 +132,7 @@ export default function InsightsPage() {
         </div>
 
         {message && (
-          <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: 'rgba(69, 182, 83, 0.12)', border: '1px solid rgba(69, 182, 83, 0.3)', color: '#45b653', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Check size={18} />
             <span>{message}</span>
           </div>
@@ -327,7 +329,7 @@ export default function InsightsPage() {
               {/* Modal Header */}
               <div style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <BookOpen size={20} color="#10b981" />
+                  <BookOpen size={20} color="#3079bd" />
                   <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
                     {editingArticle.id ? 'Edit Article Metadata' : 'New Article'}
                   </h2>
@@ -472,7 +474,7 @@ export default function InsightsPage() {
                 {/* SEO Accordion */}
                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', backgroundColor: '#f8fafc' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>
-                    <Sparkles size={16} color="#10b981" />
+                    <Sparkles size={16} color="#3079bd" />
                     <span>SEO Meta Settings</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -518,11 +520,14 @@ export default function InsightsPage() {
                       alignItems: 'center',
                       gap: '8px',
                       padding: '10px 22px',
-                      backgroundColor: '#10b981',
+                      backgroundColor: '#3079bd',
                       color: '#ffffff',
                       borderRadius: '6px',
                       fontSize: '0.88rem',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: 'none',
+                      boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)'
                     }}
                   >
                     <Save size={16} />

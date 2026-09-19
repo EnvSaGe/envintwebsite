@@ -21,7 +21,7 @@
  */
 
 import React from 'react';
-import { ChevronRight, ChevronDown, CircleHelp } from 'lucide-react';
+import { ChevronRight, ChevronDown, CircleHelp, Pencil, Check } from 'lucide-react';
 
 /* ───────────────────────────────── Tooltip ───────────────────────────────── */
 
@@ -422,17 +422,83 @@ export function ElementTitle({
   name,
   type,
   actions,
+  onRename,
 }: {
   name: string;
   type: string;
   actions?: React.ReactNode;
+  onRename?: (name: string) => void;
 }) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [val, setVal] = React.useState(name);
+
+  React.useEffect(() => {
+    setVal(name);
+    setIsEditing(false);
+  }, [name]);
+
+  const handleCommit = () => {
+    const trimmed = val.trim();
+    if (trimmed && onRename && trimmed !== name) {
+      onRename(trimmed);
+    } else {
+      setVal(name);
+    }
+    setIsEditing(false);
+  };
+
   return (
     <div className="flex items-center justify-between gap-2">
-      <div className="flex min-w-0 flex-col">
-        <span className="truncate text-[15px] font-bold leading-tight text-slate-50" title={name}>
-          {name}
-        </span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {isEditing ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              autoFocus
+              value={val}
+              onChange={(e) => setVal(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCommit();
+                if (e.key === 'Escape') {
+                  setVal(name);
+                  setIsEditing(false);
+                }
+              }}
+              onBlur={handleCommit}
+              className="w-full rounded border border-emerald-500 bg-slate-950 px-1.5 py-0.5 text-[14px] font-bold text-white shadow-inner focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleCommit}
+              className="rounded p-1 text-emerald-400 hover:bg-slate-800"
+              title="Save name"
+            >
+              <Check size={12} />
+            </button>
+          </div>
+        ) : (
+          <div className="group/title flex items-center gap-1.5">
+            <span
+              className={`truncate text-[15px] font-bold leading-tight text-slate-50 transition-colors ${
+                onRename ? 'cursor-pointer hover:text-emerald-300' : ''
+              }`}
+              title={onRename ? `Click to rename: ${name}` : name}
+              onClick={() => onRename && setIsEditing(true)}
+            >
+              {name}
+            </span>
+            {onRename && (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="opacity-0 group-hover/title:opacity-100 rounded p-0.5 text-slate-400 hover:bg-slate-800 hover:text-emerald-400 transition"
+                title="Rename this section/element"
+              >
+                <Pencil size={11} />
+              </button>
+            )}
+          </div>
+        )}
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
           {type}
         </span>

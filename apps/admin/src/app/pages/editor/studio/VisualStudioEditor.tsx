@@ -9,12 +9,14 @@ import { StudioCanvas, ZoomLevel } from './StudioCanvas';
 import { InspectorSidebar } from './InspectorSidebar';
 import { QuickPalette } from './QuickPalette';
 import { VersionHistoryModal } from './VersionHistoryModal';
+import { Copy, X, Loader2 } from 'lucide-react';
 import {
   saveDraftTreeAction,
   publishTreeAction,
   restorePageRevision,
   scheduleTreePublishAction,
   cancelScheduledPublishAction,
+  duplicatePageAction,
 } from '../../actions';
 import { SchedulePublishModal } from './SchedulePublishModal';
 import {
@@ -104,6 +106,13 @@ export function VisualStudioEditor({
   const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [showImpactWarning, setShowImpactWarning] = useState(false);
 
+  /* Duplicate Page modal state */
+  const [isDuplicateOpen, setIsDuplicateOpen] = useState(false);
+  const [dupTitle, setDupTitle] = useState('');
+  const [dupSlug, setDupSlug] = useState('');
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [dupError, setDupError] = useState<string | null>(null);
+
   /* Panel UI state */
   const [prefs, setPrefs] = useState<PanelPrefs>(loadPanelPrefs);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -147,20 +156,19 @@ export function VisualStudioEditor({
   useEffect(() => {
     if (!state.isDirty) return;
 
-    dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
-
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
 
     autoSaveTimerRef.current = setTimeout(async () => {
       try {
-        if (entityType === 'template') await saveTemplateDraftAction(slug, state.tree);
-        else await saveDraftTreeAction(slug, state.tree);
-        dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+        dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
+        if (entityType === 'template') await saveTemplateDraftAction(slug, stateRef.current.tree);
+        else await saveDraftTreeAction(slug, stateRef.current.tree);
+        dispatch({ type: 'SET_SAVE_SUCCESS' });
       } catch (err) {
         console.error('Auto-save error:', err);
         dispatch({ type: 'SET_SAVE_STATUS', status: 'unsaved' });
       }
-    }, 800);
+    }, 1500);
 
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
@@ -177,7 +185,7 @@ export function VisualStudioEditor({
     try {
       if (entityType === 'template') await saveTemplateDraftAction(slug, stateRef.current.tree);
       else await saveDraftTreeAction(slug, stateRef.current.tree);
-      dispatch({ type: 'SET_SAVE_STATUS', status: 'saved' });
+      dispatch({ type: 'SET_SAVE_SUCCESS' });
       showNotification('Draft saved successfully to database!');
     } catch (err: any) {
       showNotification(`Failed to save draft: ${err.message}`, 'error');
@@ -437,6 +445,14 @@ export function VisualStudioEditor({
         onUndo={() => dispatch({ type: 'UNDO' })}
         onRedo={() => dispatch({ type: 'REDO' })}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        onDuplicate={entityType === 'page' ? () => {
+          const clean = slug.replace(/^\//, '');
+          const baseSlug = clean === '' ? 'home' : clean;
+          setDupTitle(`${pageTitle} (Copy)`);
+          setDupSlug(`/${baseSlug}-copy`);
+          setDupError(null);
+          setIsDuplicateOpen(true);
+        } : undefined}
         onSaveDraft={handleSaveDraft}
         onPublish={handlePublish}
         onOpenSchedule={() => {
@@ -472,6 +488,9 @@ export function VisualStudioEditor({
                 onAddNode={(type) => handleAddNode(type, state.selectedId, 'after', state.selectedId || undefined)}
                 onDuplicateNode={(id) => dispatch({ type: 'DUPLICATE_NODE', nodeId: id })}
                 onDeleteNode={(id) => dispatch({ type: 'DELETE_NODE', nodeId: id })}
+                onMoveNode={(nodeId, targetParentId, targetIndex) =>
+                  dispatch({ type: 'MOVE_NODE', nodeId, targetParentId, targetIndex })
+                }
                 onToggleVisibility={(id) => {
                   const curr = state.tree.nodes[id]?.visibility?.desktop !== false;
                   dispatch({ type: 'UPDATE_VISIBILITY', nodeId: id, visibility: { desktop: !curr } });
@@ -517,6 +536,7 @@ export function VisualStudioEditor({
                 }
                 onDuplicateNode={(id) => dispatch({ type: 'DUPLICATE_NODE', nodeId: id })}
                 onDeleteNode={(id) => dispatch({ type: 'DELETE_NODE', nodeId: id })}
+                onRenameNode={(id, name) => dispatch({ type: 'RENAME_NODE', nodeId: id, name })}
                 onSelectNode={(id) => dispatch({ type: 'SELECT_NODE', id })}
                 isCollapsed={rightCollapsed}
                 onToggleCollapsed={() => setRightCollapsed((v) => !v)}
@@ -640,6 +660,122 @@ export function VisualStudioEditor({
           onCancel={() => setShowImpactWarning(false)}
           onConfirm={() => void publishNow()}
         />
+      )}
+
+      {/* Duplicate Page Modal */}
+      {isDuplicateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-[#0D1220] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+                  <Copy size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Duplicate Page</h3>
+                  <p className="text-[11px] text-slate-400">Clone current layout into a new draft</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDuplicateOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!dupTitle.trim() || !dupSlug.trim()) {
+                  setDupError('Title and Slug are required.');
+                  return;
+                }
+                setIsDuplicating(true);
+                setDupError(null);
+                try {
+                  const res = await duplicatePageAction({
+                    sourceSlug: slug,
+                    newSlug: dupSlug,
+                    newTitle: dupTitle,
+                  });
+                  if (res && !res.success) {
+                    setDupError(res.error || 'Failed to duplicate page');
+                    setIsDuplicating(false);
+                    return;
+                  }
+                  window.location.href = `/pages/editor?slug=${encodeURIComponent(res.slug || dupSlug)}`;
+                } catch (err: any) {
+                  setDupError(err.message || 'Failed to duplicate page');
+                  setIsDuplicating(false);
+                }
+              }}
+              className="space-y-4 p-5"
+            >
+              {dupError && (
+                <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-3 text-xs text-rose-300">
+                  {dupError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300">New Page Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={dupTitle}
+                  onChange={(e) => setDupTitle(e.target.value)}
+                  placeholder="e.g. Energy Transition Strategy (Copy)"
+                  className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-900/90 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300">New URL Slug *</label>
+                <input
+                  type="text"
+                  required
+                  value={dupSlug}
+                  onChange={(e) => setDupSlug(e.target.value)}
+                  placeholder="/new-page-url"
+                  className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-900/90 px-3 py-2 text-xs font-mono text-emerald-300 placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-[11px] text-slate-400">
+                Clones all blocks, styling, and configurations into a new <span className="font-semibold text-amber-400">DRAFT</span> page. You will be redirected to the new page editor immediately.
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDuplicateOpen(false)}
+                  className="rounded-lg border border-slate-700 px-3.5 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isDuplicating}
+                  className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
+                >
+                  {isDuplicating ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      <span>Duplicating…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={13} />
+                      <span>Duplicate & Open</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,8 @@ import {
   PageBlockTreeSchema,
   TemplateKindSchema,
   createStarterPageTree,
+  createArticleTemplateTree,
+  createImpactTemplateTree,
   type PageBlockTree,
   type TemplateKind,
 } from '@envint/shared';
@@ -62,6 +64,32 @@ export async function fetchTemplateAction(slugInput: string) {
   });
   if (!record) return null;
   const tree = PageBlockTreeSchema.parse(record.draftBlocks ?? record.publishedBlocks);
+
+  // If dynamic nodes have empty HTML in the database template snapshot, populate
+  // the canonical sample preview text so the studio editor displays realistic content
+  // instead of empty paragraph placeholder warnings.
+  if (slug === 'article') {
+    const canonical = createArticleTemplateTree();
+    for (const key of ['article-date', 'article-body']) {
+      if (tree.nodes[key] && !tree.nodes[key].content?.html?.trim() && canonical.nodes[key]?.content?.html) {
+        tree.nodes[key].content.html = canonical.nodes[key].content.html;
+        if (canonical.nodes[key].content.text) {
+          tree.nodes[key].content.text = canonical.nodes[key].content.text;
+        }
+      }
+    }
+  } else if (slug === 'impact') {
+    const canonical = createImpactTemplateTree();
+    for (const key of ['impact-date', 'impact-body']) {
+      if (tree.nodes[key] && !tree.nodes[key].content?.html?.trim() && canonical.nodes[key]?.content?.html) {
+        tree.nodes[key].content.html = canonical.nodes[key].content.html;
+        if (canonical.nodes[key].content.text) {
+          tree.nodes[key].content.text = canonical.nodes[key].content.text;
+        }
+      }
+    }
+  }
+
   const routes = await dependencyRoutes(slug);
   return {
     slug: record.slug,
@@ -176,12 +204,17 @@ export async function restoreTemplateRevisionAction(slugInput: string, revisionI
   return { success: true };
 }
 
-export async function deleteTemplateAction(slugInput: string) {
-  await requireRole(['super_admin']);
-  const slug = normalizeTemplateSlug(slugInput);
-  const routes = await dependencyRoutes(slug);
-  if (routes.length > 0) throw new Error(`This template is used by ${routes.length} public route(s) and cannot be deleted.`);
-  await db.delete(contentTemplateRevisions).where(eq(contentTemplateRevisions.templateSlug, slug));
-  await db.delete(contentTemplates).where(eq(contentTemplates.slug, slug));
-  return { success: true };
+export async function deleteTemplateAction(slugInput: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
+    const slug = normalizeTemplateSlug(slugInput);
+    const routes = await dependencyRoutes(slug);
+    if (routes.length > 0) return { success: false, error: `This template is used by ${routes.length} public route(s) and cannot be deleted.` };
+    await db.delete(contentTemplateRevisions).where(eq(contentTemplateRevisions.templateSlug, slug));
+    await db.delete(contentTemplates).where(eq(contentTemplates.slug, slug));
+    return { success: true };
+  } catch (err: any) {
+    console.error('deleteTemplateAction error:', err);
+    return { success: false, error: err.message || 'Failed to delete template.' };
+  }
 }

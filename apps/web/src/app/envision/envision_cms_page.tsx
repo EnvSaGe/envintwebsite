@@ -3,12 +3,37 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getInsights } from '@/lib/data/insights';
+import { JsonLd, collectionPageSchema, breadcrumbSchema } from '@/components/seo/JsonLd';
 
 export const metadata: Metadata = {
   title: 'Envision - Sustainability & ESG News, Reports & Insights',
   description: 'Read the latest thought leadership, regulatory analysis, and market perspectives from Envint on BRSR, Carbon Accounting, and Sustainable Finance.',
+  keywords: [
+    'Envision',
+    'ESG Insights',
+    'Sustainability News',
+    'BRSR Articles',
+    'Carbon Accounting Reports',
+    'Sustainable Finance Perspectives',
+    'Envint',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/envision/',
+  },
+  openGraph: {
+    title: 'Envision - Sustainability & ESG News, Reports & Insights',
+    description: 'Read the latest thought leadership, regulatory analysis, and market perspectives from Envint on BRSR, Carbon Accounting, and Sustainable Finance.',
+    url: 'https://envintglobal.com/envision/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/Envision-header.webp', alt: 'Envision Strategic Insights - Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Envision - Sustainability & ESG News, Reports & Insights',
+    description: 'Read the latest thought leadership, regulatory analysis, and market perspectives from Envint on BRSR, Carbon Accounting, and Sustainable Finance.',
+    images: ['https://envintglobal.com/images/Envision-header.webp'],
   },
 };
 
@@ -23,6 +48,20 @@ export default async function EnvisionPage() {
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '80vh' }}>
+      <JsonLd
+        data={[
+          collectionPageSchema({
+            name: 'Envision — Strategic ESG Insights',
+            description:
+              'Read the latest thought leadership, regulatory analysis, and market perspectives from Envint on BRSR, Carbon Accounting, and Sustainable Finance.',
+            url: '/envision/',
+          }),
+          breadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Envision', path: '/envision/' },
+          ]),
+        ]}
+      />
       {/* 1. HERO SECTION (Full-screen on desktop, responsive 58-60vh on mobile/tablet) */}
       <section className="page-hero">
         <Image

@@ -21,8 +21,12 @@ function sanitizeImpact(item: any) {
     summary: item.summary ? String(item.summary).replace(/<!\[CDATA\[(.*?)\]\]>/gs, '$1').trim() : (local?.summary || ''),
     cardExcerpt: item.cardExcerpt || local?.cardExcerpt || item.summary || local?.summary || '',
     heroImage,
-    coverImage: { ...(item.coverImage || {}), url: heroImage },
-    categories: (item.categories && item.categories.length > 0) ? item.categories : (local?.categories || []),
+    categories:
+      item.categories && item.categories.length > 0
+        ? item.categories
+        : item.keyMetrics && typeof item.keyMetrics === 'object' && Array.isArray((item.keyMetrics as any).categories) && (item.keyMetrics as any).categories.length > 0
+        ? (item.keyMetrics as any).categories
+        : local?.categories || [],
   };
 }
 

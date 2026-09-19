@@ -17,16 +17,34 @@ export async function metadataForPublicPath(pathname: string): Promise<Metadata>
   const canonical = `https://envintglobal.com${canonicalPath(route.pathname)}`;
   const rawImage = entity.coverImageUrl || entity.heroImage || entity.avatarUrl || entity.coverImage?.url;
   const image = rawImage ? resolveCmsImage(rawImage) : undefined;
+  const keywords = entity.seoKeywords || entity.keywords || [
+    'Envint',
+    'Sustainability',
+    'ESG Consulting',
+    'Climate Action',
+    'Responsible Investment',
+    title,
+  ];
+
   return {
     title,
     description,
+    keywords,
     alternates: { canonical },
     openGraph: {
       title,
       description,
       url: canonical,
+      siteName: 'Envint',
+      locale: 'en_US',
       type: route.kind === 'record' && route.recordType === 'insight' ? 'article' : 'website',
-      images: image ? [{ url: image }] : undefined,
+      images: image ? [{ url: image, alt: title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : undefined,
     },
   };
 }

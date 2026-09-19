@@ -113,12 +113,12 @@ export default function MediaLibraryPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)',
+              boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
               cursor: uploading ? 'wait' : 'pointer',
               border: 'none',
             }}
@@ -218,7 +218,7 @@ export default function MediaLibraryPage() {
                         style={{ flex: 1, padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.78rem' }}
                         autoFocus
                       />
-                      <button onClick={() => saveAlt(item.id)} style={{ padding: '6px 8px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                      <button onClick={() => saveAlt(item.id)} style={{ padding: '6px 8px', backgroundColor: '#3079bd', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                         <Check size={14} />
                       </button>
                       <button onClick={() => setEditingId(null)} style={{ padding: '6px 8px', backgroundColor: '#f1f5f9', color: '#64748b', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>

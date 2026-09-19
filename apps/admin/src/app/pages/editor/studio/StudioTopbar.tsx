@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   Monitor,
@@ -24,6 +25,7 @@ import {
   PanelRightOpen,
   Maximize,
   Minimize,
+  Copy,
 } from 'lucide-react';
 import { Breakpoint, StudioState } from './StudioState';
 
@@ -39,6 +41,7 @@ interface StudioTopbarProps {
   onUndo: () => void;
   onRedo: () => void;
   onOpenHistory: () => void;
+  onDuplicate?: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
   onOpenSchedule: () => void;
@@ -72,6 +75,7 @@ export function StudioTopbar({
   onUndo,
   onRedo,
   onOpenHistory,
+  onDuplicate,
   onSaveDraft,
   onPublish,
   onOpenSchedule,
@@ -123,6 +127,21 @@ export function StudioTopbar({
           onClick={onToggleLeft}
           label={leftCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
         />
+
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 rounded-lg p-1 transition-all hover:bg-slate-800/70"
+          title="Envint CMS Dashboard"
+        >
+          <Image
+            src="/brand/envint.png"
+            alt="Envint Logo"
+            width={24}
+            height={24}
+            style={{ objectFit: 'contain' }}
+            priority
+          />
+        </Link>
 
         <Link
           href={backHref}
@@ -258,6 +277,18 @@ export function StudioTopbar({
           <span className="hidden lg:inline">History</span>
         </button>
 
+        {onDuplicate && (
+          <button
+            type="button"
+            onClick={onDuplicate}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/60 px-2 py-1.5 text-[11px] font-medium text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+            title="Duplicate this page into a new draft"
+          >
+            <Copy size={13} />
+            <span className="hidden lg:inline">Duplicate</span>
+          </button>
+        )}
+
         {(liveHref ?? (contentScope === 'Page' ? `https://envintglobal.com${slug === '/' ? '' : slug}` : null)) && (
           <a
             href={liveHref ?? `https://envintglobal.com${slug === '/' ? '' : slug}`}
@@ -287,14 +318,14 @@ export function StudioTopbar({
             type="button"
             onClick={onPublish}
             disabled={isPublishing}
-            className={`flex items-center gap-1.5 rounded-l-lg bg-emerald-500 py-1.5 pl-3 pr-2.5 text-[11px] font-semibold text-slate-950 shadow-md shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-[0.98] ${
+            className={`flex items-center gap-1.5 rounded-l-lg bg-[#45b653] py-1.5 pl-3 pr-2.5 text-[11px] font-semibold text-white shadow-md shadow-[#45b653]/30 transition-all hover:bg-[#3ca049] active:scale-[0.98] ${
               isPublishing ? 'cursor-wait opacity-80' : ''
             } ${publishMenuOpen ? 'rounded-r-none' : 'rounded-r-lg'}`}
           >
             {isPublishing ? (
-              <Loader2 size={13} className="animate-spin text-slate-950" />
+              <Loader2 size={13} className="animate-spin text-white" />
             ) : (
-              <Rocket size={13} className="text-slate-950" />
+              <Rocket size={13} className="text-white" />
             )}
             <span>Publish</span>
           </button>
@@ -306,7 +337,7 @@ export function StudioTopbar({
               aria-expanded={publishMenuOpen}
               aria-haspopup="menu"
               title="Schedule publish"
-              className={`flex items-center rounded-r-lg border-l border-emerald-600/40 bg-emerald-500 px-1.5 py-1.5 text-slate-950 transition-all hover:bg-emerald-400 ${
+              className={`flex items-center rounded-r-lg border-l border-green-700/40 bg-[#45b653] px-1.5 py-1.5 text-white transition-all hover:bg-[#3ca049] ${
                 publishMenuOpen ? 'rounded-l-none' : ''
               }`}
             >

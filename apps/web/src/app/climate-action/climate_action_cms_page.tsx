@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -8,8 +8,32 @@ import PillarAccordion from '@/components/pillar/PillarAccordion';
 export const metadata: Metadata = {
   title: 'Climate Action | Envint',
   description: 'We work with corporates, investors and governments on assessments, scenario development, decarbonization and carbon markets.',
+  keywords: [
+    'Climate Action',
+    'Decarbonization Roadmap',
+    'Carbon Footprint Assessment',
+    'TCFD Reporting',
+    'Net Zero Strategy',
+    'Carbon Markets',
+    'Envint',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/climate-action/',
+  },
+  openGraph: {
+    title: 'Climate Action | Envint',
+    description: 'We work with corporates, investors and governments on assessments, scenario development, decarbonization and carbon markets.',
+    url: 'https://envintglobal.com/climate-action/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/hero-climate.webp', alt: 'Climate Action - Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Climate Action | Envint',
+    description: 'We work with corporates, investors and governments on assessments, scenario development, decarbonization and carbon markets.',
+    images: ['https://envintglobal.com/images/hero-climate.webp'],
   },
 };
 

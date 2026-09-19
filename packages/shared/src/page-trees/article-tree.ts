@@ -36,6 +36,7 @@ export interface CaseStudyInput {
   sectorName?: string | null;
   themeName?: string | null;
   serviceName?: string | null;
+  publishedAt?: string | Date | null;
 }
 
 /** Strip common WordPress shortcode wrappers ([caption]…[/caption] etc.), keeping inner content. */
@@ -584,10 +585,9 @@ export function convertArticleToPageTree(article: ArticleInput): PageBlockTree {
 /**
  * Converts a Client Impact Case Study into a Schema v2 element tree
  * matching the live public site:
- * 1. Centered Header (Title & Sector / Date)
+ * 1. Centered Header (H1 Title & Date)
  * 2. Centered Featured Image (maxWidth 880px, 460px height, rounded corners, drop shadow)
  * 3. Case Study Details & Narrative Body (Challenge, Solution, Impact)
- * 4. Advisory CTA Section
  */
 export function convertCaseStudyToPageTree(caseStudy: CaseStudyInput): PageBlockTree {
   const cleanSlug = caseStudy.slug.replace(/^\//, '');
@@ -597,10 +597,9 @@ export function convertCaseStudyToPageTree(caseStudy: CaseStudyInput): PageBlock
 
   const coverUrl = caseStudy.coverImageUrl || '/images/services-sustainability.webp';
 
-  // 1. Header Section (Centered Title & Date)
+  // 1. Header Section (Centered Title & Date) - No badge, exactly matching public/live site
   const secHeaderId = `sec_${prefix}_header`;
   const contHeaderId = `cont_${prefix}_header`;
-  const badgeId = `badge_${prefix}_cat`;
   const titleId = `h1_${prefix}_title`;
   const metaId = `p_${prefix}_meta`;
 
@@ -610,20 +609,20 @@ export function convertCaseStudyToPageTree(caseStudy: CaseStudyInput): PageBlock
     secHeaderId,
     [contHeaderId],
     {
-      paddingTop: '130px',
-      paddingBottom: '30px',
+      paddingTop: '120px',
+      paddingBottom: '20px',
       paddingLeft: '24px',
       paddingRight: '24px',
       backgroundColor: '#FFFFFF',
     },
-    {},
+    { mobile: { paddingTop: '90px', paddingBottom: '16px', paddingLeft: '18px', paddingRight: '18px' } },
     'Case Study Header Section'
   );
 
   nodes[contHeaderId] = makeContainer(
     contHeaderId,
     secHeaderId,
-    [badgeId, titleId, metaId],
+    [titleId, metaId],
     {
       maxWidth: '880px',
       marginLeft: 'auto',
@@ -634,46 +633,46 @@ export function convertCaseStudyToPageTree(caseStudy: CaseStudyInput): PageBlock
     'Case Study Header Container'
   );
 
-  const badgeText = caseStudy.serviceName || caseStudy.sectorName || 'CLIENT IMPACT CASE STUDY';
-  nodes[badgeId] = makeBadge(
-    badgeId,
-    contHeaderId,
-    badgeText.toUpperCase(),
-    {
-      backgroundColor: 'rgba(0, 78, 53, 0.08)',
-      textColor: '#004E35',
-      marginBottom: '16px',
-    },
-    'Case Study Badge'
-  );
-
   nodes[titleId] = makeHeading(
     titleId,
     contHeaderId,
     caseStudy.title,
     'h1',
     {
-      fontSize: '44px',
+      fontSize: '48px',
       fontWeight: 400,
       textColor: '#121127',
       lineHeight: '1.2',
       fontFamily: 'Neue Montreal, sans-serif',
-      marginBottom: '16px',
+      marginBottom: '14px',
       textAlign: 'center',
     },
     'Case Study H1 Title'
   );
 
+  const dateFormatted = caseStudy.publishedAt
+    ? new Date(caseStudy.publishedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : '';
+
   nodes[metaId] = makeParagraph(
     metaId,
     contHeaderId,
-    `<p style="margin:0; color:#64748b; font-size:16px;">${caseStudy.sectorName ? `${caseStudy.sectorName} &nbsp;•&nbsp; ` : ''}Case Study</p>`,
+    dateFormatted
+      ? `<p style="margin:0; color:#777777; font-size:15px; text-align:center;">${dateFormatted}</p>`
+      : caseStudy.sectorName
+        ? `<p style="margin:0; color:#777777; font-size:15px; text-align:center;">${caseStudy.sectorName}</p>`
+        : '',
     {
-      fontSize: '16px',
-      textColor: '#64748b',
+      fontSize: '15px',
+      textColor: '#777777',
       textAlign: 'center',
+      marginBottom: '34px',
     },
-    'Case Study Meta'
+    'Case Study Date'
   );
 
   // 2. Centered Featured Image Section
@@ -841,113 +840,6 @@ export function convertCaseStudyToPageTree(caseStudy: CaseStudyInput): PageBlock
       width: '100%',
     },
     'Case Study Details Container'
-  );
-
-  // 4. CTA Section
-  const secCtaId = `sec_${prefix}_cta`;
-  const contCtaId = `cont_${prefix}_cta`;
-  const cardCtaId = `card_${prefix}_cta`;
-  const h3CtaId = `h3_${prefix}_cta`;
-  const pCtaId = `p_${prefix}_cta`;
-  const btnCtaId = `btn_${prefix}_cta`;
-
-  rootIds.push(secCtaId);
-
-  nodes[secCtaId] = makeSection(
-    secCtaId,
-    [contCtaId],
-    {
-      paddingTop: '40px',
-      paddingBottom: '90px',
-      paddingLeft: '24px',
-      paddingRight: '24px',
-      backgroundColor: '#F7FBF9',
-    },
-    {},
-    'CTA Section'
-  );
-
-  nodes[contCtaId] = makeContainer(
-    contCtaId,
-    secCtaId,
-    [cardCtaId],
-    {
-      maxWidth: '880px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      width: '100%',
-    },
-    'CTA Container'
-  );
-
-  nodes[cardCtaId] = makeContainer(
-    cardCtaId,
-    contCtaId,
-    [h3CtaId, pCtaId, btnCtaId],
-    {
-      backgroundColor: '#004E35',
-      borderRadius: '20px',
-      paddingTop: '48px',
-      paddingBottom: '48px',
-      paddingLeft: '48px',
-      paddingRight: '48px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      gap: '16px',
-    },
-    { mobile: { paddingLeft: '24px', paddingRight: '24px' } },
-    'CTA Card'
-  );
-
-  nodes[h3CtaId] = makeHeading(
-    h3CtaId,
-    cardCtaId,
-    'Looking for similar impact in your organization?',
-    'h3',
-    {
-      fontSize: '32px',
-      textColor: '#FFFFFF',
-      fontWeight: 500,
-      fontFamily: 'Neue Montreal, sans-serif',
-      marginBottom: '4px',
-    },
-    'CTA Title'
-  );
-
-  nodes[pCtaId] = makeParagraph(
-    pCtaId,
-    cardCtaId,
-    '<p>Connect with our advisory teams to discuss bespoke solutions tailored to your ESG journey.</p>',
-    {
-      fontSize: '18px',
-      textColor: '#E2E8F0',
-      fontFamily: 'Neue Montreal, sans-serif',
-      marginBottom: '10px',
-    },
-    'CTA Description'
-  );
-
-  nodes[btnCtaId] = makeButton(
-    btnCtaId,
-    cardCtaId,
-    'Connect With Us',
-    '/connect/',
-    'primary',
-    {
-      backgroundColor: '#FFFFFF',
-      textColor: '#004E35',
-      fontSize: '16px',
-      fontWeight: 600,
-      paddingTop: '12px',
-      paddingBottom: '12px',
-      paddingLeft: '32px',
-      paddingRight: '32px',
-      borderRadius: '9999px',
-      width: 'fit-content',
-    },
-    'CTA Button'
   );
 
   return assembleTree(rootIds, nodes);

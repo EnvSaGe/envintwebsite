@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -8,8 +8,32 @@ import PillarAccordion from '@/components/pillar/PillarAccordion';
 export const metadata: Metadata = {
   title: 'Responsible Investment | Envint',
   description: 'Envint integrates ESG principles across the investment lifecycle for DFIs, private equity, venture capital, and angel investors.',
+  keywords: [
+    'Responsible Investment',
+    'ESG Due Diligence',
+    'DFI ESG Compliance',
+    'Private Equity ESG',
+    'Venture Capital Sustainability',
+    'ESAP Implementation',
+    'Envint',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/responsible-investment/',
+  },
+  openGraph: {
+    title: 'Responsible Investment | Envint',
+    description: 'Envint integrates ESG principles across the investment lifecycle for DFIs, private equity, venture capital, and angel investors.',
+    url: 'https://envintglobal.com/responsible-investment/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/hero-investment.webp', alt: 'Responsible Investment - Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Responsible Investment | Envint',
+    description: 'Envint integrates ESG principles across the investment lifecycle for DFIs, private equity, venture capital, and angel investors.',
+    images: ['https://envintglobal.com/images/hero-investment.webp'],
   },
 };
 

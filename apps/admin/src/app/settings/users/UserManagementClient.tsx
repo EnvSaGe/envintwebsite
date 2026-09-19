@@ -137,7 +137,7 @@ export default function UserManagementClient({ initialUsers }: Props) {
             disabled={isPending || !inviteEmail}
             style={{
               padding: '10px 20px',
-              backgroundColor: isPending ? '#94a3b8' : '#10b981',
+              backgroundColor: isPending ? '#94a3b8' : '#45b653',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',

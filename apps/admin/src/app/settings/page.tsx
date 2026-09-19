@@ -53,7 +53,11 @@ export default function SettingsPage() {
     setActionLoading(userId);
     setErrorMsg(null);
     try {
-      await updateUserRole(userId, newRole);
+      const res = await updateUserRole(userId, newRole);
+      if (!res.success) {
+        setErrorMsg(res.error || 'Failed to update role. Ensure you have super_admin role.');
+        return;
+      }
       setSuccessMsg('Role updated successfully.');
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadUsers();
@@ -69,7 +73,11 @@ export default function SettingsPage() {
     setActionLoading(userId);
     setErrorMsg(null);
     try {
-      await deleteTeamUser(userId);
+      const res = await deleteTeamUser(userId);
+      if (!res.success) {
+        setErrorMsg(res.error || 'Failed to delete user. Ensure you have super_admin role.');
+        return;
+      }
       setSuccessMsg(`User ${email} deleted.`);
       setTimeout(() => setSuccessMsg(null), 3000);
       await loadUsers();
@@ -89,7 +97,11 @@ export default function SettingsPage() {
     setActionLoading('create');
     setErrorMsg(null);
     try {
-      await createTeamUser(newUser);
+      const res = await createTeamUser(newUser);
+      if (!res.success) {
+        setErrorMsg(res.error || 'Failed to create user. Ensure you have super_admin role.');
+        return;
+      }
       setShowAddModal(false);
       setNewUser({ email: '', firstName: '', lastName: '', password: '', role: 'editor' });
       setSuccessMsg('Team member created successfully.');
@@ -124,12 +136,12 @@ export default function SettingsPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+              boxShadow: '0 2px 4px rgba(48, 121, 189, 0.2)'
             }}
           >
             <UserPlus size={18} />
@@ -155,7 +167,7 @@ export default function SettingsPage() {
         <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', marginBottom: '36px' }}>
           <div style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <ShieldCheck size={20} color="#10b981" />
+              <ShieldCheck size={20} color="#3079bd" />
               <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
                 Authorized Team Members (Role-Based Access)
               </h2>
@@ -316,7 +328,7 @@ export default function SettingsPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>RBAC Enforcement:</span>
-                <span style={{ fontWeight: 600, color: '#10b981' }}>Active in Middleware</span>
+                <span style={{ fontWeight: 600, color: '#45b653' }}>Active in Middleware</span>
               </div>
             </div>
           </div>
@@ -433,7 +445,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={actionLoading === 'create'}
-                    style={{ padding: '8px 18px', borderRadius: '6px', backgroundColor: '#10b981', color: '#ffffff', fontSize: '0.85rem', fontWeight: 600 }}
+                    style={{ padding: '8px 18px', borderRadius: '6px', backgroundColor: '#3079bd', color: '#ffffff', fontSize: '0.85rem', fontWeight: 600 }}
                   >
                     {actionLoading === 'create' ? 'Creating...' : 'Create Account'}
                   </button>

@@ -97,8 +97,8 @@ function SortableBlock({
     transition,
     opacity: isDragging ? 0.4 : block.enabled ? 1 : 0.5,
     backgroundColor: isExpanded ? '#ffffff' : '#ffffff',
-    border: isExpanded ? '1px solid #10b981' : '1px solid #e2e8f0',
-    boxShadow: isExpanded ? '0 4px 16px rgba(16, 185, 129, 0.08)' : '0 1px 3px rgba(0,0,0,0.02)',
+    border: isExpanded ? '1px solid #3079bd' : '1px solid #e2e8f0',
+    boxShadow: isExpanded ? '0 4px 16px rgba(48, 121, 189, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)',
     borderRadius: '10px',
     marginBottom: '10px',
     overflow: 'hidden',
@@ -172,7 +172,7 @@ function SortableBlock({
           type="button"
           onClick={onToggleEnabled}
           title={block.enabled ? 'Hide section' : 'Show section'}
-          style={{ color: block.enabled ? '#10b981' : '#94a3b8', padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ color: block.enabled ? '#45b653' : '#94a3b8', padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           {block.enabled ? <Eye size={15} /> : <EyeOff size={15} />}
         </button>
@@ -701,7 +701,7 @@ function PageBuilderContent() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 backgroundColor: pageStatus === 'PUBLISHED' ? '#064e3b' : '#78350f',
-                color: pageStatus === 'PUBLISHED' ? '#34d399' : '#fbbf24',
+                color: pageStatus === 'PUBLISHED' ? '#45b653' : '#fbbf24',
               }}
             >
               {pageStatus}
@@ -782,11 +782,11 @@ function PageBuilderContent() {
               gap: '6px',
               padding: '7px 14px',
               borderRadius: '6px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              color: '#34d399',
+              backgroundColor: 'rgba(48, 121, 189, 0.15)',
+              color: '#3079bd',
               fontSize: '0.82rem',
               fontWeight: 600,
-              border: '1px solid rgba(16, 185, 129, 0.4)',
+              border: '1px solid rgba(48, 121, 189, 0.4)',
               cursor: 'pointer',
             }}
           >
@@ -822,13 +822,13 @@ function PageBuilderContent() {
               gap: '6px',
               padding: '7px 18px',
               borderRadius: '6px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#45b653',
               color: '#ffffff',
               fontSize: '0.82rem',
               fontWeight: 700,
               border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+              boxShadow: '0 4px 12px rgba(69, 182, 83, 0.3)',
             }}
           >
             <Rocket size={14} />
@@ -1126,7 +1126,7 @@ function PageBuilderContent() {
                     fontWeight: 700,
                     cursor: 'pointer',
                     backgroundColor: previewMode === 'canvas' ? '#0f172a' : 'transparent',
-                    color: previewMode === 'canvas' ? '#10b981' : '#94a3b8',
+                    color: previewMode === 'canvas' ? '#45b653' : '#94a3b8',
                   }}
                 >
                   <span
@@ -1134,7 +1134,7 @@ function PageBuilderContent() {
                       width: '7px',
                       height: '7px',
                       borderRadius: '50%',
-                      backgroundColor: previewMode === 'canvas' ? '#10b981' : '#64748b',
+                      backgroundColor: previewMode === 'canvas' ? '#45b653' : '#64748b',
                     }}
                   />
                   <span>Live Studio Canvas (Real-Time)</span>
@@ -1192,7 +1192,7 @@ function PageBuilderContent() {
                 href={`${siteUrl}${slug}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981', fontWeight: 600, textDecoration: 'none' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#3079bd', fontWeight: 600, textDecoration: 'none' }}
               >
                 <span>Open in Tab</span>
                 <ExternalLink size={12} />
@@ -1445,8 +1445,8 @@ function PageBuilderContent() {
                       transition: 'border-color 0.15s, box-shadow 0.15s, transform 0.15s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#10b981';
-                      e.currentTarget.style.boxShadow = '0 6px 18px rgba(16, 185, 129, 0.12)';
+                      e.currentTarget.style.borderColor = '#3079bd';
+                      e.currentTarget.style.boxShadow = '0 6px 18px rgba(48, 121, 189, 0.12)';
                       e.currentTarget.style.transform = 'translateY(-1px)';
                     }}
                     onMouseLeave={(e) => {

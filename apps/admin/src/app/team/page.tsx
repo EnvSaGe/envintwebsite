@@ -69,7 +69,12 @@ export default function TeamPage() {
     }
     setIsSaving(true);
     try {
-      await saveTeamMemberAction(editingMember);
+      const res = await saveTeamMemberAction(editingMember);
+      if (res && !res.success) {
+        alert(res.error || 'Error saving team member');
+        setIsSaving(false);
+        return;
+      }
       setMessage('Team member saved successfully!');
       setTimeout(() => setMessage(null), 3000);
       setEditingMember(null);
@@ -84,7 +89,11 @@ export default function TeamPage() {
   const handleDelete = async (slug: string, name: string) => {
     if (!confirm(`Are you sure you want to remove ${name} from the team list?`)) return;
     try {
-      await deleteTeamMemberAction(slug);
+      const res = await deleteTeamMemberAction(slug);
+      if (res && !res.success) {
+        alert(res.error || 'Error deleting member');
+        return;
+      }
       await loadData();
     } catch (err: any) {
       alert(err.message || 'Error deleting member');
@@ -113,12 +122,14 @@ export default function TeamPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+              boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
+              cursor: 'pointer',
+              border: 'none',
             }}
           >
             <Plus size={18} />
@@ -182,7 +193,7 @@ export default function TeamPage() {
                     <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a' }}>
                       {m.name}
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: 600 }}>
+                    <div style={{ fontSize: '0.82rem', color: '#45b653', fontWeight: 600 }}>
                       {m.roleTitle}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace' }}>
@@ -417,11 +428,14 @@ export default function TeamPage() {
                       alignItems: 'center',
                       gap: '8px',
                       padding: '8px 20px',
-                      backgroundColor: '#10b981',
+                      backgroundColor: '#3079bd',
                       color: '#ffffff',
                       borderRadius: '6px',
                       fontSize: '0.85rem',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: 'none',
+                      boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
                     }}
                   >
                     <Save size={16} />

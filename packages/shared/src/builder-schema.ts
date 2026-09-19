@@ -38,6 +38,7 @@ export const ElementTypeSchema = z.enum([
   'tab-item',
   'form',
   'modal-trigger',
+  'search-bar',
 
   // Business / Dynamic Modules
   'team-grid',
@@ -80,6 +81,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
       'tabs',
       'form',
       'modal-trigger',
+      'search-bar',
       'team-grid',
       'journey-carousel',
       'insights-grid',
@@ -106,6 +108,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
       'icon',
       'badge',
       'counter',
+      'search-bar',
       'social-share',
       'divider',
       'spacer',
@@ -147,6 +150,7 @@ export const NESTING_RULES: Record<string, { allowedChildren: ElementType[]; isL
   'reusable-block': { allowedChildren: [], isLeaf: true },
   form: { allowedChildren: [], isLeaf: true },
   'modal-trigger': { allowedChildren: [], isLeaf: true },
+  'search-bar': { allowedChildren: [], isLeaf: true },
 };
 
 export function canAcceptChild(parentType: string, childType: ElementType): boolean {
@@ -635,6 +639,24 @@ export function createDefaultNode(
       styles = {
         width: '100%',
         display: 'flex',
+      };
+      break;
+
+    case 'search-bar':
+      name = 'Search Bar';
+      content = {
+        placeholder: 'Search by keyword, topic, or sector...',
+        mode: 'auto', // 'auto' | 'in-page' | 'global'
+        buttonText: 'Search',
+        showButton: true,
+      };
+      styles = {
+        width: '100%',
+        maxWidth: '680px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        marginTop: '0px',
+        marginBottom: '36px',
       };
       break;
 

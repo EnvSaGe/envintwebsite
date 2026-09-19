@@ -67,7 +67,7 @@ export async function saveTeamMemberAction(member: {
   slug: string;
   name: string;
   roleTitle: string;
-  bio: string;
+  bio?: string;
   shortBio?: string;
   avatarUrl?: string;
   linkedinUrl?: string;
@@ -79,38 +79,24 @@ export async function saveTeamMemberAction(member: {
   status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   seoTitle?: string;
   seoDescription?: string;
-}) {
-  await requireRole(['super_admin', 'editor']);
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
 
-  if (!member.slug || !member.name || !member.roleTitle) {
-    throw new Error('Team member slug, name, and roleTitle are required.');
-  }
+    const cleanName = member.name?.trim() || '';
+    const cleanRole = member.roleTitle?.trim() || '';
+    const cleanSlug = member.slug?.trim().toLowerCase().replace(/[^a-z0-9-/]/g, '-').replace(/^\/+|\/+$/g, '') || '';
 
-  await db
-    .insert(teamMembers)
-    .values({
-      slug: member.slug,
-      name: member.name,
-      roleTitle: member.roleTitle,
-      bio: member.bio || '',
-      shortBio: member.shortBio || null,
-      avatarUrl: member.avatarUrl || null,
-      linkedinUrl: member.linkedinUrl || null,
-      twitterUrl: member.twitterUrl || null,
-      email: member.email || null,
-      isLeadership: member.isLeadership !== undefined ? member.isLeadership : true,
-      hasStandaloneRoute: member.hasStandaloneRoute !== undefined ? member.hasStandaloneRoute : true,
-      orderIndex: member.orderIndex ?? 0,
-      status: member.status || 'PUBLISHED',
-      seoTitle: member.seoTitle || `${member.name} - ${member.roleTitle} at Envint`,
-      seoDescription: member.seoDescription || member.shortBio || null,
-      updatedAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: teamMembers.slug,
-      set: {
-        name: member.name,
-        roleTitle: member.roleTitle,
+    if (!cleanSlug || !cleanName || !cleanRole) {
+      return { success: false, error: 'Team member slug, name, and roleTitle are required.' };
+    }
+
+    await db
+      .insert(teamMembers)
+      .values({
+        slug: cleanSlug,
+        name: cleanName,
+        roleTitle: cleanRole,
         bio: member.bio || '',
         shortBio: member.shortBio || null,
         avatarUrl: member.avatarUrl || null,
@@ -121,36 +107,66 @@ export async function saveTeamMemberAction(member: {
         hasStandaloneRoute: member.hasStandaloneRoute !== undefined ? member.hasStandaloneRoute : true,
         orderIndex: member.orderIndex ?? 0,
         status: member.status || 'PUBLISHED',
-        seoTitle: member.seoTitle || `${member.name} - ${member.roleTitle} at Envint`,
+        seoTitle: member.seoTitle || `${cleanName} - ${cleanRole} at Envint`,
         seoDescription: member.seoDescription || member.shortBio || null,
         updatedAt: new Date(),
-      },
+      })
+      .onConflictDoUpdate({
+        target: teamMembers.slug,
+        set: {
+          name: cleanName,
+          roleTitle: cleanRole,
+          bio: member.bio || '',
+          shortBio: member.shortBio || null,
+          avatarUrl: member.avatarUrl || null,
+          linkedinUrl: member.linkedinUrl || null,
+          twitterUrl: member.twitterUrl || null,
+          email: member.email || null,
+          isLeadership: member.isLeadership !== undefined ? member.isLeadership : true,
+          hasStandaloneRoute: member.hasStandaloneRoute !== undefined ? member.hasStandaloneRoute : true,
+          orderIndex: member.orderIndex ?? 0,
+          status: member.status || 'PUBLISHED',
+          seoTitle: member.seoTitle || `${cleanName} - ${cleanRole} at Envint`,
+          seoDescription: member.seoDescription || member.shortBio || null,
+          updatedAt: new Date(),
+        },
+      });
+
+    await dispatchRevalidation({
+      tags: ['team:list', `team:${cleanSlug}`, `record:team:${cleanSlug}`, 'archive:team'],
+      paths: [`/member/${cleanSlug}/`, '/about/'],
     });
 
-  await dispatchRevalidation({
-    tags: ['team:list', `team:${member.slug}`, `record:team:${member.slug}`, 'archive:team'],
-    paths: [`/member/${member.slug}/`, '/about/'],
-  });
-
-  return { success: true };
+    return { success: true };
+  } catch (err: any) {
+    console.error('saveTeamMemberAction error:', err);
+    return { success: false, error: err.message || 'Failed to save team member.' };
+  }
 }
 
-export async function deleteTeamMemberAction(slug: string) {
-  await requireRole(['super_admin']);
+export async function deleteTeamMemberAction(slug: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
 
-  const record = await db.query.teamMembers.findFirst({
-    where: eq(teamMembers.slug, slug),
-    columns: { id: true },
-  });
+    const record = await db.query.teamMembers.findFirst({
+      where: eq(teamMembers.slug, slug),
+      columns: { id: true },
+    });
 
-  if (!record) throw new Error(`Team member not found: ${slug}`);
+    if (!record) {
+      return { success: false, error: `Team member not found: ${slug}` };
+    }
 
-  await db.delete(teamMembers).where(eq(teamMembers.id, record.id));
+    await db.delete(teamMembers).where(eq(teamMembers.id, record.id));
 
-  await dispatchRevalidation({
-    tags: ['team:list', `team:${slug}`, `record:team:${slug}`, 'archive:team'],
-    paths: [`/member/${slug}/`, '/about/'],
-  });
+    await dispatchRevalidation({
+      tags: ['team:list', `team:${slug}`, `record:team:${slug}`, 'archive:team'],
+      paths: [`/member/${slug}/`, '/about/'],
+    });
 
-  return { success: true };
+    return { success: true };
+  } catch (err: any) {
+    console.error('deleteTeamMemberAction error:', err);
+    return { success: false, error: err.message || 'Failed to delete team member.' };
+  }
 }

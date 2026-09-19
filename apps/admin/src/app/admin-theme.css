@@ -42,9 +42,21 @@
   --text-main: #0f172a;
   --text-muted: #64748b;
   --text-light: #94a3b8;
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --accent-light: #ecfdf5;
+
+  /* Envint Brand Colors */
+  --brand-blue: #3079bd;
+  --brand-blue-hover: #2566a3;
+  --brand-blue-light: #eff6ff;
+  --brand-green: #45b653;
+  --brand-green-hover: #3ca049;
+  --brand-green-light: #f0fdf4;
+
+  --accent: #45b653;
+  --accent-hover: #3ca049;
+  --accent-light: #f0fdf4;
+  --primary: #3079bd;
+  --primary-hover: #2566a3;
+  --primary-light: #eff6ff;
   --danger: #ef4444;
 }
 
@@ -110,7 +122,8 @@
   /* Hierarchy accents */
   --editor-heading-fg: #E2E8F0;
   --editor-heading-muted: #94A3B8;
-  --editor-accent: #10B981;
+  --editor-accent: #45b653;
+  --editor-primary: #3079bd;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────

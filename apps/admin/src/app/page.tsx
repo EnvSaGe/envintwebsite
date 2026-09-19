@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Sidebar } from '../components/Sidebar';
 import Link from 'next/link';
 import { db, pages, insights, impactCaseStudies, teamMembers } from '@envint/db';
@@ -40,8 +41,8 @@ export default async function AdminDashboardPage() {
   const stats = await getStats();
 
   const statCards = [
-    { title: 'Dynamic Pages', count: `${stats.pages || 18} Pages`, sub: `${stats.publishedPages || 18} published`, desc: 'Editable layout blocks & SEO', href: '/pages', icon: FileText, color: '#3b82f6' },
-    { title: 'Insights & Articles', count: `${stats.insights || 54} Articles`, sub: 'Published live', desc: 'Thought leadership & research', href: '/insights', icon: BookOpen, color: '#10b981' },
+    { title: 'Dynamic Pages', count: `${stats.pages || 18} Pages`, sub: `${stats.publishedPages || 18} published`, desc: 'Editable layout blocks & SEO', href: '/pages', icon: FileText, color: '#3079bd' },
+    { title: 'Insights & Articles', count: `${stats.insights || 54} Articles`, sub: 'Published live', desc: 'Thought leadership & research', href: '/insights', icon: BookOpen, color: '#45b653' },
     { title: 'Case Studies', count: `${stats.caseStudies || 26} Impacts`, sub: 'Published live', desc: 'Client outcomes & metrics', href: '/case-studies', icon: Briefcase, color: '#8b5cf6' },
     { title: 'Team & Leaders', count: `${stats.teamMembers || 15} Members`, sub: 'Profiles & routes', desc: 'Profiles & standalone routes', href: '/team', icon: Users, color: '#f59e0b' },
   ];
@@ -52,14 +53,39 @@ export default async function AdminDashboardPage() {
 
       <main style={{ flex: 1, padding: '40px 48px', maxWidth: '1200px' }}>
         {/* Header Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-          <div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', margin: 0 }}>
-              Welcome to Envint CMS
-            </h1>
-            <p style={{ color: '#64748b', fontSize: '0.95rem', marginTop: '6px' }}>
-              Manage website content, reorder page sections, and publish updates live.
-            </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div
+              style={{
+                width: '54px',
+                height: '54px',
+                borderRadius: '14px',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                boxShadow: '0 4px 12px rgba(48, 121, 189, 0.12)',
+              }}
+            >
+              <Image
+                src="/brand/envint.png"
+                alt="Envint"
+                width={42}
+                height={42}
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </div>
+            <div>
+              <h1 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', margin: 0 }}>
+                Welcome to Envint CMS
+              </h1>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', marginTop: '4px' }}>
+                Manage website content, reorder page sections, and publish updates live • <span style={{ color: '#3079bd', fontWeight: 600 }}>business for better</span>
+              </p>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -70,12 +96,12 @@ export default async function AdminDashboardPage() {
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 18px',
-                backgroundColor: '#10b981',
+                backgroundColor: '#3079bd',
                 color: '#ffffff',
                 borderRadius: '8px',
                 fontWeight: 600,
                 fontSize: '0.9rem',
-                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
               }}
             >
               <PlusCircle size={18} />
@@ -147,7 +173,7 @@ export default async function AdminDashboardPage() {
             <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
               Dynamic Pages Ready for Custom Layouts
             </h2>
-            <Link href="/pages" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#10b981' }}>
+            <Link href="/pages" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#3079bd' }}>
               View All Pages →
             </Link>
           </div>
@@ -176,7 +202,7 @@ export default async function AdminDashboardPage() {
                   <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Route: <code style={{ backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>{p.path}</code></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600, backgroundColor: '#ecfdf5', padding: '4px 10px', borderRadius: '20px' }}>
+                  <span style={{ fontSize: '0.8rem', color: '#45b653', fontWeight: 600, backgroundColor: 'rgba(69, 182, 83, 0.12)', padding: '4px 10px', borderRadius: '20px' }}>
                     {p.blocks}
                   </span>
                   <Link

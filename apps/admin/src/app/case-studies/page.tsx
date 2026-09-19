@@ -19,11 +19,29 @@ import {
 import { fetchImpacts, saveImpactAction, deleteImpactAction } from './actions';
 import { RichTextEditor } from '../../components/RichTextEditor';
 
+const STANDARD_CATEGORIES = [
+  'Sustainability Integration',
+  'Responsible Investment',
+  'Climate Action',
+  'Infrastructure & Real Estate',
+  'Manufacturing',
+  'Energy',
+  'Agriculture',
+  'BFSI',
+  'Mining',
+  'Healthcare',
+  'Technology',
+  'Supply Chain',
+  'DEI',
+  'BHR',
+];
+
 export default function CaseStudiesPage() {
   const [impacts, setImpacts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingImpact, setEditingImpact] = useState<any | null>(null);
+  const [customTag, setCustomTag] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -62,13 +80,18 @@ export default function CaseStudiesPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingImpact.title || !editingImpact.slug) {
+    if (!editingImpact.title?.trim() || !editingImpact.slug?.trim()) {
       alert('Please provide title and slug.');
       return;
     }
     setIsSaving(true);
     try {
-      await saveImpactAction(editingImpact);
+      const res = await saveImpactAction(editingImpact);
+      if (res && !res.success) {
+        alert(res.error || 'Error saving case study');
+        setIsSaving(false);
+        return;
+      }
       setMessage('Case study saved successfully!');
       setTimeout(() => setMessage(null), 3000);
       setEditingImpact(null);
@@ -83,7 +106,11 @@ export default function CaseStudiesPage() {
   const handleDelete = async (slug: string, title: string) => {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
     try {
-      await deleteImpactAction(slug);
+      const res = await deleteImpactAction(slug);
+      if (res && !res.success) {
+        alert(res.error || 'Error deleting case study');
+        return;
+      }
       await loadData();
     } catch (err: any) {
       alert(err.message || 'Error deleting case study');
@@ -112,12 +139,14 @@ export default function CaseStudiesPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+              boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
+              cursor: 'pointer',
+              border: 'none',
             }}
           >
             <Plus size={18} />
@@ -126,7 +155,7 @@ export default function CaseStudiesPage() {
         </div>
 
         {message && (
-          <div style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: 'rgba(69, 182, 83, 0.12)', border: '1px solid rgba(69, 182, 83, 0.3)', color: '#45b653', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Check size={18} />
             <span>{message}</span>
           </div>
@@ -396,27 +425,180 @@ export default function CaseStudiesPage() {
                       style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                     />
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                      Cover Image URL / S3 Path
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {editingImpact.coverImageUrl ? (
-                        <img
-                          src={editingImpact.coverImageUrl}
-                          alt="Preview"
-                          style={{ width: '48px', height: '36px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #cbd5e1' }}
-                          onError={(e: any) => { e.target.style.display = 'none'; }}
-                        />
-                      ) : null}
-                      <input
-                        type="text"
-                        value={editingImpact.coverImageUrl || ''}
-                        onChange={(e) => setEditingImpact({ ...editingImpact, coverImageUrl: e.target.value })}
-                        style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
-                        placeholder="https://envintcms.s3.ap-south-1.amazonaws.com/images/..."
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    Cover Image URL / S3 Path
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {editingImpact.coverImageUrl ? (
+                      <img
+                        src={editingImpact.coverImageUrl}
+                        alt="Preview"
+                        style={{ width: '48px', height: '36px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #cbd5e1' }}
+                        onError={(e: any) => { e.target.style.display = 'none'; }}
                       />
+                    ) : null}
+                    <input
+                      type="text"
+                      value={editingImpact.coverImageUrl || ''}
+                      onChange={(e) => setEditingImpact({ ...editingImpact, coverImageUrl: e.target.value })}
+                      style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
+                      placeholder="https://envintcms.s3.ap-south-1.amazonaws.com/images/..."
+                    />
+                  </div>
+                </div>
+
+                {/* Categories & Sector Selection Field */}
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 700, color: '#0f172a' }}>
+                        Categories & Sectors *
+                      </label>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        Select sectors to automatically show this case study in the /impact filter tabs (e.g., Energy, Climate Action, BFSI).
+                      </span>
                     </div>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 600, color: '#004E35', backgroundColor: '#e6f4ea', padding: '2px 8px', borderRadius: '9999px' }}>
+                      {(editingImpact.categories || []).length} selected
+                    </span>
+                  </div>
+
+                  {/* Active Selected Badges */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', minHeight: '34px', padding: '8px 10px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #cbd5e1', marginBottom: '10px' }}>
+                    {(editingImpact.categories || []).length === 0 ? (
+                      <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontStyle: 'italic', alignSelf: 'center' }}>
+                        No categories selected. Click the sector pills below or type custom tags.
+                      </span>
+                    ) : (
+                      (editingImpact.categories || []).map((cat: string) => (
+                        <span
+                          key={cat}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            backgroundColor: '#004E35',
+                            color: '#ffffff',
+                            padding: '3px 10px',
+                            borderRadius: '9999px',
+                            fontSize: '0.76rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <span>{cat}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = (editingImpact.categories || []).filter((c: string) => c !== cat);
+                              setEditingImpact({ ...editingImpact, categories: next });
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#a7f3d0',
+                              cursor: 'pointer',
+                              padding: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              fontSize: '14px',
+                              lineHeight: 1,
+                            }}
+                            title={`Remove ${cat}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Sector Quick-Pick Buttons */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                    {STANDARD_CATEGORIES.map((cat) => {
+                      const isSelected = (editingImpact.categories || []).includes(cat);
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            const current = editingImpact.categories || [];
+                            const next = isSelected
+                              ? current.filter((c: string) => c !== cat)
+                              : [...current, cat];
+                            setEditingImpact({ ...editingImpact, categories: next });
+                          }}
+                          style={{
+                            padding: '4px 11px',
+                            borderRadius: '9999px',
+                            fontSize: '0.76rem',
+                            fontWeight: isSelected ? 600 : 500,
+                            cursor: 'pointer',
+                            border: isSelected ? '1.5px solid #004E35' : '1px solid #cbd5e1',
+                            backgroundColor: isSelected ? '#e6f4ea' : '#ffffff',
+                            color: isSelected ? '#004E35' : '#475569',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <span style={{ fontWeight: 700 }}>{isSelected ? '✓' : '+'}</span>
+                          <span>{cat}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Tag write-in */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="Add custom sector or category (e.g. Decarbonization)..."
+                      value={customTag}
+                      onChange={(e) => setCustomTag(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (customTag.trim()) {
+                            const trimmed = customTag.trim();
+                            const current = editingImpact.categories || [];
+                            if (!current.includes(trimmed)) {
+                              setEditingImpact({ ...editingImpact, categories: [...current, trimmed] });
+                            }
+                            setCustomTag('');
+                          }
+                        }
+                      }}
+                      style={{ flex: 1, padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customTag.trim()) {
+                          const trimmed = customTag.trim();
+                          const current = editingImpact.categories || [];
+                          if (!current.includes(trimmed)) {
+                            setEditingImpact({ ...editingImpact, categories: [...current, trimmed] });
+                          }
+                          setCustomTag('');
+                        }
+                      }}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: '#0f172a',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      + Add Tag
+                    </button>
                   </div>
                 </div>
 
@@ -448,11 +630,14 @@ export default function CaseStudiesPage() {
                       alignItems: 'center',
                       gap: '8px',
                       padding: '8px 20px',
-                      backgroundColor: '#10b981',
+                      backgroundColor: '#3079bd',
                       color: '#ffffff',
                       borderRadius: '6px',
                       fontSize: '0.85rem',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: 'none',
+                      boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
                     }}
                   >
                     <Save size={16} />

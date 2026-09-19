@@ -2,9 +2,13 @@ import React from 'react';
 import { BuilderNode } from '@envint/shared';
 import { elementStylesToCss } from '../style-utils';
 
-export function HeadingElement({ node }: { node: BuilderNode }) {
+export function HeadingElement({ node, isFirstH1 = true }: { node: BuilderNode; isFirstH1?: boolean }) {
   const content = node.content || {};
-  const tag = (content.tag || 'h2').toLowerCase();
+  let tag = (content.tag || 'h2').toLowerCase();
+  // SEO Safety: Demote secondary H1s to H2 to guarantee single H1 per page
+  if (tag === 'h1' && !isFirstH1) {
+    tag = 'h2';
+  }
   const text = content.text || 'Heading';
   const inlineStyles = elementStylesToCss(node.styles);
 

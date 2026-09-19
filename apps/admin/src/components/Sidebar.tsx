@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
@@ -38,27 +39,37 @@ export function Sidebar({ currentPath }: { currentPath?: string }) {
       flexShrink: 0
     }}>
       {/* Brand Header */}
-      <div style={{ padding: '24px 20px', borderBottom: '1px solid #1e293b' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ padding: '20px 18px', borderBottom: '1px solid #1e293b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            backgroundColor: '#10b981',
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            backgroundColor: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 800,
-            fontSize: '1.1rem'
+            padding: '5px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+            flexShrink: 0
           }}>
-            E
+            <Image
+              src="/brand/envint.png"
+              alt="Envint Logo"
+              width={30}
+              height={30}
+              style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+              priority
+            />
           </div>
           <div>
-            <div style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1.05rem', color: '#fff' }}>
-              ENVINT <span style={{ color: '#10b981', fontWeight: 600, fontSize: '0.85rem' }}>CMS</span>
+            <div style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1.05rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>ENVINT</span>
+              <span style={{ color: '#45b653', fontWeight: 700, fontSize: '0.8rem', backgroundColor: 'rgba(69, 182, 83, 0.15)', padding: '1px 6px', borderRadius: '4px' }}>CMS</span>
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Admin Portal</div>
+            <div style={{ fontSize: '0.72rem', color: '#3079bd', fontWeight: 600, letterSpacing: '0.01em', marginTop: '2px' }}>
+              business for better
+            </div>
           </div>
         </div>
       </div>
@@ -80,12 +91,13 @@ export function Sidebar({ currentPath }: { currentPath?: string }) {
                 borderRadius: '8px',
                 fontSize: '0.9rem',
                 fontWeight: 500,
-                color: isActive ? '#10b981' : '#94a3b8',
-                backgroundColor: isActive ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                color: isActive ? '#45b653' : '#94a3b8',
+                backgroundColor: isActive ? 'rgba(69, 182, 83, 0.12)' : 'transparent',
+                borderLeft: isActive ? '3px solid #3079bd' : '3px solid transparent',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Icon size={18} />
+              <Icon size={18} color={isActive ? '#45b653' : '#94a3b8'} />
               <span>{item.label}</span>
             </Link>
           );
@@ -107,11 +119,12 @@ export function Sidebar({ currentPath }: { currentPath?: string }) {
             backgroundColor: '#1e293b',
             color: '#cbd5e1',
             fontSize: '0.8rem',
-            fontWeight: 500
+            fontWeight: 500,
+            border: '1px solid rgba(48, 121, 189, 0.2)'
           }}
         >
           <span>View Live Website</span>
-          <ExternalLink size={14} color="#94a3b8" />
+          <ExternalLink size={14} color="#3079bd" />
         </a>
       </div>
 
@@ -127,7 +140,7 @@ export function Sidebar({ currentPath }: { currentPath?: string }) {
           <UserButton />
           <div>
             <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>Team Account</div>
-            <div style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 500 }}>Active • Free Tier</div>
+            <div style={{ fontSize: '0.72rem', color: '#45b653', fontWeight: 500 }}>Active • Free Tier</div>
           </div>
         </div>
       </div>

@@ -3,23 +3,65 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 export type UserRole = 'super_admin' | 'editor';
 
 /**
- * Returns the current authenticated user's role from Clerk publicMetadata.
- * Returns null if the user is not signed in.
+ * Optional comma-separated list of super admin emails from environment variables.
+ */
+const envSuperAdmins = (process.env.SUPER_ADMIN_EMAILS || '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+/**
+ * Returns the current authenticated user's role dynamically:
+ * 1. Checks Clerk user.publicMetadata.role via currentUser().
+ * 2. Checks Clerk user.unsafeMetadata.role.
+ * 3. Checks sessionClaims (metadata.role, publicMetadata.role, or role).
+ * 4. Checks SUPER_ADMIN_EMAILS environment variable if configured.
+ * Returns 'super_admin' or 'editor', or null if unauthenticated.
  */
 export async function getCurrentUserRole(): Promise<UserRole | null> {
   try {
     const { userId, sessionClaims } = await auth();
-
     if (!userId) return null;
 
-    const role = (sessionClaims?.metadata as { role?: string })?.role;
-    if (role === 'super_admin') return 'super_admin';
-    if (role === 'editor') return 'editor';
+    // 1. Fast path: check session claims if configured in JWT template
+    const claimsRole =
+      (sessionClaims?.metadata as { role?: string })?.role ||
+      (sessionClaims?.publicMetadata as { role?: string })?.role ||
+      (sessionClaims as any)?.role;
+
+    if (claimsRole === 'super_admin') return 'super_admin';
+
+    // 2. Authoritative check: fetch user dynamically from Clerk
+    const user = await currentUser();
+    if (user) {
+      // Check Clerk user publicMetadata
+      const metaRole = (user.publicMetadata as { role?: string })?.role;
+      if (metaRole === 'super_admin') return 'super_admin';
+      if (metaRole === 'editor') return 'editor';
+
+      // Check Clerk user unsafeMetadata (fallback)
+      const unsafeRole = (user.unsafeMetadata as { role?: string })?.role;
+      if (unsafeRole === 'super_admin') return 'super_admin';
+      if (unsafeRole === 'editor') return 'editor';
+
+      // Optional check against SUPER_ADMIN_EMAILS env variable if configured
+      if (envSuperAdmins.length > 0) {
+        const userEmails = (user.emailAddresses || []).map((e) =>
+          e.emailAddress.toLowerCase().trim()
+        );
+        if (userEmails.some((email) => envSuperAdmins.includes(email))) {
+          return 'super_admin';
+        }
+      }
+    }
+
+    if (claimsRole === 'editor') return 'editor';
 
     // Default role for any authenticated team member
     return 'editor';
-  } catch {
-    return null;
+  } catch (err) {
+    console.error('Error resolving user role:', err);
+    return 'editor';
   }
 }
 
@@ -40,21 +82,21 @@ export async function assertAuthenticated(): Promise<{ userId: string }> {
  * Throws if unauthenticated or missing role.
  * Returns the user's role on success.
  */
-export async function requireRole(allowedRoles: UserRole[] = ['super_admin', 'editor']): Promise<UserRole> {
-  const { userId } = await assertAuthenticated();
+export async function requireRole(
+  allowedRoles: UserRole[] = ['super_admin', 'editor']
+): Promise<UserRole> {
+  await assertAuthenticated();
 
-  const { sessionClaims } = await auth();
-  const rawRole = (sessionClaims?.metadata as { role?: string })?.role;
+  const role = await getCurrentUserRole();
+  const effectiveRole: UserRole = role || 'editor';
 
-  const role: UserRole = rawRole === 'super_admin' ? 'super_admin' : 'editor';
-
-  if (!allowedRoles.includes(role)) {
+  if (!allowedRoles.includes(effectiveRole)) {
     throw new Error(
-      `Forbidden: This action requires one of [${allowedRoles.join(', ')}] but you have role '${role}'.`
+      `Forbidden: This action requires one of [${allowedRoles.join(', ')}] but you have role '${effectiveRole}'.`
     );
   }
 
-  return role;
+  return effectiveRole;
 }
 
 /**
@@ -67,7 +109,10 @@ export async function getCurrentUserInfo(): Promise<{ clerkId: string; name: str
     if (!user) return null;
     return {
       clerkId: user.id,
-      name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.emailAddresses[0]?.emailAddress || 'Unknown',
+      name:
+        `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() ||
+        user.emailAddresses[0]?.emailAddress ||
+        'Unknown',
     };
   } catch {
     return null;

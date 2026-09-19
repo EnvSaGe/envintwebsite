@@ -40,6 +40,8 @@ import {
   ToggleLeft,
   Layers,
   Share2,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { ElementType } from '@envint/shared';
 import { StudioState } from './StudioState';
@@ -52,6 +54,7 @@ interface PaletteSidebarProps {
   onAddNode: (type: ElementType) => void;
   onDuplicateNode: (id: string) => void;
   onDeleteNode: (id: string) => void;
+  onMoveNode?: (nodeId: string, targetParentId: string | null, targetIndex: number) => void;
   onToggleVisibility: (id: string) => void;
   onRenameNode: (id: string, name: string) => void;
   onSetLeftTab: (tab: 'palette' | 'navigator' | 'templates') => void;
@@ -87,6 +90,7 @@ const PALETTE_ITEMS: PaletteItemDef[] = [
   { type: 'counter', label: 'Stat Counter', category: 'basic', icon: <Sparkles size={15} />, hint: 'Animated metric number', keywords: ['stat', 'number', 'metric'] },
 
   // ── INTERACTIVE ───────────────────────────────────────────────────────────
+  { type: 'search-bar', label: 'Search Bar', category: 'interactive', icon: <Search size={15} />, hint: 'Live in-page filter or site search', keywords: ['search', 'filter', 'input', 'find', 'query'] },
   { type: 'accordion', label: 'Accordion', category: 'interactive', icon: <ChevronDown size={15} />, hint: 'Expandable list items', keywords: ['faq', 'collapse', 'expand'] },
   { type: 'social-share', label: 'Social Share Bar', category: 'interactive', icon: <Share2 size={15} />, hint: 'Email, LinkedIn, X, Facebook buttons', keywords: ['share', 'social', 'facebook', 'linkedin', 'twitter'] },
 
@@ -121,6 +125,7 @@ export function PaletteSidebar({
   onAddNode,
   onDuplicateNode,
   onDeleteNode,
+  onMoveNode,
   onToggleVisibility,
   onRenameNode,
   onSetLeftTab,
@@ -385,6 +390,7 @@ export function PaletteSidebar({
                   setEditNameText={setEditNameText}
                   onDuplicateNode={onDuplicateNode}
                   onDeleteNode={onDeleteNode}
+                  onMoveNode={onMoveNode}
                   onToggleVisibility={onToggleVisibility}
                 />
               ))
@@ -478,6 +484,7 @@ function NavigatorNodeItem({
   setEditNameText,
   onDuplicateNode,
   onDeleteNode,
+  onMoveNode,
   onToggleVisibility,
 }: {
   nodeId: string;
@@ -494,6 +501,7 @@ function NavigatorNodeItem({
   setEditNameText: (val: string) => void;
   onDuplicateNode: (id: string) => void;
   onDeleteNode: (id: string) => void;
+  onMoveNode?: (nodeId: string, targetParentId: string | null, targetIndex: number) => void;
   onToggleVisibility: (id: string) => void;
 }) {
   const node = state.tree.nodes[nodeId];
@@ -504,6 +512,12 @@ function NavigatorNodeItem({
   const hasChildren = node.children && node.children.length > 0;
   const isVisible = node.visibility?.desktop !== false;
   const isEditing = editingNodeId === nodeId;
+
+  const parentId = node.parentId;
+  const siblings = parentId ? state.tree.nodes[parentId]?.children ?? [] : state.tree.rootIds;
+  const currentIndex = siblings.indexOf(nodeId);
+  const canMoveUp = currentIndex > 0;
+  const canMoveDown = currentIndex >= 0 && currentIndex < siblings.length - 1;
 
   const rowRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
@@ -579,6 +593,32 @@ function NavigatorNodeItem({
 
         {/* Hover quick actions */}
         <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
+          {canMoveUp && onMoveNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveNode(nodeId, parentId ?? null, currentIndex - 1);
+              }}
+              className="rounded p-0.5 text-slate-500 transition hover:bg-slate-700/60 hover:text-white"
+              title="Move Up"
+            >
+              <ArrowUp size={10} />
+            </button>
+          )}
+          {canMoveDown && onMoveNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMoveNode(nodeId, parentId ?? null, currentIndex + 1);
+              }}
+              className="rounded p-0.5 text-slate-500 transition hover:bg-slate-700/60 hover:text-white"
+              title="Move Down"
+            >
+              <ArrowDown size={10} />
+            </button>
+          )}
           <button
             type="button"
             onClick={(e) => {
@@ -634,6 +674,7 @@ function NavigatorNodeItem({
               setEditNameText={setEditNameText}
               onDuplicateNode={onDuplicateNode}
               onDeleteNode={onDeleteNode}
+              onMoveNode={onMoveNode}
               onToggleVisibility={onToggleVisibility}
             />
           ))}

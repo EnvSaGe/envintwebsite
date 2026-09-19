@@ -172,3 +172,57 @@ export function faqSchema(items: { question: string; answer: string }[]) {
     })),
   };
 }
+
+export function aboutPageSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    '@id': `${SITE_URL}/about/#webpage`,
+    url: `${SITE_URL}/about/`,
+    name: 'About Envint — Sustainability & ESG Advisory Firm',
+    description:
+      'Envint is a sustainability and ESG solutions firm founded in Mumbai in 2018. We help clients integrate sustainability, channelize responsible investment and enable climate action.',
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    about: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: 'en',
+  };
+}
+
+export function contactPageSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    '@id': `${SITE_URL}/connect/#webpage`,
+    url: `${SITE_URL}/connect/`,
+    name: 'Connect with Envint — Office Locations & Contact',
+    description:
+      'Reach out to Envint’s sustainability advisory team. Connect with our offices across Mumbai, Bangalore, Pune, Delhi NCR, Kolkata, and Hyderabad.',
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    about: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: 'en',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Envint',
+      email: 'connect@envintglobal.com',
+      url: SITE_URL,
+    },
+  };
+}
+
+export function collectionPageSchema(data: {
+  name: string;
+  description: string;
+  url: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${SITE_URL}${data.url}#webpage`,
+    url: `${SITE_URL}${data.url}`,
+    name: data.name,
+    description: data.description,
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    inLanguage: 'en',
+  };
+}

@@ -128,7 +128,8 @@ export function createArticleTemplateTree(): PageBlockTree {
         parentId: 'article-header-wrap',
         children: [],
         content: {
-          html: '',
+          html: '<p>December 16, 2025</p>',
+          text: 'December 16, 2025',
           bindings: { html: { source: 'record', path: 'publishedAt', fallback: '', format: 'date' } },
         },
         styles: {
@@ -192,7 +193,7 @@ export function createArticleTemplateTree(): PageBlockTree {
         parentId: 'article-body-wrap',
         children: [],
         content: {
-          html: '',
+          html: '<p>This section displays dynamic article content loaded from your CMS Insights database for each article. In this shared template, you can customize the layout, typography, colors, and margins that apply across all articles.</p>',
           bindings: { html: { source: 'record', path: 'contentHtml', fallback: '', format: 'html' } },
         },
         styles: {

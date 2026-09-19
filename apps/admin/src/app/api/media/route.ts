@@ -29,7 +29,7 @@ export async function GET() {
 
 export async function DELETE(req: NextRequest) {
   try {
-    await requireRole(['super_admin']);
+    await requireRole(['super_admin', 'editor']);
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

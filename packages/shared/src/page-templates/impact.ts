@@ -22,7 +22,7 @@ export function createImpactTemplateTree(): PageBlockTree {
       },
       'impact-date': {
         id: 'impact-date', type: 'paragraph', name: 'Publication date', parentId: 'impact-container', children: [],
-        content: { html: '', bindings: { html: { source: 'record', path: 'publishedAt', fallback: '', format: 'date' } } },
+        content: { html: '<p>November 14, 2025</p>', text: 'November 14, 2025', bindings: { html: { source: 'record', path: 'publishedAt', fallback: '', format: 'date' } } },
         styles: { fontFamily: 'Neue Montreal, sans-serif', fontSize: '15px', textAlign: 'center', textColor: '#777777', marginBottom: '34px' },
       },
       'impact-cover': {
@@ -33,7 +33,7 @@ export function createImpactTemplateTree(): PageBlockTree {
       },
       'impact-body': {
         id: 'impact-body', type: 'rich-text', name: 'Case study body', parentId: 'impact-container', children: [],
-        content: { html: '', bindings: { html: { source: 'record', path: 'contentHtml', fallback: '', format: 'html' } } },
+        content: { html: '<p>This section displays dynamic case study content loaded from your CMS Case Studies database. In this shared template, you can customize the layout, typography, and styling that applies across all case studies.</p>', bindings: { html: { source: 'record', path: 'contentHtml', fallback: '', format: 'html' } } },
         styles: { fontFamily: 'Neue Montreal, sans-serif', fontSize: '18px', lineHeight: '1.7', textColor: '#393939' },
       },
     },

@@ -18,9 +18,10 @@ import {
   Globe, 
   ExternalLink,
   Sparkles,
-  CalendarClock
+  CalendarClock,
+  Copy
 } from 'lucide-react';
-import { fetchPagesList, createPageAction, deletePageAction, publishPageAction, unpublishPageAction } from './actions';
+import { fetchPagesList, createPageAction, deletePageAction, publishPageAction, unpublishPageAction, duplicatePageAction } from './actions';
 import { useRouter } from 'next/navigation';
 
 export default function PagesListPage() {
@@ -33,6 +34,54 @@ export default function PagesListPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'core' | 'practices' | 'hubs' | 'custom'>('all');
+
+  // Duplicate Page state
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateSource, setDuplicateSource] = useState<{ slug: string; title: string } | null>(null);
+  const [duplicateForm, setDuplicateForm] = useState({ title: '', slug: '' });
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
+
+  const handleOpenDuplicate = (slug: string, title: string) => {
+    const cleanSlug = slug.startsWith('/') ? slug : `/${slug}`;
+    const defaultCopySlug = cleanSlug === '/' ? '/home-copy' : `${cleanSlug}-copy`;
+    setDuplicateSource({ slug: cleanSlug, title });
+    setDuplicateForm({
+      title: `${title} (Copy)`,
+      slug: defaultCopySlug,
+    });
+    setDuplicateError(null);
+    setShowDuplicateModal(true);
+  };
+
+  const handleDuplicateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!duplicateSource) return;
+    if (!duplicateForm.title.trim() || !duplicateForm.slug.trim()) {
+      setDuplicateError('Please enter both title and slug.');
+      return;
+    }
+    setIsDuplicating(true);
+    setDuplicateError(null);
+    try {
+      const res = await duplicatePageAction({
+        sourceSlug: duplicateSource.slug,
+        newSlug: duplicateForm.slug,
+        newTitle: duplicateForm.title,
+      });
+      if (res && !res.success) {
+        setDuplicateError(res.error || 'Failed to duplicate page');
+        setIsDuplicating(false);
+        return;
+      }
+      setShowDuplicateModal(false);
+      setMessage(`Page "${res.slug}" duplicated successfully! Redirecting to editor...`);
+      router.push(`/pages/editor?slug=${encodeURIComponent(res.slug!)}`);
+    } catch (err: any) {
+      setDuplicateError(err.message || 'Failed to duplicate page');
+      setIsDuplicating(false);
+    }
+  };
 
   const loadPages = async () => {
     setLoading(true);
@@ -59,8 +108,13 @@ export default function PagesListPage() {
     setIsCreating(true);
     try {
       const res = await createPageAction(newPage);
+      if (res && !res.success) {
+        alert(res.error || 'Failed to create page');
+        setIsCreating(false);
+        return;
+      }
       setShowCreateModal(false);
-      router.push(`/pages/editor?slug=${encodeURIComponent(res.slug)}`);
+      router.push(`/pages/editor?slug=${encodeURIComponent(res.slug!)}`);
     } catch (err: any) {
       alert(err.message || 'Failed to create page');
       setIsCreating(false);
@@ -96,7 +150,11 @@ export default function PagesListPage() {
     if (!confirm(`Are you sure you want to delete page "${title}" (${slug})?`)) return;
 
     try {
-      await deletePageAction(slug);
+      const res = await deletePageAction(slug);
+      if (res && !res.success) {
+        alert(res.error || 'Error deleting page');
+        return;
+      }
       await loadPages();
     } catch (err: any) {
       alert(err.message || 'Error deleting page');
@@ -167,12 +225,12 @@ export default function PagesListPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '10px 18px',
-              backgroundColor: '#10b981',
+              backgroundColor: '#3079bd',
               color: '#ffffff',
               borderRadius: '8px',
               fontWeight: 600,
               fontSize: '0.9rem',
-              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)',
+              boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)',
               cursor: 'pointer',
               border: 'none'
             }}
@@ -200,12 +258,12 @@ export default function PagesListPage() {
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
                 Managed Layouts
               </span>
-              <Layers size={18} color="#10b981" />
+              <Layers size={18} color="#3079bd" />
             </div>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', marginTop: '8px' }}>
               {pagesList.length}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px', fontWeight: 500 }}>
+            <div style={{ fontSize: '0.75rem', color: '#3079bd', marginTop: '4px', fontWeight: 500 }}>
               Core, Practices & Hubs
             </div>
           </div>
@@ -296,12 +354,12 @@ export default function PagesListPage() {
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
                 Total Site Footprint
               </span>
-              <Globe size={18} color="#10b981" />
+              <Globe size={18} color="#45b653" />
             </div>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, color: '#ffffff', marginTop: '8px' }}>
               168
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px', fontWeight: 500 }}>
+            <div style={{ fontSize: '0.75rem', color: '#45b653', marginTop: '4px', fontWeight: 500 }}>
               Live Sitemap URLs
             </div>
           </div>
@@ -433,7 +491,7 @@ export default function PagesListPage() {
         <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '3fr 1.2fr 1fr 1fr 1.6fr',
+            gridTemplateColumns: '2.5fr 1fr 0.9fr 1fr 2.1fr',
             padding: '14px 24px',
             backgroundColor: '#f8fafc',
             borderBottom: '1px solid #e2e8f0',
@@ -465,7 +523,7 @@ export default function PagesListPage() {
                     key={page.slug}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '3fr 1.2fr 1fr 1fr 1.6fr',
+                      gridTemplateColumns: '2.5fr 1fr 0.9fr 1fr 2.1fr',
                       padding: '18px 24px',
                       alignItems: 'center',
                       borderBottom: index < filteredPages.length - 1 ? '1px solid #f1f5f9' : 'none'
@@ -484,7 +542,7 @@ export default function PagesListPage() {
                       <span style={{
                         fontSize: '0.75rem',
                         fontWeight: 600,
-                        color: page.category === 'practices' ? '#0284c7' : page.category === 'hubs' ? '#8b5cf6' : page.category === 'core' ? '#0f172a' : '#10b981',
+                        color: page.category === 'practices' ? '#0284c7' : page.category === 'hubs' ? '#8b5cf6' : page.category === 'core' ? '#0f172a' : '#45b653',
                         backgroundColor: page.category === 'practices' ? '#e0f2fe' : page.category === 'hubs' ? '#f3e8ff' : page.category === 'core' ? '#f1f5f9' : '#ecfdf5',
                         padding: '3px 10px',
                         borderRadius: '20px',
@@ -514,8 +572,8 @@ export default function PagesListPage() {
                         style={{
                           fontSize: '0.78rem',
                           fontWeight: 600,
-                          color: page.status === 'PUBLISHED' ? '#10b981' : '#f59e0b',
-                          backgroundColor: page.status === 'PUBLISHED' ? '#ecfdf5' : '#fffbeb',
+                          color: page.status === 'PUBLISHED' ? '#45b653' : '#f59e0b',
+                          backgroundColor: page.status === 'PUBLISHED' ? 'rgba(69, 182, 83, 0.12)' : '#fffbeb',
                           padding: '3px 8px',
                           borderRadius: '20px',
                           border: 'none',
@@ -551,7 +609,7 @@ export default function PagesListPage() {
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
                       <a
                         href={`https://envintglobal.vercel.app${page.slug}`}
                         target="_blank"
@@ -568,6 +626,28 @@ export default function PagesListPage() {
                       >
                         <Eye size={16} />
                       </a>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenDuplicate(page.slug, page.title)}
+                        title={`Duplicate page "${page.title}"`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '6px 11px',
+                          backgroundColor: '#f8fafc',
+                          color: '#334155',
+                          borderRadius: '6px',
+                          fontSize: '0.82rem',
+                          fontWeight: 600,
+                          border: '1px solid #cbd5e1',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Copy size={13} color="#3079bd" />
+                        <span>Duplicate</span>
+                      </button>
 
                       <Link
                         href={`/pages/editor?slug=${encodeURIComponent(page.slug)}`}
@@ -704,17 +784,138 @@ export default function PagesListPage() {
                       alignItems: 'center',
                       gap: '6px',
                       padding: '8px 20px',
-                      backgroundColor: '#10b981',
+                      backgroundColor: '#3079bd',
                       color: '#ffffff',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       fontSize: '0.85rem',
                       fontWeight: 600,
                       cursor: 'pointer',
-                      border: 'none'
+                      border: 'none',
+                      boxShadow: '0 2px 8px rgba(48, 121, 189, 0.25)'
                     }}
                   >
                     <Plus size={16} />
                     <span>{isCreating ? 'Creating...' : 'Create & Open Editor'}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Duplicate Page */}
+        {showDuplicateModal && duplicateSource && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            backdropFilter: 'blur(4px)',
+            padding: '24px'
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '520px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+              overflow: 'hidden'
+            }}>
+              <div style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ padding: '8px', backgroundColor: 'rgba(69, 182, 83, 0.12)', borderRadius: '8px', color: '#45b653', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Copy size={18} />
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                      Duplicate Page
+                    </h2>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>
+                      Source: <span style={{ fontWeight: 600, color: '#0f172a' }}>{duplicateSource.title}</span> (<code>{duplicateSource.slug}</code>)
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => setShowDuplicateModal(false)} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleDuplicateSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {duplicateError && (
+                  <div style={{ padding: '10px 14px', borderRadius: '6px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '0.85rem' }}>
+                    {duplicateError}
+                  </div>
+                )}
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    New Page Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Page Title"
+                    value={duplicateForm.title}
+                    onChange={(e) => {
+                      const title = e.target.value;
+                      setDuplicateForm({ ...duplicateForm, title });
+                    }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
+                    New URL Slug *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="/my-cloned-page"
+                    value={duplicateForm.slug}
+                    onChange={(e) => setDuplicateForm({ ...duplicateForm, slug: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                  />
+                  <span style={{ display: 'block', fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                    Must be unique and begin with / (e.g. {duplicateSource.slug === '/' ? '/home-copy' : `${duplicateSource.slug}-copy`})
+                  </span>
+                </div>
+
+                <div style={{ padding: '12px 14px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
+                  ✨ All layout blocks, custom configurations, media, and styles will be cloned. The new page starts in <strong style={{ color: '#d97706' }}>DRAFT</strong> mode so it is never published prematurely.
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowDuplicateModal(false)}
+                    style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #cbd5e1', color: '#64748b', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', background: 'none' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isDuplicating}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 20px',
+                      backgroundColor: '#3079bd',
+                      color: '#ffffff',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: isDuplicating ? 'not-allowed' : 'pointer',
+                      border: 'none',
+                      opacity: isDuplicating ? 0.7 : 1
+                    }}
+                  >
+                    <Copy size={16} />
+                    <span>{isDuplicating ? 'Duplicating...' : 'Duplicate & Open Editor'}</span>
                   </button>
                 </div>
               </form>

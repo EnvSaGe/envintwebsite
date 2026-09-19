@@ -56,11 +56,19 @@ export type StudioAction =
   | { type: 'UPDATE_VISIBILITY'; nodeId: string; visibility: { desktop?: boolean; tablet?: boolean; mobile?: boolean } }
   | { type: 'RENAME_NODE'; nodeId: string; name: string }
   | { type: 'SET_SAVE_STATUS'; status: 'saved' | 'saving' | 'unsaved' | 'published' }
+  | { type: 'SET_SAVE_SUCCESS' }
   | { type: 'UNDO' }
   | { type: 'REDO' };
 
-function pushHistory(state: StudioState): { past: PageBlockTree[]; future: PageBlockTree[] } {
-  const newPast = [...state.history.past, JSON.parse(JSON.stringify(state.tree))];
+let lastHistoryTime = 0;
+function pushHistory(state: StudioState, debounceMs = 0): { past: PageBlockTree[]; future: PageBlockTree[] } {
+  const now = Date.now();
+  if (debounceMs > 0 && now - lastHistoryTime < debounceMs && state.history.past.length > 0) {
+    return state.history;
+  }
+  lastHistoryTime = now;
+  const clonedTree = typeof structuredClone === 'function' ? structuredClone(state.tree) : JSON.parse(JSON.stringify(state.tree));
+  const newPast = [...state.history.past, clonedTree];
   if (newPast.length > 50) newPast.shift();
   return {
     past: newPast,
@@ -130,7 +138,10 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
 
     case 'ADD_NODE': {
       const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
+      const newTree: PageBlockTree =
+        typeof structuredClone === 'function'
+          ? structuredClone(state.tree)
+          : JSON.parse(JSON.stringify(state.tree));
       const newNode = action.node;
 
       // Determine parent and insertion index
@@ -201,6 +212,21 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       const { nodeId, targetParentId, targetIndex } = action;
       const node = state.tree.nodes[nodeId];
       if (!node) return state;
+
+      // Cycle prevention: Cannot move node into itself
+      if (nodeId === targetParentId) return state;
+
+      // Cycle prevention: Cannot move node into any of its own descendants
+      if (targetParentId !== null) {
+        let ancestorId: string | null = targetParentId;
+        const visitedAncestors = new Set<string>();
+        while (ancestorId) {
+          if (ancestorId === nodeId) return state; // Target parent is inside nodeId!
+          if (visitedAncestors.has(ancestorId)) break;
+          visitedAncestors.add(ancestorId);
+          ancestorId = state.tree.nodes[ancestorId]?.parentId ?? null;
+        }
+      }
 
       const history = pushHistory(state);
       const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
@@ -310,11 +336,19 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       const node = state.tree.nodes[action.nodeId];
       if (!node) return state;
 
-      const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
-      newTree.nodes[action.nodeId].content = {
-        ...newTree.nodes[action.nodeId].content,
-        ...action.content,
+      const history = pushHistory(state, 600);
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: {
+            ...node,
+            content: {
+              ...node.content,
+              ...action.content,
+            },
+          },
+        },
       };
 
       return {
@@ -331,15 +365,26 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       if (!node) return state;
 
       const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
-      const bindings = { ...(newTree.nodes[action.nodeId].content.bindings ?? {}) };
+      const bindings = { ...(node.content.bindings ?? {}) };
       if (action.binding) bindings[action.field] = action.binding;
       else delete bindings[action.field];
-      newTree.nodes[action.nodeId].content = {
-        ...newTree.nodes[action.nodeId].content,
+
+      const nextContent = {
+        ...node.content,
         ...(Object.keys(bindings).length > 0 ? { bindings } : {}),
       };
-      if (Object.keys(bindings).length === 0) delete newTree.nodes[action.nodeId].content.bindings;
+      if (Object.keys(bindings).length === 0) delete nextContent.bindings;
+
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: {
+            ...node,
+            content: nextContent,
+          },
+        },
+      };
 
       return { ...state, tree: newTree, isDirty: true, saveStatus: 'unsaved', history };
     }
@@ -348,10 +393,18 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       const node = state.tree.nodes[action.nodeId];
       if (!node) return state;
       const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
-      newTree.nodes[action.nodeId].content = {
-        ...newTree.nodes[action.nodeId].content,
-        query: action.query,
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: {
+            ...node,
+            content: {
+              ...node.content,
+              query: action.query,
+            },
+          },
+        },
       };
       return { ...state, tree: newTree, isDirty: true, saveStatus: 'unsaved', history };
     }
@@ -360,23 +413,31 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       const node = state.tree.nodes[action.nodeId];
       if (!node) return state;
 
-      const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
+      const history = pushHistory(state, 600);
       const bp = action.breakpoint || state.breakpoint;
+      const updatedNode = { ...node };
 
       if (bp === 'desktop') {
-        newTree.nodes[action.nodeId].styles = {
-          ...newTree.nodes[action.nodeId].styles,
+        updatedNode.styles = {
+          ...node.styles,
           ...action.styles,
         };
       } else {
-        const resp = (newTree.nodes[action.nodeId].responsiveStyles || {}) as Record<string, any>;
+        const resp = { ...(node.responsiveStyles || {}) } as Record<string, any>;
         resp[bp] = {
           ...(resp[bp] || {}),
           ...action.styles,
         };
-        newTree.nodes[action.nodeId].responsiveStyles = resp;
+        updatedNode.responsiveStyles = resp;
       }
+
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: updatedNode,
+        },
+      };
 
       return {
         ...state,
@@ -392,12 +453,20 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       if (!node) return state;
 
       const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
-      const currentVis = newTree.nodes[action.nodeId].visibility || { desktop: true, tablet: true, mobile: true };
-      newTree.nodes[action.nodeId].visibility = {
-        desktop: action.visibility?.desktop ?? currentVis.desktop ?? true,
-        tablet: action.visibility?.tablet ?? currentVis.tablet ?? true,
-        mobile: action.visibility?.mobile ?? currentVis.mobile ?? true,
+      const currentVis = node.visibility || { desktop: true, tablet: true, mobile: true };
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: {
+            ...node,
+            visibility: {
+              desktop: action.visibility?.desktop ?? currentVis.desktop ?? true,
+              tablet: action.visibility?.tablet ?? currentVis.tablet ?? true,
+              mobile: action.visibility?.mobile ?? currentVis.mobile ?? true,
+            },
+          },
+        },
       };
 
       return {
@@ -414,8 +483,16 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       if (!node) return state;
 
       const history = pushHistory(state);
-      const newTree: PageBlockTree = JSON.parse(JSON.stringify(state.tree));
-      newTree.nodes[action.nodeId].name = action.name;
+      const newTree: PageBlockTree = {
+        ...state.tree,
+        nodes: {
+          ...state.tree.nodes,
+          [action.nodeId]: {
+            ...node,
+            name: action.name,
+          },
+        },
+      };
 
       return {
         ...state,
@@ -428,6 +505,9 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
 
     case 'SET_SAVE_STATUS':
       return { ...state, saveStatus: action.status, isDirty: action.status === 'unsaved' };
+
+    case 'SET_SAVE_SUCCESS':
+      return { ...state, saveStatus: 'saved', isDirty: false };
 
     case 'UNDO': {
       if (state.history.past.length === 0) return state;

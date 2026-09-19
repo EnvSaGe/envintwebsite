@@ -25,11 +25,36 @@ import {
   SocialShareElement,
 } from './elements/DynamicModules';
 import { FormElement } from './elements/FormElement';
+import { SearchBarElement } from './elements/SearchBarElement';
 import { TeamCardMember } from '@/components/about/TeamGrid';
 
 interface TreeRendererProps {
   tree: PageBlockTree;
   teamCards?: TeamCardMember[];
+}
+
+function findFirstH1Id(rootIds: string[], nodes: Record<string, BuilderNode>): string | null {
+  const queue = [...rootIds];
+  const visited = new Set<string>();
+
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    if (visited.has(id)) continue;
+    visited.add(id);
+
+    const node = nodes[id];
+    if (!node) continue;
+
+    if (node.type === 'heading' && String(node.content?.tag || '').toLowerCase() === 'h1') {
+      return id;
+    }
+
+    if (node.children && node.children.length > 0) {
+      queue.push(...node.children);
+    }
+  }
+
+  return null;
 }
 
 export function TreeRenderer({ tree, teamCards }: TreeRendererProps) {
@@ -38,6 +63,7 @@ export function TreeRenderer({ tree, teamCards }: TreeRendererProps) {
   }
 
   const { rootIds, nodes } = tree;
+  const firstH1Id = findFirstH1Id(rootIds, nodes);
 
   // Generate all responsive CSS overrides for SSR
   let aggregatedCss = '';
@@ -74,6 +100,7 @@ export function TreeRenderer({ tree, teamCards }: TreeRendererProps) {
           nodeId={rootId}
           nodes={nodes}
           teamCards={teamCards}
+          firstH1Id={firstH1Id}
         />
       ))}
     </div>
@@ -84,10 +111,12 @@ function RenderNode({
   nodeId,
   nodes,
   teamCards,
+  firstH1Id,
 }: {
   nodeId: string;
   nodes: Record<string, BuilderNode>;
   teamCards?: TeamCardMember[];
+  firstH1Id?: string | null;
 }) {
   const node = nodes[nodeId];
   if (!node) return null;
@@ -99,6 +128,7 @@ function RenderNode({
       nodeId={childId}
       nodes={nodes}
       teamCards={teamCards}
+      firstH1Id={firstH1Id}
     />
   ));
 
@@ -117,7 +147,7 @@ function RenderNode({
       return <FlexElement node={node}>{renderedChildren}</FlexElement>;
 
     case 'heading':
-      return <HeadingElement node={node} />;
+      return <HeadingElement node={node} isFirstH1={firstH1Id ? node.id === firstH1Id : true} />;
 
     case 'paragraph':
     case 'rich-text':
@@ -164,6 +194,9 @@ function RenderNode({
 
     case 'form':
       return <FormElement node={node} />;
+
+    case 'search-bar':
+      return <SearchBarElement node={node} />;
 
     case 'social-share':
       return <SocialShareElement node={node} />;

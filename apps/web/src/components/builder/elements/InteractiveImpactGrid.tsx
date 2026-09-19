@@ -30,52 +30,74 @@ export interface InteractiveImpactGridProps {
 export function InteractiveImpactGrid({ impacts, builderId }: InteractiveImpactGridProps) {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  React.useEffect(() => {
+    const handleSearch = (e: Event) => {
+      const custom = e as CustomEvent<{ query: string }>;
+      setSearchQuery(custom.detail?.query || '');
+    };
+    window.addEventListener('envint:search', handleSearch);
+    return () => window.removeEventListener('envint:search', handleSearch);
+  }, []);
 
   const filteredImpacts = useMemo(() => {
-    if (activeTab === 'all') return impacts;
-    const tabObj = IMPACT_TABS.find((t) => t.id === activeTab);
-    if (!tabObj || !tabObj.category) return impacts;
+    let result = impacts;
 
-    const target = tabObj.category.toLowerCase();
-    return impacts.filter((item) => {
-      // 1. Array of categories
-      if (Array.isArray(item.categories)) {
-        if (
-          item.categories.some((c: string) => {
-            const low = String(c).toLowerCase();
-            return low.includes(target) || target.includes(low);
-          })
-        ) {
-          return true;
-        }
+    if (activeTab !== 'all') {
+      const tabObj = IMPACT_TABS.find((t) => t.id === activeTab);
+      if (tabObj && tabObj.category) {
+        const target = tabObj.category.toLowerCase();
+        result = result.filter((item) => {
+          if (Array.isArray(item.categories)) {
+            if (
+              item.categories.some((c: string) => {
+                const low = String(c).toLowerCase();
+                return low.includes(target) || target.includes(low);
+              })
+            ) {
+              return true;
+            }
+          }
+          if (item.title && String(item.title).toLowerCase().includes(target)) return true;
+          if (item.summary && String(item.summary).toLowerCase().includes(target)) return true;
+          if (item.contentHtml && String(item.contentHtml).toLowerCase().includes(target)) return true;
+          if (item.service?.name && String(item.service.name).toLowerCase().includes(target)) return true;
+          if (item.sector?.name && String(item.sector.name).toLowerCase().includes(target)) return true;
+          if (item.theme?.name && String(item.theme.name).toLowerCase().includes(target)) return true;
+          return false;
+        });
       }
+    }
 
-      // 2. Title match
-      if (item.title && String(item.title).toLowerCase().includes(target)) {
-        return true;
-      }
+    const cleanQ = searchQuery.trim().toLowerCase();
+    if (cleanQ) {
+      result = result.filter((item) => {
+        const title = String(item.title || '').toLowerCase();
+        const summary = String(item.summary || '').toLowerCase();
+        const clientType = String(item.clientType || '').toLowerCase();
+        const categories = Array.isArray(item.categories) ? item.categories.join(' ').toLowerCase() : '';
+        const sector = String(item.sector?.name || '').toLowerCase();
+        const service = String(item.service?.name || '').toLowerCase();
+        const theme = String(item.theme?.name || '').toLowerCase();
 
-      // 3. Summary match
-      if (item.summary && String(item.summary).toLowerCase().includes(target)) {
-        return true;
-      }
+        return (
+          title.includes(cleanQ) ||
+          summary.includes(cleanQ) ||
+          clientType.includes(cleanQ) ||
+          categories.includes(cleanQ) ||
+          sector.includes(cleanQ) ||
+          service.includes(cleanQ) ||
+          theme.includes(cleanQ)
+        );
+      });
+    }
 
-      // 4. Content match
-      if (item.contentHtml && String(item.contentHtml).toLowerCase().includes(target)) {
-        return true;
-      }
-
-      // 5. Relations
-      if (item.service?.name && String(item.service.name).toLowerCase().includes(target)) return true;
-      if (item.sector?.name && String(item.sector.name).toLowerCase().includes(target)) return true;
-      if (item.theme?.name && String(item.theme.name).toLowerCase().includes(target)) return true;
-
-      return false;
-    });
-  }, [activeTab, impacts]);
+    return result;
+  }, [activeTab, searchQuery, impacts]);
 
   return (
-    <div data-builder-id={builderId} style={{ width: '100%' }}>
+    <div data-builder-id={builderId} data-envint-filterable="true" style={{ width: '100%' }}>
       {/* Category Tabs Bar */}
       <div
         style={{
@@ -133,7 +155,30 @@ export function InteractiveImpactGrid({ impacts, builderId }: InteractiveImpactG
             fontSize: '18px',
           }}
         >
-          No case studies found for this category.
+          <p style={{ margin: '0 0 12px 0' }}>
+            {searchQuery ? `No case studies found matching "${searchQuery}".` : 'No case studies found for this category.'}
+          </p>
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                window.dispatchEvent(new CustomEvent('envint:search', { detail: { query: '' } }));
+              }}
+              style={{
+                backgroundColor: '#004E35',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '9999px',
+                padding: '8px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Clear Search
+            </button>
+          )}
         </div>
       ) : (
         <div

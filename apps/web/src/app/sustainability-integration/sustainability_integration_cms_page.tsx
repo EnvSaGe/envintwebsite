@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -8,8 +8,32 @@ import PillarAccordion from '@/components/pillar/PillarAccordion';
 export const metadata: Metadata = {
   title: 'Sustainability Integration | Envint',
   description: "Envint's five-step ESG integration process helps organizations navigate complex challenges in their sustainability journey.",
+  keywords: [
+    'Sustainability Integration',
+    'ESG Strategy',
+    'BRSR Compliance',
+    'GHG Accounting Scope 1 2 3',
+    'ESG Roadmap',
+    'Sustainable Supply Chain',
+    'Envint',
+  ],
   alternates: {
     canonical: 'https://envintglobal.com/sustainability-integration/',
+  },
+  openGraph: {
+    title: 'Sustainability Integration | Envint',
+    description: "Envint's five-step ESG integration process helps organizations navigate complex challenges in their sustainability journey.",
+    url: 'https://envintglobal.com/sustainability-integration/',
+    siteName: 'Envint',
+    locale: 'en_US',
+    type: 'website',
+    images: [{ url: 'https://envintglobal.com/images/hero-sustainability.webp', alt: 'Sustainability Integration - Envint' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sustainability Integration | Envint',
+    description: "Envint's five-step ESG integration process helps organizations navigate complex challenges in their sustainability journey.",
+    images: ['https://envintglobal.com/images/hero-sustainability.webp'],
   },
 };
 

@@ -108,7 +108,7 @@ export function LiveCanvasRenderer({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#10b981',
+            color: '#3079bd',
             marginBottom: '16px',
           }}
         >
@@ -168,7 +168,7 @@ export function LiveCanvasRenderer({
             style={{
               position: 'relative',
               outline: isSelected
-                ? '3px solid #10b981'
+                ? '3px solid #3079bd'
                 : isHovered
                 ? '2px dashed #94a3b8'
                 : '1px solid transparent',
@@ -185,7 +185,7 @@ export function LiveCanvasRenderer({
                   top: '8px',
                   left: '8px',
                   zIndex: 40,
-                  backgroundColor: isSelected ? '#10b981' : '#1e293b',
+                  backgroundColor: isSelected ? '#3079bd' : '#1e293b',
                   color: '#ffffff',
                   padding: '4px 10px',
                   borderRadius: '6px',
@@ -275,11 +275,11 @@ export function LiveCanvasRenderer({
                           display: 'inline-block',
                           padding: '12px 28px',
                           borderRadius: '30px',
-                          backgroundColor: '#10B981',
+                          backgroundColor: '#3079bd',
                           color: '#ffffff',
                           fontSize: '15px',
                           fontWeight: 600,
-                          boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                          boxShadow: '0 4px 14px rgba(48, 121, 189, 0.4)',
                         }}
                       >
                         {props.ctaLabel}
@@ -312,7 +312,7 @@ export function LiveCanvasRenderer({
                     {props.tagline && (
                       <div
                         style={{
-                          color: '#10B981',
+                          color: '#45b653',
                           fontWeight: 700,
                           fontSize: '0.8rem',
                           letterSpacing: '0.08em',
@@ -708,7 +708,7 @@ export function LiveCanvasRenderer({
                           style={{
                             fontSize: '26px',
                             fontWeight: 700,
-                            color: '#10B981',
+                            color: '#3079bd',
                             marginBottom: '10px',
                           }}
                         >

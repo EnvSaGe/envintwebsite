@@ -33,6 +33,9 @@ import {
   Paintbrush,
   ToggleLeft,
   Check,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from 'lucide-react';
 import { BuilderNode, ElementStyles, type ContentBinding, type DynamicQueryConfig } from '@envint/shared';
 import { Breakpoint, StudioState } from './StudioState';
@@ -73,6 +76,7 @@ interface InspectorSidebarProps {
   ) => void;
   onDuplicateNode: (nodeId: string) => void;
   onDeleteNode: (nodeId: string) => void;
+  onRenameNode?: (nodeId: string, name: string) => void;
   onSelectNode: (nodeId: string) => void;
   isCollapsed: boolean;
   onToggleCollapsed: () => void;
@@ -109,6 +113,7 @@ export function InspectorSidebar({
   onUpdateVisibility,
   onDuplicateNode,
   onDeleteNode,
+  onRenameNode,
   onSelectNode,
   isCollapsed,
   onToggleCollapsed,
@@ -168,9 +173,11 @@ export function InspectorSidebar({
   // Breadcrumb from root to selected node
   const breadcrumbs: Array<{ id: string; name: string; type: string }> = [];
   let curr: BuilderNode | null = selectedNode;
-  while (curr) {
+  const visitedBreadcrumbs = new Set<string>();
+  while (curr && !visitedBreadcrumbs.has(curr.id) && breadcrumbs.length < 50) {
+    visitedBreadcrumbs.add(curr.id);
     breadcrumbs.unshift({ id: curr.id, name: curr.name, type: curr.type });
-    curr = curr.parentId ? state.tree.nodes[curr.parentId] : null;
+    curr = curr.parentId ? state.tree.nodes[curr.parentId] || null : null;
   }
 
   const handleMediaPicked = (media: PickedMedia) => {
@@ -208,6 +215,7 @@ export function InspectorSidebar({
           <ElementTitle
             name={selectedNode.name}
             type={selectedNode.type}
+            onRename={(name) => onRenameNode?.(selectedNode.id, name)}
             actions={
               <>
                 <IconButton
@@ -273,6 +281,7 @@ export function InspectorSidebar({
               node={selectedNode}
               state={state}
               onUpdateContent={onUpdateContent}
+              onRenameNode={onRenameNode}
               onOpenMediaPicker={() => setIsMediaPickerOpen(true)}
             />
           </>
@@ -396,11 +405,13 @@ function ContentPanel({
   node,
   state,
   onUpdateContent,
+  onRenameNode,
   onOpenMediaPicker,
 }: {
   node: BuilderNode;
   state: StudioState;
   onUpdateContent: InspectorSidebarProps['onUpdateContent'];
+  onRenameNode?: InspectorSidebarProps['onRenameNode'];
   onOpenMediaPicker: () => void;
 }) {
   switch (node.type) {
@@ -427,6 +438,56 @@ function ContentPanel({
                 <input value={node.content?.action || '/'} onChange={(event) => onUpdateContent(node.id, { action: event.target.value })} className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100" />
               </FieldRow>
             </>
+          )}
+        </>
+      );
+
+    case 'search-bar':
+      return (
+        <>
+          <FieldRow label="Placeholder text">
+            <input
+              type="text"
+              value={node.content?.placeholder || ''}
+              onChange={(e) => onUpdateContent(node.id, { placeholder: e.target.value })}
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+              placeholder="Search by keyword, topic, or sector..."
+            />
+          </FieldRow>
+
+          <FieldRow label="Search Mode" hint="Auto-detect filters page grids or redirects to /search">
+            <select
+              value={node.content?.mode || 'auto'}
+              onChange={(e) => onUpdateContent(node.id, { mode: e.target.value })}
+              className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="auto">Auto-detect (Recommended)</option>
+              <option value="in-page">Filter this page only</option>
+              <option value="global">Search entire website</option>
+            </select>
+          </FieldRow>
+
+          <FieldRow label="Show Search Button">
+            <label className="flex items-center gap-2 text-xs text-slate-300">
+              <input
+                type="checkbox"
+                checked={node.content?.showButton !== false}
+                onChange={(e) => onUpdateContent(node.id, { showButton: e.target.checked })}
+                className="rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0"
+              />
+              Show button beside input
+            </label>
+          </FieldRow>
+
+          {node.content?.showButton !== false && (
+            <FieldRow label="Button Label">
+              <input
+                type="text"
+                value={node.content?.buttonText || 'Search'}
+                onChange={(e) => onUpdateContent(node.id, { buttonText: e.target.value })}
+                className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 focus:border-emerald-500 focus:outline-none"
+              />
+            </FieldRow>
           )}
         </>
       );
@@ -957,18 +1018,42 @@ function ContentPanel({
     }
 
     default: {
-      if (['section', 'grid', 'flex', 'columns'].includes(node.type)) {
+      if (['section', 'grid', 'flex', 'columns', 'container'].includes(node.type)) {
+        const isSec = node.type === 'section';
         return (
-          <div className="rounded-xl border border-slate-800/80 bg-[#111831]/70 p-3">
-            <p className="text-[11px] font-semibold text-slate-300">Layout container</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-              This element arranges others. Use <strong className="text-slate-300">Design</strong> for
-              background & spacing, <strong className="text-slate-300">Layout</strong> for columns and
-              alignment.
-            </p>
-            <p className="mt-2 text-[10px] text-slate-500">
-              Children: <span className="font-mono font-semibold text-emerald-400">{node.children?.length || 0}</span>
-            </p>
+          <div className="space-y-4">
+            <InspectorSection id="section-identity" title={isSec ? 'Section Identity' : 'Container Settings'} first>
+              <FieldRow
+                label={isSec ? 'Section Name' : `${node.type.charAt(0).toUpperCase() + node.type.slice(1)} Name`}
+                help={
+                  isSec
+                    ? 'Give this section a clear name (e.g. Hero Banner, Overview, Impact Stats, Contact) to easily recognize it in the Layers panel.'
+                    : 'Custom name to organize this container in the Layers panel.'
+                }
+              >
+                <input
+                  type="text"
+                  value={node.name}
+                  onChange={(e) => onRenameNode?.(node.id, e.target.value)}
+                  placeholder={isSec ? 'e.g. Hero Banner, Overview...' : `e.g. My ${node.type}...`}
+                  className="w-full rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1.5 text-xs text-slate-100 shadow-inner transition placeholder:text-slate-600 focus:border-emerald-500 focus:outline-none"
+                />
+              </FieldRow>
+            </InspectorSection>
+
+            <div className="rounded-xl border border-slate-800/80 bg-[#111831]/70 p-3">
+              <p className="text-[11px] font-semibold text-slate-300">
+                {isSec ? 'Page Section' : 'Layout Container'}
+              </p>
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                {isSec
+                  ? 'This is a top-level page section. Use Design to set background color or background image, and Layout for spacing and width.'
+                  : 'This element arranges child elements. Use Design for background & spacing, and Layout for columns and alignment.'}
+              </p>
+              <p className="mt-2 text-[10px] text-slate-500">
+                Child elements: <span className="font-mono font-semibold text-emerald-400">{node.children?.length || 0}</span>
+              </p>
+            </div>
           </div>
         );
       }
@@ -1059,7 +1144,7 @@ function SimpleToggle({
       </span>
       <span
         className="relative shrink-0 rounded-full transition-colors"
-        style={{ height: 18, width: 32, backgroundColor: checked ? '#10B981' : '#334155' }}
+        style={{ height: 18, width: 32, backgroundColor: checked ? '#45B653' : '#334155' }}
       >
         <span
           className="absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-all"
@@ -1346,6 +1431,52 @@ function LayoutPanel({
             />
           </FieldRow>
         </AdvancedDisclosure>
+      )}
+
+      {!isContainer && (
+        <InspectorSection id="layout-element-align" title="Alignment" first>
+          <FieldRow
+            label="Horizontal align"
+            help="Position this element to the Left, Center, or Right within its parent section or container."
+          >
+            <Segmented
+              ariaLabel="Element alignment"
+              value={
+                styles.alignSelf === 'center' || (styles.marginLeft === 'auto' && styles.marginRight === 'auto')
+                  ? 'center'
+                  : styles.alignSelf === 'flex-end' || styles.marginRight === '0px' || styles.marginRight === '0'
+                    ? 'right'
+                    : 'left'
+              }
+              onChange={(align) => {
+                if (align === 'left') {
+                  onSetStyle({
+                    alignSelf: 'flex-start',
+                    marginLeft: '0px',
+                    marginRight: 'auto',
+                  });
+                } else if (align === 'center') {
+                  onSetStyle({
+                    alignSelf: 'center',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                  });
+                } else if (align === 'right') {
+                  onSetStyle({
+                    alignSelf: 'flex-end',
+                    marginLeft: 'auto',
+                    marginRight: '0px',
+                  });
+                }
+              }}
+              options={[
+                { value: 'left', icon: <AlignLeft size={12} />, label: 'Left', title: 'Align left' },
+                { value: 'center', icon: <AlignCenter size={12} />, label: 'Center', title: 'Align center' },
+                { value: 'right', icon: <AlignRight size={12} />, label: 'Right', title: 'Align right' },
+              ]}
+            />
+          </FieldRow>
+        </InspectorSection>
       )}
 
       <InspectorSection id="layout-size" title="Size" defaultOpen={false}>
