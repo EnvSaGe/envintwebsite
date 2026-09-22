@@ -121,7 +121,7 @@ export function StudioTopbar({
     : null;
 
   return (
-    <header className="z-30 flex h-12 shrink-0 items-center justify-between gap-2 overflow-hidden border-b border-slate-800/90 bg-[#0D1220] px-3 shadow-sm select-none">
+    <header className="z-30 flex h-12 shrink-0 items-center justify-between gap-2 overflow-visible border-b border-slate-800/90 bg-[#0D1220] px-3 shadow-sm select-none">
       {/* Left: Back, Page Title, Slug & Status + panel toggle */}
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <IconToggle
@@ -301,6 +301,28 @@ export function StudioTopbar({
           >
             <Sparkles size={13} className="text-sky-400" />
             <span>SEO</span>
+          </button>
+        )}
+
+        {allowScheduling && (
+          <button
+            type="button"
+            onClick={onOpenSchedule}
+            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-all active:scale-95 ${
+              scheduledIso
+                ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-sm hover:bg-emerald-500/25'
+                : 'border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+            title={
+              scheduledIso
+                ? `Publish scheduled for ${formattedSchedule}. Click to change or cancel.`
+                : 'Schedule publish at a future date and time'
+            }
+          >
+            <CalendarClock size={13} className={scheduledIso ? 'text-emerald-400' : 'text-slate-400'} />
+            <span className="hidden sm:inline">
+              {scheduledIso ? `Scheduled: ${formattedSchedule}` : 'Schedule'}
+            </span>
           </button>
         )}
 
