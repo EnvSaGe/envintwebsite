@@ -82,6 +82,9 @@ export async function fetchPageBySlug(slug: string) {
     title: record?.title || fallback?.title || slug,
     seoTitle: record?.seoTitle || fallback?.seoTitle || record?.title || fallback?.title || slug,
     seoDescription: record?.seoDescription || fallback?.seoDescription || '',
+    canonicalUrl: record?.canonicalUrl || '',
+    ogImageUrl: record?.ogImageUrl || '',
+    noIndex: record?.noIndex ?? false,
     layoutTemplate: record?.layoutTemplate || fallback?.layoutTemplate || 'standard',
     status: record?.status || fallback?.status || 'PUBLISHED',
     schemaVersion: record?.schemaVersion || 1,
@@ -97,6 +100,9 @@ export async function savePageAction(pageData: {
   title: string;
   seoTitle?: string;
   seoDescription?: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  noIndex?: boolean;
   contentBlocks: any[];
   layoutTemplate?: string;
   status?: 'DRAFT' | 'PUBLISHED';
@@ -124,6 +130,9 @@ export async function savePageAction(pageData: {
       title: pageData.title,
       seoTitle: pageData.seoTitle,
       seoDescription: pageData.seoDescription,
+      canonicalUrl: pageData.canonicalUrl || null,
+      ogImageUrl: pageData.ogImageUrl || null,
+      noIndex: pageData.noIndex ?? false,
       layoutTemplate: pageData.layoutTemplate || 'standard',
       contentBlocks: pageData.contentBlocks,
       schemaVersion: 1,
@@ -138,6 +147,9 @@ export async function savePageAction(pageData: {
         title: pageData.title,
         seoTitle: pageData.seoTitle,
         seoDescription: pageData.seoDescription,
+        canonicalUrl: pageData.canonicalUrl || null,
+        ogImageUrl: pageData.ogImageUrl || null,
+        noIndex: pageData.noIndex ?? false,
         contentBlocks: pageData.contentBlocks,
         schemaVersion: 1,
         status,
@@ -684,6 +696,9 @@ export async function fetchPageTreeAction(slug: string) {
     title: pageTitle || record?.title || (pathSlug === '/about' ? 'About Envint' : pathSlug),
     seoTitle: pageSeoTitle || record?.seoTitle || pageTitle || pathSlug,
     seoDescription: pageSeoDescription || record?.seoDescription || '',
+    canonicalUrl: record?.canonicalUrl || '',
+    ogImageUrl: record?.ogImageUrl || '',
+    noIndex: record?.noIndex ?? false,
     status: record?.status || 'PUBLISHED',
     scheduledAt: record?.scheduledAt ? new Date(record.scheduledAt).toISOString() : null,
     schemaVersion: record?.schemaVersion || 2,
@@ -697,7 +712,7 @@ export async function fetchPageTreeAction(slug: string) {
 export async function saveDraftTreeAction(
   slug: string,
   tree: PageBlockTree,
-  meta?: { title?: string; seoTitle?: string; seoDescription?: string }
+  meta?: { title?: string; seoTitle?: string; seoDescription?: string; canonicalUrl?: string; ogImageUrl?: string; noIndex?: boolean }
 ) {
   await requireRole(['super_admin', 'editor']);
 
@@ -711,6 +726,9 @@ export async function saveDraftTreeAction(
       title: meta?.title || cleanSlug.replace(/-/g, ' '),
       seoTitle: meta?.seoTitle,
       seoDescription: meta?.seoDescription,
+      canonicalUrl: meta?.canonicalUrl || null,
+      ogImageUrl: meta?.ogImageUrl || null,
+      noIndex: meta?.noIndex ?? false,
       // Explicit defaults: the live DB column has NOT NULL without a DB-level default
       layoutTemplate: 'standard',
       contentBlocks: [],
@@ -727,6 +745,9 @@ export async function saveDraftTreeAction(
         ...(meta?.title ? { title: meta.title } : {}),
         ...(meta?.seoTitle ? { seoTitle: meta.seoTitle } : {}),
         ...(meta?.seoDescription ? { seoDescription: meta.seoDescription } : {}),
+        ...(meta?.canonicalUrl !== undefined ? { canonicalUrl: meta.canonicalUrl || null } : {}),
+        ...(meta?.ogImageUrl !== undefined ? { ogImageUrl: meta.ogImageUrl || null } : {}),
+        ...(meta?.noIndex !== undefined ? { noIndex: meta.noIndex } : {}),
       },
     });
 
@@ -738,6 +759,9 @@ export async function publishTreeAction(pageData: {
   title: string;
   seoTitle?: string;
   seoDescription?: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  noIndex?: boolean;
   tree: PageBlockTree;
 }) {
   await requireRole(['super_admin', 'editor']);
@@ -755,6 +779,9 @@ export async function publishTreeAction(pageData: {
       title: pageData.title,
       seoTitle: pageData.seoTitle,
       seoDescription: pageData.seoDescription,
+      canonicalUrl: pageData.canonicalUrl || null,
+      ogImageUrl: pageData.ogImageUrl || null,
+      noIndex: pageData.noIndex ?? false,
       // Explicit defaults: the live DB column has NOT NULL without a DB-level default
       layoutTemplate: 'standard',
       contentBlocks: [],
@@ -771,6 +798,9 @@ export async function publishTreeAction(pageData: {
         title: pageData.title,
         seoTitle: pageData.seoTitle,
         seoDescription: pageData.seoDescription,
+        canonicalUrl: pageData.canonicalUrl || null,
+        ogImageUrl: pageData.ogImageUrl || null,
+        noIndex: pageData.noIndex ?? false,
         publishedBlocks: pageData.tree,
         draftBlocks: pageData.tree,
         schemaVersion: 2,
