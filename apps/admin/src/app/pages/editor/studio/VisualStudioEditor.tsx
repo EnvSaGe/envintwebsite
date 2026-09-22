@@ -9,6 +9,7 @@ import { StudioCanvas, ZoomLevel } from './StudioCanvas';
 import { InspectorSidebar } from './InspectorSidebar';
 import { QuickPalette } from './QuickPalette';
 import { VersionHistoryModal } from './VersionHistoryModal';
+import { SeoSettingsModal } from './SeoSettingsModal';
 import { Copy, X, Loader2 } from 'lucide-react';
 import {
   saveDraftTreeAction,
@@ -34,6 +35,9 @@ interface VisualStudioEditorProps {
   pageTitle: string;
   seoTitle?: string;
   seoDescription?: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  noIndex?: boolean;
   scheduledAt?: string | null;
   entityType?: 'page' | 'template';
   contentScope?: 'Page' | 'Record' | 'Shared template' | 'Global';
@@ -80,8 +84,11 @@ export function VisualStudioEditor({
   dynamicModules,
   slug,
   pageTitle,
-  seoTitle,
-  seoDescription,
+  seoTitle: initialSeoTitle = '',
+  seoDescription: initialSeoDescription = '',
+  canonicalUrl: initialCanonicalUrl = '',
+  ogImageUrl: initialOgImageUrl = '',
+  noIndex: initialNoIndex = false,
   scheduledAt: initialScheduledAt = null,
   entityType = 'page',
   contentScope = 'Page',
@@ -97,6 +104,37 @@ export function VisualStudioEditor({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [zoom, setZoom] = useState<ZoomLevel>('fit');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  /* SEO modal and settings state */
+  const [currentSeoTitle, setCurrentSeoTitle] = useState(initialSeoTitle || '');
+  const [currentSeoDescription, setCurrentSeoDescription] = useState(initialSeoDescription || '');
+  const [currentCanonicalUrl, setCurrentCanonicalUrl] = useState(initialCanonicalUrl || '');
+  const [currentOgImageUrl, setCurrentOgImageUrl] = useState(initialOgImageUrl || '');
+  const [currentNoIndex, setCurrentNoIndex] = useState(initialNoIndex ?? false);
+  const [isSeoOpen, setIsSeoOpen] = useState(false);
+
+  useEffect(() => {
+    if (initialSeoTitle) setCurrentSeoTitle(initialSeoTitle);
+    if (initialSeoDescription) setCurrentSeoDescription(initialSeoDescription);
+    if (initialCanonicalUrl) setCurrentCanonicalUrl(initialCanonicalUrl);
+    if (initialOgImageUrl) setCurrentOgImageUrl(initialOgImageUrl);
+    if (initialNoIndex !== undefined) setCurrentNoIndex(initialNoIndex);
+  }, [initialSeoTitle, initialSeoDescription, initialCanonicalUrl, initialOgImageUrl, initialNoIndex]);
+
+  const seoRef = useRef({
+    seoTitle: currentSeoTitle,
+    seoDescription: currentSeoDescription,
+    canonicalUrl: currentCanonicalUrl,
+    ogImageUrl: currentOgImageUrl,
+    noIndex: currentNoIndex,
+  });
+  seoRef.current = {
+    seoTitle: currentSeoTitle,
+    seoDescription: currentSeoDescription,
+    canonicalUrl: currentCanonicalUrl,
+    ogImageUrl: currentOgImageUrl,
+    noIndex: currentNoIndex,
+  };
 
   /* Scheduled publishing state */
   const [scheduledIso, setScheduledIso] = useState<string | null>(initialScheduledAt);
@@ -161,7 +199,12 @@ export function VisualStudioEditor({
       try {
         dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
         if (entityType === 'template') await saveTemplateDraftAction(slug, stateRef.current.tree);
-        else await saveDraftTreeAction(slug, stateRef.current.tree);
+        else {
+          await saveDraftTreeAction(slug, stateRef.current.tree, {
+            title: pageTitle,
+            ...seoRef.current,
+          });
+        }
         dispatch({ type: 'SET_SAVE_SUCCESS' });
       } catch (err) {
         console.error('Auto-save error:', err);
@@ -172,7 +215,7 @@ export function VisualStudioEditor({
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     };
-  }, [entityType, state.tree, state.isDirty, slug]);
+  }, [entityType, state.tree, state.isDirty, slug, pageTitle]);
 
   /* 2. Handlers */
   const stateRef = useRef(state);
@@ -183,7 +226,12 @@ export function VisualStudioEditor({
     dispatch({ type: 'SET_SAVE_STATUS', status: 'saving' });
     try {
       if (entityType === 'template') await saveTemplateDraftAction(slug, stateRef.current.tree);
-      else await saveDraftTreeAction(slug, stateRef.current.tree);
+      else {
+        await saveDraftTreeAction(slug, stateRef.current.tree, {
+          title: pageTitle,
+          ...seoRef.current,
+        });
+      }
       dispatch({ type: 'SET_SAVE_SUCCESS' });
       showNotification('Draft saved successfully to database!');
     } catch (err: any) {
@@ -191,7 +239,7 @@ export function VisualStudioEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [entityType, slug]);
+  }, [entityType, slug, pageTitle]);
 
   const publishNow = useCallback(async () => {
     setIsPublishing(true);
@@ -202,8 +250,7 @@ export function VisualStudioEditor({
         await publishTreeAction({
           slug,
           title: pageTitle,
-          seoTitle,
-          seoDescription,
+          ...seoRef.current,
           tree: stateRef.current.tree,
         });
       }
@@ -215,7 +262,7 @@ export function VisualStudioEditor({
     } finally {
       setIsPublishing(false);
     }
-  }, [entityType, slug, pageTitle, seoTitle, seoDescription]);
+  }, [entityType, slug, pageTitle]);
 
   const handlePublish = useCallback(() => {
     if (entityType === 'template') setShowImpactWarning(true);
@@ -245,12 +292,14 @@ export function VisualStudioEditor({
         // Persist the current draft first so the cron promotes exactly what
         // the editor is showing (draftBlocks is the source of truth for the
         // scheduled promotion).
-        await saveDraftTreeAction(slug, stateRef.current.tree);
+        await saveDraftTreeAction(slug, stateRef.current.tree, {
+          title: pageTitle,
+          ...seoRef.current,
+        });
         const res = await scheduleTreePublishAction({
           slug,
           title: pageTitle,
-          seoTitle,
-          seoDescription,
+          ...seoRef.current,
           tree: stateRef.current.tree,
           scheduledAt: new Date(isoLocal).toISOString(),
         });
@@ -265,7 +314,7 @@ export function VisualStudioEditor({
         setIsScheduling(false);
       }
     },
-    [slug, pageTitle, seoTitle, seoDescription]
+    [slug, pageTitle]
   );
 
   const handleCancelSchedule = useCallback(async () => {
@@ -444,6 +493,7 @@ export function VisualStudioEditor({
         onUndo={() => dispatch({ type: 'UNDO' })}
         onRedo={() => dispatch({ type: 'REDO' })}
         onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenSeo={entityType === 'page' ? () => setIsSeoOpen(true) : undefined}
         onDuplicate={entityType === 'page' ? () => {
           const clean = slug.replace(/^\//, '');
           const baseSlug = clean === '' ? 'home' : clean;
@@ -635,6 +685,28 @@ export function VisualStudioEditor({
       {/* Version History Modal */}
       {isHistoryOpen && (
         <VersionHistoryModal slug={slug} entityType={entityType} onClose={() => setIsHistoryOpen(false)} onRestore={handleRestoreRevision} />
+      )}
+
+      {/* SEO Settings Modal */}
+      {isSeoOpen && (
+        <SeoSettingsModal
+          slug={slug}
+          pageTitle={pageTitle}
+          seoTitle={currentSeoTitle}
+          seoDescription={currentSeoDescription}
+          canonicalUrl={currentCanonicalUrl}
+          ogImageUrl={currentOgImageUrl}
+          noIndex={currentNoIndex}
+          onUpdate={(fields) => {
+            if (fields.seoTitle !== undefined) setCurrentSeoTitle(fields.seoTitle);
+            if (fields.seoDescription !== undefined) setCurrentSeoDescription(fields.seoDescription);
+            if (fields.canonicalUrl !== undefined) setCurrentCanonicalUrl(fields.canonicalUrl);
+            if (fields.ogImageUrl !== undefined) setCurrentOgImageUrl(fields.ogImageUrl);
+            if (fields.noIndex !== undefined) setCurrentNoIndex(fields.noIndex);
+            dispatch({ type: 'SET_SAVE_STATUS', status: 'unsaved' });
+          }}
+          onClose={() => setIsSeoOpen(false)}
+        />
       )}
 
       {/* Schedule Publish Modal */}

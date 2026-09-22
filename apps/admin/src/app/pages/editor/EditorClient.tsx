@@ -190,6 +190,9 @@ function PageBuilderContent() {
   const [pageTitle, setPageTitle] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
+  const [ogImageUrl, setOgImageUrl] = useState('');
+  const [noIndex, setNoIndex] = useState(false);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<
     Array<{ name: string; role?: string | null; imageUrl?: string | null }>
@@ -209,6 +212,9 @@ function PageBuilderContent() {
           setPageTitle(treeData.title || slug);
           setSeoTitle(treeData.seoTitle || '');
           setSeoDescription(treeData.seoDescription || '');
+          setCanonicalUrl((treeData as any).canonicalUrl || '');
+          setOgImageUrl((treeData as any).ogImageUrl || '');
+          setNoIndex((treeData as any).noIndex ?? false);
           setScheduledAt((treeData as any).scheduledAt || null);
           if (Array.isArray(treeData.teamMembers)) {
             setTeamMembers(treeData.teamMembers);
@@ -223,6 +229,9 @@ function PageBuilderContent() {
           setPageTitle(legacyData.title || slug);
           setSeoTitle(legacyData.seoTitle || '');
           setSeoDescription(legacyData.seoDescription || '');
+          setCanonicalUrl((legacyData as any).canonicalUrl || '');
+          setOgImageUrl((legacyData as any).ogImageUrl || '');
+          setNoIndex((legacyData as any).noIndex ?? false);
         }
 
         // 3. If still no tree, create a starter tree so the editor is never blank
@@ -257,6 +266,9 @@ function PageBuilderContent() {
       pageTitle={pageTitle || slug}
       seoTitle={seoTitle}
       seoDescription={seoDescription}
+      canonicalUrl={canonicalUrl}
+      ogImageUrl={ogImageUrl}
+      noIndex={noIndex}
       scheduledAt={scheduledAt}
     />
   );

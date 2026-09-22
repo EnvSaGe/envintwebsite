@@ -26,6 +26,7 @@ import {
   Maximize,
   Minimize,
   Copy,
+  Sparkles,
 } from 'lucide-react';
 import { Breakpoint, StudioState } from './StudioState';
 
@@ -41,6 +42,7 @@ interface StudioTopbarProps {
   onUndo: () => void;
   onRedo: () => void;
   onOpenHistory: () => void;
+  onOpenSeo?: () => void;
   onDuplicate?: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
@@ -75,6 +77,7 @@ export function StudioTopbar({
   onUndo,
   onRedo,
   onOpenHistory,
+  onOpenSeo,
   onDuplicate,
   onSaveDraft,
   onPublish,
@@ -286,6 +289,18 @@ export function StudioTopbar({
           >
             <Copy size={13} />
             <span className="hidden lg:inline">Duplicate</span>
+          </button>
+        )}
+
+        {onOpenSeo && (
+          <button
+            type="button"
+            onClick={onOpenSeo}
+            className="flex items-center gap-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1.5 text-[11px] font-medium text-sky-300 shadow-sm transition-all hover:border-sky-400/50 hover:bg-sky-500/20 hover:text-sky-100 active:scale-95"
+            title="Configure SEO title, meta description, social preview & indexing"
+          >
+            <Sparkles size={13} className="text-sky-400" />
+            <span>SEO</span>
           </button>
         )}
 

@@ -886,6 +886,9 @@ export async function scheduleTreePublishAction(pageData: {
   title: string;
   seoTitle?: string;
   seoDescription?: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  noIndex?: boolean;
   tree: PageBlockTree;
   scheduledAt: string; // ISO timestamp — must be in the future
 }) {
@@ -906,6 +909,9 @@ export async function scheduleTreePublishAction(pageData: {
       title: pageData.title,
       seoTitle: pageData.seoTitle,
       seoDescription: pageData.seoDescription,
+      canonicalUrl: pageData.canonicalUrl || null,
+      ogImageUrl: pageData.ogImageUrl || null,
+      noIndex: pageData.noIndex ?? false,
       // Explicit defaults: the live DB column has NOT NULL without a DB-level default
       layoutTemplate: 'standard',
       contentBlocks: [],
@@ -921,6 +927,9 @@ export async function scheduleTreePublishAction(pageData: {
         title: pageData.title,
         seoTitle: pageData.seoTitle,
         seoDescription: pageData.seoDescription,
+        canonicalUrl: pageData.canonicalUrl || null,
+        ogImageUrl: pageData.ogImageUrl || null,
+        noIndex: pageData.noIndex ?? false,
         draftBlocks: pageData.tree,
         schemaVersion: 2,
         scheduledAt: when,
