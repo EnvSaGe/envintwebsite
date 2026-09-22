@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@envint/db', '@envint/shared'],
   images: {
-    qualities: [75, 90, 95],
+    formats: ['image/avif', 'image/webp'],
+    qualities: [75, 80, 90],
     remotePatterns: [
       {
         protocol: 'https',

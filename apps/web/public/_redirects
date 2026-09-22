@@ -1,13 +1,12 @@
 # ==========================================================
 # ENVINT GLOBAL - AUTO-GENERATED FROM 02-url-migration.csv
 # DO NOT EDIT MANUALLY - Run: pnpm generate:redirects
-# Total Redirect Rules: 14
+# Total Redirect Rules: 13
 # Total 410 Gone Rules: 2
 # ==========================================================
 
-# 1. Explicit 301 Permanent Redirects (14 rules)
+# 1. Explicit 301 Permanent Redirects (13 rules)
 /member/                                           /about/                                       301!
-/envision                                          /envision/                                    301!
 /careers/                                          /careers-at-envint/                           301!
 /understanding-emissions/                          /ghg-emissions-explained-a-clear-guide/       301!
 /a-practical-guide-to-carbon-accounting/           /carbon-accounting-a-practical-guide/         301!

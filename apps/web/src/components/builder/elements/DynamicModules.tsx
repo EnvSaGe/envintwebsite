@@ -4,6 +4,7 @@ import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
 import JourneyCarousel, { type JourneyMilestone } from '@/components/about/JourneyCarousel';
 import { PopularArticlesCarousel } from '@/components/enviki/PopularArticlesCarousel';
 import Link from 'next/link';
+import Image from 'next/image';
 import { queryDynamicSource } from '@/lib/data/dynamic-sources';
 import { InteractiveImpactGrid } from './InteractiveImpactGrid';
 
@@ -258,14 +259,14 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
                 backgroundColor: '#f1f5f9',
               }}
             >
-              <img
+              <Image
                 src={coverImg}
-                alt={article.title}
+                alt={article.title || ''}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                quality={75}
                 style={{
-                  width: '100%',
-                  height: '100%',
                   objectFit: 'cover',
-                  display: 'block',
                   transition: 'transform 0.3s ease',
                 }}
               />

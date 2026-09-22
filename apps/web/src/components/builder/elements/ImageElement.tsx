@@ -16,13 +16,10 @@ export function imageContainerStyles(styles: BuilderNode['styles']): React.CSSPr
 export function imageDeliveryProps(content: BuilderNode['content']): { sizes: string; quality: number } {
   const requestedQuality = Number(content?.quality);
   return {
-    // A full-width default prevents Next.js from selecting a 640px candidate
-    // for wide CMS banners. Editors can provide a narrower responsive hint for
-    // grid/card images when bandwidth optimization matters.
     sizes: String(content?.sizes || '100vw'),
     quality: Number.isFinite(requestedQuality)
       ? Math.max(50, Math.min(100, Math.round(requestedQuality)))
-      : 90,
+      : 75,
   };
 }
 
@@ -39,16 +36,31 @@ export function ImageElement({ node }: { node: BuilderNode }) {
 
   const containerStyles = imageContainerStyles(node.styles);
 
-  const isRemote = src.startsWith('http://') || src.startsWith('https://');
+  const isSvg = src.endsWith('.svg') || src.startsWith('data:image/svg');
 
   return (
     <div data-builder-id={node.id} style={containerStyles}>
-      {isRemote ? (
+      {isSvg ? (
+        <img
+          src={src}
+          alt={isDecorative ? '' : alt}
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            height: inlineStyles.height || 'auto',
+            objectFit,
+            objectPosition,
+            display: 'block',
+          }}
+        />
+      ) : (
         <Image
           src={src}
           alt={isDecorative ? '' : alt}
           width={1200}
           height={800}
+          loading="lazy"
           style={{
             width: '100%',
             height: inlineStyles.height || 'auto',
@@ -58,18 +70,6 @@ export function ImageElement({ node }: { node: BuilderNode }) {
           }}
           sizes={delivery.sizes}
           quality={delivery.quality}
-        />
-      ) : (
-        <img
-          src={src}
-          alt={isDecorative ? '' : alt}
-          style={{
-            width: '100%',
-            height: inlineStyles.height || 'auto',
-            objectFit,
-            objectPosition,
-            display: 'block',
-          }}
         />
       )}
       {content.caption && (

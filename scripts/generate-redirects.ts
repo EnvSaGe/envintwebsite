@@ -70,6 +70,12 @@ export function generateRedirects() {
 
     if (row.action === '301_REDIRECT') {
       const targetPath = row.new_url;
+      // Skip self-redirects that only differ by a trailing slash (e.g. /envision -> /envision/)
+      // because Next.js (with trailingSlash: true) handles this natively, and in Netlify
+      // _redirects, /path matches /path/ and creates an infinite loop (ERR_TOO_MANY_REDIRECTS).
+      if (oldPath.replace(/\/+$/, '') === targetPath.replace(/\/+$/, '')) {
+        continue;
+      }
       redirectRules.push(`${oldPath.padEnd(50)} ${targetPath.padEnd(45)} 301!`);
     } else if (row.action === '410_REMOVE') {
       removeRules.push(`${oldPath.padEnd(50)} /                                             410!`);
