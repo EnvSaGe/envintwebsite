@@ -35,7 +35,6 @@ interface VisualStudioEditorProps {
   seoTitle?: string;
   seoDescription?: string;
   scheduledAt?: string | null;
-  onSwitchToLegacy?: () => void;
   entityType?: 'page' | 'template';
   contentScope?: 'Page' | 'Record' | 'Shared template' | 'Global';
   dependencyCount?: number;
