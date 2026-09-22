@@ -181,19 +181,23 @@ export async function GET(req: NextRequest) {
       `),
     ]);
 
+    const getRows = <T = any>(r: any): T[] => (Array.isArray(r) ? r : (r?.rows ?? []));
+    const totalViewsRows = getRows<{ count?: string | number }>(totalViews);
+    const uniqueVisitorsRows = getRows<{ count?: string | number }>(uniqueVisitors);
+
     return NextResponse.json({
       summary: {
-        totalViews: Number((totalViews.rows[0] as { count: string })?.count ?? 0),
-        uniqueVisitors: Number((uniqueVisitors.rows[0] as { count: string })?.count ?? 0),
+        totalViews: Number(totalViewsRows[0]?.count ?? 0),
+        uniqueVisitors: Number(uniqueVisitorsRows[0]?.count ?? 0),
         days,
       },
-      topPages: topPages.rows,
-      topCountries: topCountries.rows,
-      referrerSources: referrerSources.rows,
-      deviceBreakdown: deviceBreakdown.rows,
-      aiReferrals: aiReferrals.rows,
-      aiBotCrawls: aiBotCrawls.rows,
-      dailyTrend: dailyTrend.rows,
+      topPages: getRows(topPages),
+      topCountries: getRows(topCountries),
+      referrerSources: getRows(referrerSources),
+      deviceBreakdown: getRows(deviceBreakdown),
+      aiReferrals: getRows(aiReferrals),
+      aiBotCrawls: getRows(aiBotCrawls),
+      dailyTrend: getRows(dailyTrend),
     });
   } catch (err) {
     console.error('[analytics api]', err);

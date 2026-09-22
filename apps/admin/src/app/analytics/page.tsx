@@ -188,9 +188,9 @@ export default function AnalyticsPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   // Derived totals for the overview stat cards
-  const totalAISessions = data?.aiReferrals.reduce((s, r) => s + parseInt(r.sessions, 10), 0) ?? 0;
-  const totalBotCrawls = data?.aiBotCrawls.reduce((s, r) => s + parseInt(r.crawl_hits, 10), 0) ?? 0;
-  const sparklineData = data?.dailyTrend.map(d => parseInt(d.unique_visitors, 10)) ?? [];
+  const totalAISessions = data?.aiReferrals?.reduce((s, r) => s + parseInt(r.sessions, 10), 0) ?? 0;
+  const totalBotCrawls = data?.aiBotCrawls?.reduce((s, r) => s + parseInt(r.crawl_hits, 10), 0) ?? 0;
+  const sparklineData = data?.dailyTrend?.map(d => parseInt(d.unique_visitors, 10)) ?? [];
   const maxDailyVisitors = Math.max(...sparklineData, 1);
 
   return (
@@ -290,7 +290,7 @@ export default function AnalyticsPage() {
               value: data ? fmtNumber(data.summary.totalViews) : '—',
               icon: Eye, color: '#45b653',
               subtitle: `Human visits (bots excluded)`,
-              sparkData: data?.dailyTrend.map(d => parseInt(d.page_views, 10)) ?? [],
+              sparkData: data?.dailyTrend?.map(d => parseInt(d.page_views, 10)) ?? [],
             },
             {
               label: 'AI Search Visitors',
@@ -462,7 +462,7 @@ export default function AnalyticsPage() {
                 <Monitor size={16} color="#45b653" />
                 Device Breakdown
               </h2>
-              {data?.deviceBreakdown.length ? (() => {
+              {data?.deviceBreakdown?.length ? (() => {
                 const total = data.deviceBreakdown.reduce((s, d) => s + parseInt(d.visitors, 10), 0);
                 const icons: Record<string, typeof Monitor> = { desktop: Monitor, mobile: Smartphone, tablet: Tablet };
                 const colors: Record<string, string> = { desktop: '#3079bd', mobile: '#45b653', tablet: '#f59e0b' };
