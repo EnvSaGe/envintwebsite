@@ -7,6 +7,7 @@ import {
   Monitor, Smartphone, Tablet, RefreshCw, Activity, MessageSquare,
   Search, ExternalLink, ChevronDown, AlertCircle, Sparkles
 } from 'lucide-react';
+import { DailyTrendChart } from './DailyTrendChart';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -368,54 +369,7 @@ export default function AnalyticsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '22px' }}>
 
             {/* Daily Trend Chart */}
-            <div style={{
-              gridColumn: '1 / -1',
-              backgroundColor: '#ffffff', borderRadius: '14px', padding: '24px 28px',
-              border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <div>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                    Daily Visitor Trend
-                  </h2>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0' }}>Unique visitors per day (bots excluded)</p>
-                </div>
-                <TrendingUp size={18} color="#3079bd" />
-              </div>
-
-              {data && data.dailyTrend.length > 0 ? (
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '120px', padding: '0 4px' }}>
-                  {data.dailyTrend.map((d, i) => {
-                    const v = parseInt(d.unique_visitors, 10);
-                    const pct = maxDailyVisitors > 0 ? (v / maxDailyVisitors) * 100 : 0;
-                    const isLast = i === data.dailyTrend.length - 1;
-                    return (
-                      <div key={d.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-                        title={`${fmtDate(d.date)}: ${v} visitors`}
-                      >
-                        <div style={{
-                          width: '100%', height: `${Math.max(pct, 4)}%`,
-                          backgroundColor: isLast ? '#3079bd' : `rgba(48,121,189,0.35)`,
-                          borderRadius: '4px 4px 0 0',
-                          transition: 'height 0.5s ease',
-                          minHeight: '4px',
-                          cursor: 'default',
-                        }} />
-                        {data.dailyTrend.length <= 14 && (
-                          <span style={{ fontSize: '0.6rem', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                            {fmtDate(d.date).split(' ')[0]}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div style={{ height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '0.88rem' }}>
-                  {loading ? 'Loading chart...' : 'No data yet — visit the public website to start tracking.'}
-                </div>
-              )}
-            </div>
+            <DailyTrendChart data={data?.dailyTrend ?? []} days={days} />
 
             {/* Referrer Sources */}
             <div style={{

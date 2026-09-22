@@ -185,6 +185,30 @@ export async function GET(req: NextRequest) {
     const totalViewsRows = getRows<{ count?: string | number }>(totalViews);
     const uniqueVisitorsRows = getRows<{ count?: string | number }>(uniqueVisitors);
 
+    const rawDailyTrend = getRows<{ date: string | Date; unique_visitors?: string | number; page_views?: string | number }>(dailyTrend);
+    const dateMap = new Map<string, { unique_visitors: string; page_views: string }>();
+    for (const row of rawDailyTrend) {
+      const dStr = typeof row.date === 'string' ? row.date.slice(0, 10) : new Date(row.date).toISOString().slice(0, 10);
+      dateMap.set(dStr, {
+        unique_visitors: String(row.unique_visitors || 0),
+        page_views: String(row.page_views || 0),
+      });
+    }
+
+    const filledDailyTrend: Array<{ date: string; unique_visitors: string; page_views: string }> = [];
+    const now = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dStr = d.toISOString().slice(0, 10);
+      const existing = dateMap.get(dStr);
+      filledDailyTrend.push({
+        date: dStr,
+        unique_visitors: existing?.unique_visitors ?? '0',
+        page_views: existing?.page_views ?? '0',
+      });
+    }
+
     return NextResponse.json({
       summary: {
         totalViews: Number(totalViewsRows[0]?.count ?? 0),
@@ -197,7 +221,7 @@ export async function GET(req: NextRequest) {
       deviceBreakdown: getRows(deviceBreakdown),
       aiReferrals: getRows(aiReferrals),
       aiBotCrawls: getRows(aiBotCrawls),
-      dailyTrend: getRows(dailyTrend),
+      dailyTrend: filledDailyTrend,
     });
   } catch (err) {
     console.error('[analytics api]', err);
