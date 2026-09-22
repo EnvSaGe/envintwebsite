@@ -1,8 +1,8 @@
 # Netlify configuration for envint-web app
 
 [build]
-  publish = ".next"
-  command = "pnpm --filter @envint/web build"
+  publish = "apps/web/.next"
+  command = "pnpm --filter @envint/web build && node -e \"const fs=require('fs');try{if(!fs.existsSync('.next'))fs.symlinkSync('apps/web/.next','.next','junction')}catch(e){}\""
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
@@ -10,7 +10,7 @@
   PNPM_VERSION = "11.25.0"
 
 [functions]
-  directory = "netlify/functions"
+  directory = "apps/web/netlify/functions"
 
 # Hourly is deliberate for the Free plan. Editors can publish immediately;
 # this poll exists only for content scheduled for a future time.
