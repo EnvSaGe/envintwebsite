@@ -6,8 +6,11 @@ let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 export function getDb() {
   if (!_db) {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://mock:mock@localhost:5432/mock';
-    const sql = neon(connectionString);
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      console.error('❌ [Database Client] DATABASE_URL environment variable is NOT set! Please add DATABASE_URL in Netlify Site Configuration > Environment variables.');
+    }
+    const sql = neon(connectionString || 'postgresql://mock:mock@localhost:5432/mock');
     _db = drizzle(sql, { schema });
   }
   return _db;
