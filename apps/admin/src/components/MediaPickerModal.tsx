@@ -121,7 +121,16 @@ export function MediaPickerModal({ open, onClose, onSelect, title = 'Select Medi
                 placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ padding: '6px 10px 6px 28px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem', width: '200px' }}
+                style={{
+                  padding: '6px 10px 6px 28px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.82rem',
+                  width: '200px',
+                  color: '#0f172a',
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                }}
               />
             </div>
             <button

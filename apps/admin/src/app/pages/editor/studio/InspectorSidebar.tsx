@@ -37,7 +37,7 @@ import {
   AlignCenter,
   AlignRight,
 } from 'lucide-react';
-import { BuilderNode, ElementStyles, type ContentBinding, type DynamicQueryConfig } from '@envint/shared';
+import { BuilderNode, ElementStyles, resolveCmsImage, type ContentBinding, type DynamicQueryConfig } from '@envint/shared';
 import { Breakpoint, StudioState } from './StudioState';
 import { MediaPickerModal, PickedMedia } from '../../../../components/MediaPickerModal';
 import {
@@ -667,7 +667,7 @@ function ContentPanel({
           <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/60">
             {node.content?.src ? (
               <img
-                src={node.content.src}
+                src={resolveCmsImage(node.content.src)}
                 alt={node.content?.alt || ''}
                 className="h-28 w-full object-cover"
               />
