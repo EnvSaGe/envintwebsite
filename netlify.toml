@@ -3,7 +3,7 @@
 [build]
   base = "apps/web"
   publish = ".next"
-  command = "pnpm build"
+  command = "pnpm --filter @envint/web build"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"

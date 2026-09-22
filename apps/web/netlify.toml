@@ -2,10 +2,12 @@
 
 [build]
   publish = ".next"
-  command = "pnpm build"
+  command = "pnpm --filter @envint/web build"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
+  NODE_VERSION = "20"
+  PNPM_VERSION = "11.25.0"
 
 [functions]
   directory = "netlify/functions"
