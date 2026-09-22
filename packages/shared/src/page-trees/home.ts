@@ -317,7 +317,7 @@ export function createHomePageTree(): PageBlockTree {
     img_vantage: makeImage(
       'img_vantage',
       'grid_home_vantage',
-      resolveCmsImage('/images/vantage-2026.webp'),
+      resolveCmsImage('/images/vantage-2026-cover.webp'),
       'Vantage 2026: Navigating the ESG Reset - Envint Publication',
       { width: '100%', maxWidth: '635px', borderRadius: '20px' },
       'Vantage Report Cover'
@@ -381,7 +381,7 @@ export function createHomePageTree(): PageBlockTree {
       'btn_vantage_read',
       'vantage_links',
       'Read now',
-      '/envision/',
+      'https://envintcms.s3.ap-south-1.amazonaws.com/media/uploads/Vantage-2026-Navigating-the-ESG-Reset.pdf',
       'primary',
       {
         backgroundColor: 'transparent',

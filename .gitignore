@@ -44,6 +44,7 @@ wp-config.php
 *.zip
 envintmigration/
 migration-output/
+docs/migration/*.pdf
 catcss/
 sicss/
 srvcss/
