@@ -492,3 +492,15 @@ h1, h2, h3, h4, h5, h6 {
     transform: none;
   }
 }
+
+/* Hide Netlify HUD / Drawer / Powered by Netlify badge */
+netlify-drawer,
+[data-netlify-drawer],
+#netlify-drawer,
+iframe#netlify-drawer,
+[data-nf-variant] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
