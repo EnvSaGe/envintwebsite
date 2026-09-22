@@ -11,6 +11,7 @@ import {
   EyeOff,
   BarChart2,
   Info,
+  Target,
 } from 'lucide-react';
 
 export interface SeoSettingsModalProps {
@@ -18,12 +19,14 @@ export interface SeoSettingsModalProps {
   pageTitle: string;
   seoTitle: string;
   seoDescription: string;
+  focusKeyphrase?: string;
   canonicalUrl: string;
   ogImageUrl: string;
   noIndex: boolean;
   onUpdate: (fields: {
     seoTitle?: string;
     seoDescription?: string;
+    focusKeyphrase?: string;
     canonicalUrl?: string;
     ogImageUrl?: string;
     noIndex?: boolean;
@@ -36,6 +39,7 @@ export function SeoSettingsModal({
   pageTitle,
   seoTitle,
   seoDescription,
+  focusKeyphrase = '',
   canonicalUrl,
   ogImageUrl,
   noIndex,
@@ -43,6 +47,23 @@ export function SeoSettingsModal({
   onClose,
 }: SeoSettingsModalProps) {
   const [activeTab, setActiveTab] = useState<'search' | 'social' | 'advanced'>('search');
+
+  const cleanKeyphrase = focusKeyphrase.trim().toLowerCase();
+  const keyphraseWords = cleanKeyphrase ? cleanKeyphrase.split(/\s+/).filter(Boolean) : [];
+  const keyphraseWordCount = keyphraseWords.length;
+  const isKeyphraseSet = cleanKeyphrase.length > 0;
+
+  // Real-time checks
+  const inTitle = isKeyphraseSet && seoTitle.toLowerCase().includes(cleanKeyphrase);
+  const inDescription = isKeyphraseSet && seoDescription.toLowerCase().includes(cleanKeyphrase);
+
+  const slugClean = slug.toLowerCase().replace(/[^a-z0-9]+/g, ' ');
+  const inSlug =
+    isKeyphraseSet &&
+    (slugClean.includes(cleanKeyphrase.replace(/[^a-z0-9]+/g, ' ')) ||
+      (keyphraseWords.length > 0 && keyphraseWords.every((w) => slugClean.includes(w))));
+
+  const isGoodLength = keyphraseWordCount >= 2 && keyphraseWordCount <= 4;
 
   return (
     <div
@@ -252,6 +273,159 @@ export function SeoSettingsModal({
                       'Add a meta description to explain what this page is about to search engines and users.'}
                   </div>
                 </div>
+              </div>
+
+              {/* Focus Keyphrase */}
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label
+                    style={{
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      color: '#1e293b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <Target size={15} color="#3079bd" />
+                    Focus Keyphrase
+                    <span style={{ fontSize: '0.72rem', fontWeight: 400, color: '#64748b' }}>
+                      (Target ranking keyword)
+                    </span>
+                  </label>
+                  {isKeyphraseSet && (
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                        backgroundColor: inTitle && inDescription && inSlug ? '#dcfce7' : '#fef3c7',
+                        color: inTitle && inDescription && inSlug ? '#15803d' : '#b45309',
+                      }}
+                    >
+                      {inTitle && inDescription && inSlug ? 'All Keyphrase Checks Passed' : 'Needs Optimization'}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="e.g. sustainability reporting, carbon accounting software"
+                    value={focusKeyphrase}
+                    onChange={(e) => onUpdate({ focusKeyphrase: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      backgroundColor: '#ffffff',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit',
+                      fontWeight: 500,
+                      color: '#0f172a',
+                    }}
+                  />
+                </div>
+
+                {isKeyphraseSet ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {/* In Title */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        backgroundColor: inTitle ? '#ecfdf5' : '#fff1f2',
+                        border: `1px solid ${inTitle ? '#a7f3d0' : '#fecdd3'}`,
+                        color: inTitle ? '#047857' : '#be123c',
+                      }}
+                    >
+                      {inTitle ? <Check size={12} /> : <X size={12} />}
+                      In SEO Title
+                    </div>
+
+                    {/* In Description */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        backgroundColor: inDescription ? '#ecfdf5' : '#fff1f2',
+                        border: `1px solid ${inDescription ? '#a7f3d0' : '#fecdd3'}`,
+                        color: inDescription ? '#047857' : '#be123c',
+                      }}
+                    >
+                      {inDescription ? <Check size={12} /> : <X size={12} />}
+                      In Meta Description
+                    </div>
+
+                    {/* In URL slug */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        backgroundColor: inSlug ? '#ecfdf5' : '#fff1f2',
+                        border: `1px solid ${inSlug ? '#a7f3d0' : '#fecdd3'}`,
+                        color: inSlug ? '#047857' : '#be123c',
+                      }}
+                    >
+                      {inSlug ? <Check size={12} /> : <X size={12} />}
+                      In URL Slug
+                    </div>
+
+                    {/* Word count */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        backgroundColor: isGoodLength ? '#ecfdf5' : '#fefce8',
+                        border: `1px solid ${isGoodLength ? '#a7f3d0' : '#fef08a'}`,
+                        color: isGoodLength ? '#047857' : '#854d0e',
+                      }}
+                    >
+                      {isGoodLength ? <Check size={12} /> : <Info size={12} />}
+                      {keyphraseWordCount} {keyphraseWordCount === 1 ? 'word' : 'words'}{' '}
+                      {isGoodLength ? '(Good length)' : '(Recommend 2–4 words)'}
+                    </div>
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '0.74rem', color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                    💡 Set the exact phrase you want this page to rank for. We&apos;ll check if it appears in your title, description, and URL slug in real time.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -733,6 +907,26 @@ export function SeoSettingsModal({
                   SEO Checklist
                 </div>
                 {[
+                  {
+                    label: 'Focus keyphrase defined',
+                    ok: isKeyphraseSet,
+                  },
+                  ...(isKeyphraseSet
+                    ? [
+                        {
+                          label: 'Keyphrase in SEO Title',
+                          ok: inTitle,
+                        },
+                        {
+                          label: 'Keyphrase in Meta Description',
+                          ok: inDescription,
+                        },
+                        {
+                          label: 'Keyphrase in URL slug',
+                          ok: inSlug,
+                        },
+                      ]
+                    : []),
                   {
                     label: 'SEO Title set (≤60 chars)',
                     ok: seoTitle.length > 0 && seoTitle.length <= 60,

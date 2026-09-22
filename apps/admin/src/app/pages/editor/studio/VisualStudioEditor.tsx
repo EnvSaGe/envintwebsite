@@ -35,6 +35,7 @@ interface VisualStudioEditorProps {
   pageTitle: string;
   seoTitle?: string;
   seoDescription?: string;
+  focusKeyphrase?: string;
   canonicalUrl?: string;
   ogImageUrl?: string;
   noIndex?: boolean;
@@ -86,6 +87,7 @@ export function VisualStudioEditor({
   pageTitle,
   seoTitle: initialSeoTitle = '',
   seoDescription: initialSeoDescription = '',
+  focusKeyphrase: initialFocusKeyphrase = '',
   canonicalUrl: initialCanonicalUrl = '',
   ogImageUrl: initialOgImageUrl = '',
   noIndex: initialNoIndex = false,
@@ -108,6 +110,7 @@ export function VisualStudioEditor({
   /* SEO modal and settings state */
   const [currentSeoTitle, setCurrentSeoTitle] = useState(initialSeoTitle || '');
   const [currentSeoDescription, setCurrentSeoDescription] = useState(initialSeoDescription || '');
+  const [currentFocusKeyphrase, setCurrentFocusKeyphrase] = useState(initialFocusKeyphrase || '');
   const [currentCanonicalUrl, setCurrentCanonicalUrl] = useState(initialCanonicalUrl || '');
   const [currentOgImageUrl, setCurrentOgImageUrl] = useState(initialOgImageUrl || '');
   const [currentNoIndex, setCurrentNoIndex] = useState(initialNoIndex ?? false);
@@ -116,14 +119,16 @@ export function VisualStudioEditor({
   useEffect(() => {
     if (initialSeoTitle) setCurrentSeoTitle(initialSeoTitle);
     if (initialSeoDescription) setCurrentSeoDescription(initialSeoDescription);
+    if (initialFocusKeyphrase !== undefined) setCurrentFocusKeyphrase(initialFocusKeyphrase);
     if (initialCanonicalUrl) setCurrentCanonicalUrl(initialCanonicalUrl);
     if (initialOgImageUrl) setCurrentOgImageUrl(initialOgImageUrl);
     if (initialNoIndex !== undefined) setCurrentNoIndex(initialNoIndex);
-  }, [initialSeoTitle, initialSeoDescription, initialCanonicalUrl, initialOgImageUrl, initialNoIndex]);
+  }, [initialSeoTitle, initialSeoDescription, initialFocusKeyphrase, initialCanonicalUrl, initialOgImageUrl, initialNoIndex]);
 
   const seoRef = useRef({
     seoTitle: currentSeoTitle,
     seoDescription: currentSeoDescription,
+    focusKeyphrase: currentFocusKeyphrase,
     canonicalUrl: currentCanonicalUrl,
     ogImageUrl: currentOgImageUrl,
     noIndex: currentNoIndex,
@@ -131,6 +136,7 @@ export function VisualStudioEditor({
   seoRef.current = {
     seoTitle: currentSeoTitle,
     seoDescription: currentSeoDescription,
+    focusKeyphrase: currentFocusKeyphrase,
     canonicalUrl: currentCanonicalUrl,
     ogImageUrl: currentOgImageUrl,
     noIndex: currentNoIndex,
@@ -694,12 +700,14 @@ export function VisualStudioEditor({
           pageTitle={pageTitle}
           seoTitle={currentSeoTitle}
           seoDescription={currentSeoDescription}
+          focusKeyphrase={currentFocusKeyphrase}
           canonicalUrl={currentCanonicalUrl}
           ogImageUrl={currentOgImageUrl}
           noIndex={currentNoIndex}
           onUpdate={(fields) => {
             if (fields.seoTitle !== undefined) setCurrentSeoTitle(fields.seoTitle);
             if (fields.seoDescription !== undefined) setCurrentSeoDescription(fields.seoDescription);
+            if (fields.focusKeyphrase !== undefined) setCurrentFocusKeyphrase(fields.focusKeyphrase);
             if (fields.canonicalUrl !== undefined) setCurrentCanonicalUrl(fields.canonicalUrl);
             if (fields.ogImageUrl !== undefined) setCurrentOgImageUrl(fields.ogImageUrl);
             if (fields.noIndex !== undefined) setCurrentNoIndex(fields.noIndex);

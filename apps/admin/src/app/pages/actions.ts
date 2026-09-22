@@ -699,6 +699,7 @@ export async function fetchPageTreeAction(slug: string) {
     canonicalUrl: record?.canonicalUrl || '',
     ogImageUrl: record?.ogImageUrl || '',
     noIndex: record?.noIndex ?? false,
+    focusKeyphrase: (record?.draftBlocks as any)?.focusKeyphrase || (record?.publishedBlocks as any)?.focusKeyphrase || '',
     status: record?.status || 'PUBLISHED',
     scheduledAt: record?.scheduledAt ? new Date(record.scheduledAt).toISOString() : null,
     schemaVersion: record?.schemaVersion || 2,
@@ -712,9 +713,13 @@ export async function fetchPageTreeAction(slug: string) {
 export async function saveDraftTreeAction(
   slug: string,
   tree: PageBlockTree,
-  meta?: { title?: string; seoTitle?: string; seoDescription?: string; canonicalUrl?: string; ogImageUrl?: string; noIndex?: boolean }
+  meta?: { title?: string; seoTitle?: string; seoDescription?: string; focusKeyphrase?: string; canonicalUrl?: string; ogImageUrl?: string; noIndex?: boolean }
 ) {
   await requireRole(['super_admin', 'editor']);
+
+  if (meta?.focusKeyphrase !== undefined) {
+    (tree as any).focusKeyphrase = meta.focusKeyphrase;
+  }
 
   const pathSlug = slug.startsWith('/') ? slug : `/${slug}`;
   const cleanSlug = slug.startsWith('/') ? slug.slice(1) : slug;
@@ -759,6 +764,7 @@ export async function publishTreeAction(pageData: {
   title: string;
   seoTitle?: string;
   seoDescription?: string;
+  focusKeyphrase?: string;
   canonicalUrl?: string;
   ogImageUrl?: string;
   noIndex?: boolean;
@@ -766,6 +772,10 @@ export async function publishTreeAction(pageData: {
 }) {
   await requireRole(['super_admin', 'editor']);
   const userInfo = await getCurrentUserInfo();
+
+  if (pageData.focusKeyphrase !== undefined) {
+    (pageData.tree as any).focusKeyphrase = pageData.focusKeyphrase;
+  }
 
   const pathSlug = pageData.slug.startsWith('/') ? pageData.slug : `/${pageData.slug}`;
   const cleanSlug = pageData.slug.startsWith('/') ? pageData.slug.slice(1) : pageData.slug;
@@ -886,6 +896,7 @@ export async function scheduleTreePublishAction(pageData: {
   title: string;
   seoTitle?: string;
   seoDescription?: string;
+  focusKeyphrase?: string;
   canonicalUrl?: string;
   ogImageUrl?: string;
   noIndex?: boolean;
@@ -893,6 +904,10 @@ export async function scheduleTreePublishAction(pageData: {
   scheduledAt: string; // ISO timestamp — must be in the future
 }) {
   await requireRole(['super_admin', 'editor']);
+
+  if (pageData.focusKeyphrase !== undefined) {
+    (pageData.tree as any).focusKeyphrase = pageData.focusKeyphrase;
+  }
 
   const when = new Date(pageData.scheduledAt);
   if (Number.isNaN(when.getTime())) throw new Error('Invalid schedule date.');

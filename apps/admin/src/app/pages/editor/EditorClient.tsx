@@ -190,6 +190,7 @@ function PageBuilderContent() {
   const [pageTitle, setPageTitle] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDescription, setSeoDescription] = useState('');
+  const [focusKeyphrase, setFocusKeyphrase] = useState('');
   const [canonicalUrl, setCanonicalUrl] = useState('');
   const [ogImageUrl, setOgImageUrl] = useState('');
   const [noIndex, setNoIndex] = useState(false);
@@ -212,6 +213,7 @@ function PageBuilderContent() {
           setPageTitle(treeData.title || slug);
           setSeoTitle(treeData.seoTitle || '');
           setSeoDescription(treeData.seoDescription || '');
+          setFocusKeyphrase((treeData as any).focusKeyphrase || '');
           setCanonicalUrl((treeData as any).canonicalUrl || '');
           setOgImageUrl((treeData as any).ogImageUrl || '');
           setNoIndex((treeData as any).noIndex ?? false);
@@ -266,6 +268,7 @@ function PageBuilderContent() {
       pageTitle={pageTitle || slug}
       seoTitle={seoTitle}
       seoDescription={seoDescription}
+      focusKeyphrase={focusKeyphrase}
       canonicalUrl={canonicalUrl}
       ogImageUrl={ogImageUrl}
       noIndex={noIndex}
