@@ -1,21 +1,23 @@
-# Netlify configuration for envint-web app
+# Netlify root configuration for Envint monorepo (Public Web application)
 
 [build]
+  base = "apps/web"
   publish = ".next"
   command = "pnpm build"
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
+  NODE_VERSION = "20"
+  PNPM_VERSION = "11.25.0"
 
 [functions]
   directory = "netlify/functions"
 
-# Hourly is deliberate for the Free plan. Editors can publish immediately;
-# this poll exists only for content scheduled for a future time.
+# Hourly scheduler for published/scheduled content
 [functions."publish-scheduled"]
   schedule = "@hourly"
 
-# Headers
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -23,7 +25,7 @@
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Caching static assets
+# Cache Next.js immutable static assets
 [[headers]]
   for = "/_next/static/*"
   [headers.values]

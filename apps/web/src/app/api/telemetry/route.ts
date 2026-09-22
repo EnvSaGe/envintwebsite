@@ -60,6 +60,29 @@ function detectBotAgent(ua: string): string | null {
   return null;
 }
 
+function extractGeo(req: NextRequest): { country: string | null; city: string | null } {
+  let country = req.headers.get('x-country') || req.headers.get('x-nf-country') || null;
+  let city = req.headers.get('x-city') || req.headers.get('x-nf-city') || null;
+
+  if (!country || !city) {
+    const nfGeo = req.headers.get('x-nf-geo');
+    if (nfGeo) {
+      try {
+        const parsed = JSON.parse(Buffer.from(nfGeo, 'base64').toString('utf-8'));
+        if (!country && parsed.country?.code) country = parsed.country.code;
+        if (!city && parsed.city) city = parsed.city;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  return {
+    country: country || null,
+    city: city ? decodeURIComponent(city) : null,
+  };
+}
+
 // Anonymized daily hash — rotates at midnight UTC, no PII ever stored
 function buildVisitorHash(ip: string, ua: string): string {
   const today = new Date().toISOString().slice(0, 10); // "2026-09-19"
@@ -111,16 +134,13 @@ export async function POST(req: NextRequest) {
     const pageTitle = body.title || null;
     const referrerUrl = body.referrer || null;
 
-    // Gather request metadata from Vercel edge headers
+    // Gather request metadata from Netlify / edge headers
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       req.headers.get('x-real-ip') ||
       'unknown';
     const ua = req.headers.get('user-agent') || '';
-    const country = req.headers.get('x-vercel-ip-country') || null;
-    const city = req.headers.get('x-vercel-ip-city') 
-      ? decodeURIComponent(req.headers.get('x-vercel-ip-city') as string) 
-      : null;
+    const { country, city } = extractGeo(req);
 
     const visitorHash = buildVisitorHash(ip, ua);
     const referrerSource = classifyReferrer(referrerUrl);
@@ -152,10 +172,7 @@ export async function GET(req: NextRequest) {
   const path = new URL(req.url).searchParams.get('path') || '/';
   const ua = req.headers.get('user-agent') || '';
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const country = req.headers.get('x-vercel-ip-country') || null;
-  const city = req.headers.get('x-vercel-ip-city')
-    ? decodeURIComponent(req.headers.get('x-vercel-ip-city') as string)
-    : null;
+  const { country, city } = extractGeo(req);
 
   const botAgent = detectBotAgent(ua);
   if (!botAgent) return NextResponse.json({ ok: false }, { status: 204 });

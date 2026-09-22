@@ -11,10 +11,9 @@ build/
 *.tsbuildinfo
 .freebuff/
 
-# Vercel Project & Deployment Artifacts
-.vercel/
-**/.vercel/
-.vercel.*
+# Netlify Project & Deployment Artifacts
+.netlify/
+**/.netlify/
 *.backup/
 *.backup*
 *.bak*

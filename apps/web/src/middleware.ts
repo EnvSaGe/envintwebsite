@@ -11,12 +11,22 @@ export function middleware(request: NextRequest) {
   if (AI_BOT_REGEX.test(ua)) {
     const telemetryUrl = new URL('/api/telemetry/', request.url);
     telemetryUrl.searchParams.set('path', request.nextUrl.pathname);
+    const country =
+      request.headers.get('x-country') ||
+      request.headers.get('x-nf-country') ||
+      request.headers.get('x-vercel-ip-country') ||
+      '';
+    const city =
+      request.headers.get('x-city') ||
+      request.headers.get('x-nf-city') ||
+      request.headers.get('x-vercel-ip-city') ||
+      '';
     fetch(telemetryUrl.toString(), {
       headers: {
         'user-agent': ua,
         'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
-        'x-vercel-ip-country': request.headers.get('x-vercel-ip-country') || '',
-        'x-vercel-ip-city': request.headers.get('x-vercel-ip-city') || '',
+        'x-country': country,
+        'x-city': city,
       },
     }).catch(() => {});
   }
