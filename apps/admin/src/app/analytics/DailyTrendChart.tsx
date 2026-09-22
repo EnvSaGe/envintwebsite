@@ -511,32 +511,63 @@ export function DailyTrendChart({ data, days }: DailyTrendChartProps) {
             );
           })}
 
-          {/* X-Axis Dates */}
-          {points.map((p, i) => {
-            // Pick optimal interval so labels never overlap
-            const interval =
-              points.length <= 8 ? 1 : points.length <= 15 ? 2 : points.length <= 31 ? 4 : 7;
-            const isFirst = i === 0;
-            const isLast = i === points.length - 1;
-            const showLabel = isFirst || isLast || i % interval === 0;
+          {/* X-Axis Dates - Evenly spaced ticks that never collide */}
+          {(() => {
+            const count = points.length;
+            if (count === 0) return null;
+            // Target ~6 ticks maximum across the chart to ensure spacious separation
+            const targetTicks = Math.min(6, count);
+            if (targetTicks <= 1) {
+              return (
+                <text
+                  key={points[0].date}
+                  x={points[0].x}
+                  y={PAD_TOP + PLOT_HEIGHT + 20}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fill="#64748b"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight="500"
+                >
+                  {formatTickDate(points[0].date)}
+                </text>
+              );
+            }
 
-            if (!showLabel) return null;
-
-            return (
-              <text
-                key={p.date}
-                x={p.x}
-                y={PAD_TOP + PLOT_HEIGHT + 20}
-                textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
-                fontSize="11"
-                fill="#64748b"
-                fontFamily="system-ui, sans-serif"
-                fontWeight="500"
-              >
-                {formatTickDate(p.date)}
-              </text>
+            // Calculate evenly spaced step indices from 0 to count - 1
+            const rawIndices = Array.from({ length: targetTicks }, (_, idx) =>
+              Math.round((idx / (targetTicks - 1)) * (count - 1))
             );
-          })}
+            // Deduplicate and filter out any ticks that are too close (at least 2 data points apart)
+            const tickIndices: number[] = [];
+            for (const idx of rawIndices) {
+              if (tickIndices.length === 0 || idx - tickIndices[tickIndices.length - 1] >= 2) {
+                tickIndices.push(idx);
+              }
+            }
+
+            return tickIndices.map((i) => {
+              const p = points[i];
+              if (!p) return null;
+              const isFirst = i === 0;
+              const isLast = i === count - 1;
+
+              return (
+                <text
+                  key={p.date}
+                  x={p.x}
+                  y={PAD_TOP + PLOT_HEIGHT + 20}
+                  textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
+                  fontSize="11"
+                  fill="#64748b"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight="500"
+                >
+                  {formatTickDate(p.date)}
+                </text>
+              );
+            });
+          })()}
         </svg>
 
         {/* Floating Tooltip */}
