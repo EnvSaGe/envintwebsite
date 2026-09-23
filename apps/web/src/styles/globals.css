@@ -493,6 +493,24 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Enviki Subhub Cards & Vantage Banner Interactions */
+.enviki-subhub-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+.enviki-subhub-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2) !important;
+}
+.vantage-card-btn {
+  transition: all 0.25s ease !important;
+}
+.vantage-card-btn:hover {
+  background-color: #f0fdf4 !important;
+  color: #003322 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
 /* Hide Netlify HUD / Drawer / Powered by Netlify badge */
 netlify-drawer,
 [data-netlify-drawer],

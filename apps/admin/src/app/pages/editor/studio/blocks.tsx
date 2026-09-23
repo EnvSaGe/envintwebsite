@@ -162,19 +162,18 @@ export function HeadingPrimitive({ node }: { node: BuilderNode }) {
   );
 }
 
-/** Studio-only safe subset of inline tags (mirrors public sanitizer allowlist). */
-const SAFE_INLINE_TAGS = ['p', 'b', 'strong', 'i', 'em', 'u', 'a', 'ul', 'ol', 'li', 'br', 'span'];
-const DANGEROUS_HTML = /<\s*\/?\s*(script|iframe|object|embed|style|link|meta)\b/i;
-const EVENT_ATTR = /\son\w+\s*=/i;
-const JS_URL = /href\s*=\s*["']?\s*javascript:/i;
+/** Studio-only safe subset of tags (mirrors public ParagraphElement allowlist). */
+const DANGEROUS_BLOCKS = /<\s*(script|iframe|object|embed|meta)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>|<\s*(script|iframe|object|embed|meta)\b[^>]*\/?>/gi;
+const EVENT_ATTR = /\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+const JS_URL = /href\s*=\s*["']?\s*javascript:[^"'>]*/gi;
 
 /** Minimal allowlist sanitizer for the studio preview (parity with public ParagraphElement). */
 export function sanitizeInlineHtml(raw: string): string {
   if (!raw) return '';
-  if (DANGEROUS_HTML.test(raw) || EVENT_ATTR.test(raw) || JS_URL.test(raw)) {
-    return raw.replace(/<[^>]*>/g, '');
-  }
-  return raw;
+  return raw
+    .replace(DANGEROUS_BLOCKS, '')
+    .replace(EVENT_ATTR, '')
+    .replace(JS_URL, 'href="#"');
 }
 
 function escapeHtml(text: string): string {
@@ -198,10 +197,7 @@ export function ParagraphPrimitive({ node }: { node: BuilderNode }) {
     );
   }
 
-  let html = sanitizeInlineHtml(rawHtml);
-  // Remove disallowed tags but keep their inner text (mirrors public discard mode)
-  html = html.replace(/<(?!\/?(?:p|b|strong|i|em|u|a|ul|ol|li|br|span)\b)[^>]*>/gi, '');
-
+  const html = sanitizeInlineHtml(rawHtml);
   return <div data-builder-id={node.id} style={inlineStyles} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
