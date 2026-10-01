@@ -1,5 +1,27 @@
 'use server';
 
+/**
+ * ============================================================================
+ * PAGES SERVER ACTIONS (`/pages` & Visual Studio Builder)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions executed on the Node.js server to manage website pages.
+ * Handles the complete lifecycle of pages: creating, updating draft trees,
+ * publishing trees, restoring past revisions, scheduling future publish,
+ * duplicating pages, and triggering on-demand cache revalidations.
+ * 
+ * DATABASE TABLES MODIFIED:
+ * - `pages`: Stores page metadata, `draftBlocks` (JSON tree), and `publishedBlocks` (JSON tree).
+ * - `page_revisions`: Audit log of previous revisions for 1-click restore/rollback.
+ * 
+ * CACHE REVALIDATION:
+ * When pages are published, unpublished, or restored, this file calls
+ * `dispatchRevalidation()` to invalidate Next.js cache tags (`page:<slug>`, `pages:list`)
+ * on the public web application (`apps/web`).
+ * ============================================================================
+ */
+
 import { db, pages, pageRevisions, teamMembers, insights, impactCaseStudies, eq, asc, desc, or } from '@envint/db';
 import { requireRole, getCurrentUserInfo } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';

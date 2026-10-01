@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * ============================================================================
+ * CMS DATA BINDING INSPECTOR (`/pages/editor/studio/inspectors`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Property panel component allowing editors to bind static elements (Heading,
+ * Paragraph, Image, Button) to dynamic database fields.
+ * 
+ * EXAMPLE USE CASES:
+ * - In an Insight article template, binds a Heading element to `record.title`.
+ * - Binds an Image element to `record.coverImageUrl`.
+ * - Binds a Paragraph element to `record.summary` or `author.bio`.
+ * ============================================================================
+ */
+
 import React from 'react';
 import type { BuilderNode, ContentBinding } from '@envint/shared';
 

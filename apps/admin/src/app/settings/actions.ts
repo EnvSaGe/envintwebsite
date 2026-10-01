@@ -1,5 +1,17 @@
 'use server';
 
+/**
+ * ============================================================================
+ * CLERK RBAC USER MANAGEMENT SERVER ACTIONS (`/settings`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server actions integrating with Clerk's Backend SDK (`@clerk/nextjs/server`)
+ * to manage user authorization, role assignments (`publicMetadata.role`),
+ * and team member invitations.
+ * ============================================================================
+ */
+
 import { clerkClient } from '@clerk/nextjs/server';
 import { requireRole } from '@/lib/clerk-rbac';
 import { revalidatePath } from 'next/cache';

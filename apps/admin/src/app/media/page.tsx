@@ -1,5 +1,22 @@
 'use client';
 
+/**
+ * ============================================================================
+ * MEDIA LIBRARY (`/media`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Central asset library for uploading, organizing, and copying image assets stored
+ * on AWS S3 (`envintcms.s3.ap-south-1.amazonaws.com`).
+ * 
+ * FEATURES:
+ * - Direct S3 drag-and-drop file uploader with progress state.
+ * - Grid gallery of images with dimensions, file size, and upload date.
+ * - 1-Click "Copy URL" button for inserting images into the Visual Studio Builder.
+ * - In-place alt text editor for image accessibility and SEO.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import { Image as ImageIcon, Search, Copy, Check, ExternalLink, Upload, Loader2, Trash2, X } from 'lucide-react';

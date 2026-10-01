@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * ============================================================================
+ * CONTENT TEMPLATES DASHBOARD (`/templates`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Management dashboard for dynamic content templates (Article templates,
+ * Impact case study templates, Team member bio layouts, Taxonomy archives,
+ * and Global headers/footers).
+ * 
+ * WORKFLOW:
+ * - Templates define the visual layout for entire categories of dynamic records.
+ * - Opening a template launches the Visual Studio Editor with dynamic record bindings.
+ * ============================================================================
+ */
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

@@ -1,5 +1,22 @@
 'use client';
 
+/**
+ * ============================================================================
+ * DYNAMIC QUERY INSPECTOR (`/pages/editor/studio/inspectors`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Property panel component configuring database queries for dynamic collection
+ * modules (Insights Grid, Impact Grid, Team Grid, Service Cards).
+ * 
+ * CAPABILITIES:
+ * - Filter by categories (e.g. category = 'enviki', 'glossary-zone').
+ * - Filter by tags or authors.
+ * - Set maximum record limits (e.g. limit = 30).
+ * - Configure sort order (latest published, title alphabetical).
+ * ============================================================================
+ */
+
 import type { BuilderNode, DynamicQueryConfig } from '@envint/shared';
 
 const SOURCE_BY_NODE: Partial<Record<BuilderNode['type'], DynamicQueryConfig['source']>> = {

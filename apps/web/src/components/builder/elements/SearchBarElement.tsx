@@ -39,6 +39,18 @@ function SearchBarInner({ node }: SearchBarElementProps) {
     }
   }, []);
 
+  // Sync external search clears or changes (e.g. from clear filter button in grids)
+  useEffect(() => {
+    const handleExternalSearch = (e: Event) => {
+      const custom = e as CustomEvent<{ query: string }>;
+      if (custom.detail && typeof custom.detail.query === 'string' && custom.detail.query !== query) {
+        setQuery(custom.detail.query);
+      }
+    };
+    window.addEventListener('envint:search', handleExternalSearch);
+    return () => window.removeEventListener('envint:search', handleExternalSearch);
+  }, [query]);
+
   // Broadcast search query on change (live filter)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -81,17 +93,21 @@ function SearchBarInner({ node }: SearchBarElementProps) {
   return (
     <div
       data-builder-id={node.id}
+      data-builder-type="search-bar"
+      className="envint-search-bar-wrapper"
       style={{
-        width: '100%',
+        width: node.styles?.width || '100%',
         maxWidth: node.styles?.maxWidth || '680px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        marginLeft: node.styles?.marginLeft || 'auto',
+        marginRight: node.styles?.marginRight || 'auto',
         marginTop: node.styles?.marginTop || '0px',
         marginBottom: node.styles?.marginBottom || '36px',
+        boxSizing: 'border-box',
       }}
     >
       <form
         onSubmit={handleSubmit}
+        className="envint-search-bar-form group focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -101,8 +117,9 @@ function SearchBarInner({ node }: SearchBarElementProps) {
           boxShadow: '0 4px 24px rgba(0, 78, 53, 0.08), 0 1px 3px rgba(0,0,0,0.05)',
           border: '1px solid #E2E8F0',
           transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
-        className="group focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-500/20"
       >
         <svg
           width="19"
@@ -127,6 +144,8 @@ function SearchBarInner({ node }: SearchBarElementProps) {
           aria-label="Search"
           style={{
             flex: 1,
+            minWidth: 0,
+            width: '100%',
             border: 'none',
             outline: 'none',
             fontSize: '15px',
@@ -151,6 +170,7 @@ function SearchBarInner({ node }: SearchBarElementProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -163,6 +183,7 @@ function SearchBarInner({ node }: SearchBarElementProps) {
         {showButton && (
           <button
             type="submit"
+            className="envint-search-bar-btn"
             style={{
               backgroundColor: '#004E35',
               color: '#ffffff',
@@ -176,6 +197,7 @@ function SearchBarInner({ node }: SearchBarElementProps) {
               fontFamily: 'Neue Montreal, sans-serif',
               boxShadow: '0 2px 8px rgba(0, 78, 53, 0.25)',
               transition: 'background-color 0.15s ease',
+              flexShrink: 0,
             }}
             onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#006644')}
             onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#004E35')}
@@ -197,17 +219,21 @@ function SearchBarStatic({ node }: SearchBarElementProps) {
   return (
     <div
       data-builder-id={node.id}
+      data-builder-type="search-bar"
+      className="envint-search-bar-wrapper"
       style={{
-        width: '100%',
+        width: node.styles?.width || '100%',
         maxWidth: node.styles?.maxWidth || '680px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        marginLeft: node.styles?.marginLeft || 'auto',
+        marginRight: node.styles?.marginRight || 'auto',
         marginTop: node.styles?.marginTop || '0px',
         marginBottom: node.styles?.marginBottom || '36px',
+        boxSizing: 'border-box',
       }}
     >
       <form
         onSubmit={(e) => e.preventDefault()}
+        className="envint-search-bar-form"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -216,6 +242,8 @@ function SearchBarStatic({ node }: SearchBarElementProps) {
           padding: '6px 8px 6px 20px',
           boxShadow: '0 4px 24px rgba(0, 78, 53, 0.08), 0 1px 3px rgba(0,0,0,0.05)',
           border: '1px solid #E2E8F0',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <svg
@@ -240,6 +268,8 @@ function SearchBarStatic({ node }: SearchBarElementProps) {
           aria-label="Search"
           style={{
             flex: 1,
+            minWidth: 0,
+            width: '100%',
             border: 'none',
             outline: 'none',
             fontSize: '15px',
@@ -253,6 +283,7 @@ function SearchBarStatic({ node }: SearchBarElementProps) {
         {showButton && (
           <button
             type="submit"
+            className="envint-search-bar-btn"
             style={{
               backgroundColor: '#004E35',
               color: '#ffffff',
@@ -265,6 +296,7 @@ function SearchBarStatic({ node }: SearchBarElementProps) {
               whiteSpace: 'nowrap',
               fontFamily: 'Neue Montreal, sans-serif',
               boxShadow: '0 2px 8px rgba(0, 78, 53, 0.25)',
+              flexShrink: 0,
             }}
           >
             {buttonText}

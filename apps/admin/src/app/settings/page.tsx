@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * ============================================================================
+ * ADMIN SETTINGS & USER ROLES (`/settings`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Access control and team permission settings powered by Clerk RBAC.
+ * 
+ * CAPABILITIES:
+ * - List admin users with their assigned roles (`super_admin`, `editor`, `viewer`).
+ * - Invite new team members by email and assign starting permissions.
+ * - Change user roles or revoke user access.
+ * - Enforces super_admin authorization for role modifications.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import { 

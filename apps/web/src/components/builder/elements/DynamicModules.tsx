@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { queryDynamicSource } from '@/lib/data/dynamic-sources';
 import { InteractiveImpactGrid } from './InteractiveImpactGrid';
+import { InteractiveInsightsGrid } from './InteractiveInsightsGrid';
 
 export async function TeamGridElement({
   node,
@@ -196,151 +197,14 @@ export async function InsightsGridElement({ node }: { node: BuilderNode }) {
   }
 
   return (
-    <div
-      data-builder-id={node.id}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))',
-        gap: '30px',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      {displayArticles.map((article: any) => {
-        const coverImg = resolveCmsImage(
-          article.coverImage?.url ||
-          article.coverImageUrl ||
-          (article as any).heroImage ||
-          'https://envintcms.s3.ap-south-1.amazonaws.com/images/about-hero.webp'
-        );
-        const excerptText =
-          article.seoDescription ||
-          article.summary ||
-          (article.excerpt ? String(article.excerpt).replace(/<[^>]+>/g, '').trim() : '');
-
-        const rawDate = article.publishedAt || article.published_at || article.date;
-        let formattedDate = '';
-        if (rawDate) {
-          try {
-            const d = new Date(rawDate);
-            if (!isNaN(d.getTime())) {
-              formattedDate = d.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              });
-            }
-          } catch {}
-        }
-
-        return (
-          <Link
-            key={article.slug}
-            href={`/${article.slug}/`}
-            style={{
-              textDecoration: 'none',
-              backgroundColor: cardBorder ? '#ffffff' : 'transparent',
-              borderRadius: cardBorder ? '12px' : '0',
-              border: cardBorder ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
-              overflow: 'visible',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.2s ease',
-            }}
-          >
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '240px',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                backgroundColor: '#f1f5f9',
-              }}
-            >
-              <Image
-                src={coverImg}
-                alt={article.title || ''}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                quality={75}
-                style={{
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s ease',
-                }}
-              />
-            </div>
-            <div
-              style={{
-                padding: cardBorder ? '16px' : '20px 0 0 0',
-                display: 'flex',
-                flexDirection: 'column',
-                flex: 1,
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: '"Neue Montreal", sans-serif',
-                  fontSize: '24px',
-                  fontWeight: 400,
-                  color: '#1E1E1E',
-                  lineHeight: 1.3,
-                  margin: '0 0 12px 0',
-                }}
-              >
-                {article.title}
-              </h3>
-              {showExcerpt && excerptText && (
-                <p
-                  style={{
-                    fontFamily: '"Neue Montreal", sans-serif',
-                    fontSize: '16px',
-                    fontWeight: 400,
-                    color: '#555555',
-                    lineHeight: '1.5',
-                    margin: '0 0 16px 0',
-                    flex: 1,
-                  }}
-                >
-                  {excerptText.length > 130 ? `${excerptText.slice(0, 130)}...` : excerptText}
-                </p>
-              )}
-              {showDate && formattedDate && (
-                <div
-                  style={{
-                    fontFamily: '"Neue Montreal", sans-serif',
-                    fontSize: '15px',
-                    fontWeight: 400,
-                    color: '#8C8C8C',
-                    marginTop: 'auto',
-                    paddingTop: '4px',
-                  }}
-                >
-                  {formattedDate}
-                </div>
-              )}
-              {showReadMore && (
-                <span
-                  style={{
-                    fontFamily: '"Neue Montreal", sans-serif',
-                    fontSize: '18px',
-                    fontWeight: 400,
-                    color: '#2F7ABE',
-                    display: 'block',
-                    textAlign: 'left',
-                    padding: '16px 0 0 0',
-                    marginTop: 'auto',
-                  }}
-                >
-                  Read More
-                </span>
-              )}
-            </div>
-          </Link>
-        );
-      })}
-    </div>
+    <InteractiveInsightsGrid
+      articles={displayArticles}
+      builderId={node.id}
+      cardBorder={cardBorder}
+      showExcerpt={showExcerpt}
+      showDate={showDate}
+      showReadMore={showReadMore}
+    />
   );
 }
 

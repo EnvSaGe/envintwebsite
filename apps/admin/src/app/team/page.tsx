@@ -1,5 +1,22 @@
 'use client';
 
+/**
+ * ============================================================================
+ * TEAM MANAGEMENT DASHBOARD (`/team`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Content management dashboard for all team members and leadership profiles
+ * displayed on the `/about` page and `/member/[slug]` bio routes.
+ * 
+ * FEATURES:
+ * - Table of team members (Name, role, leadership flag, LinkedIn, ordering).
+ * - Modal editor: Name, slug, role title, bio HTML, profile avatar S3 URL,
+ *   leadership toggle, and social links.
+ * - Actions: Add team member, Edit, Direct preview, Reorder, and Delete.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import { 

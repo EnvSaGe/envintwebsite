@@ -1,5 +1,30 @@
 'use client';
 
+/**
+ * ============================================================================
+ * PRIVACY-FIRST ANALYTICS DASHBOARD (`/analytics`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Displays site-wide visitor traffic, page views, referrers, device breakdowns,
+ * and geographical visitor analytics.
+ * 
+ * PRIVACY & COMPLIANCE:
+ * Compliant with GDPR and India's DPDP Act. Unique visitors are counted via
+ * a daily-rotating SHA-256 hash of (IP + User-Agent). Zero tracking cookies
+ * and zero invasive fingerprinting.
+ * 
+ * KEY METRICS & SECTIONS:
+ * 1. Summary Cards: Total page views, unique visitors, active time window (7d, 30d, 90d).
+ * 2. Daily Trend Chart: Interactive SVG area chart of page views and visitors over time.
+ * 3. Top Pages: Most visited URLs with real-time views and unique visitor ratios.
+ * 4. Visitor Countries: Full country name resolution via native `Intl.DisplayNames`,
+ *    ISO country code badges, traffic percentage share, and hover tooltips.
+ * 5. Traffic Sources & AI Bot Crawls: Referrers (Google, LinkedIn, Perplexity, ChatGPT).
+ * 6. Device Breakdown: Desktop vs Mobile vs Tablet percentages.
+ * ============================================================================
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import {
@@ -98,11 +123,20 @@ const REFERRER_META: Record<string, { label: string; color: string }> = {
   other: { label: 'Other / Unknown', color: '#94a3b8' },
 };
 
-const COUNTRY_FLAG: Record<string, string> = {
-  IN: '🇮🇳', US: '🇺🇸', GB: '🇬🇧', AE: '🇦🇪', SG: '🇸🇬',
-  DE: '🇩🇪', NL: '🇳🇱', AU: '🇦🇺', CA: '🇨🇦', JP: '🇯🇵',
-  FR: '🇫🇷', BR: '🇧🇷', ZA: '🇿🇦', SE: '🇸🇪', CH: '🇨🇭',
-};
+const regionNames = typeof Intl !== 'undefined' && typeof Intl.DisplayNames !== 'undefined'
+  ? new Intl.DisplayNames(['en'], { type: 'region' })
+  : null;
+
+function getCountryName(code: string): string {
+  if (!code || typeof code !== 'string') return 'Unknown';
+  const clean = code.trim().toUpperCase();
+  if (clean === 'UNKNOWN' || clean === 'XX' || clean === 'ZZ') return 'Unknown Location';
+  try {
+    return regionNames?.of(clean) || clean;
+  } catch {
+    return clean;
+  }
+}
 
 // ── Utility ────────────────────────────────────────────────────────────────────
 
@@ -641,27 +675,95 @@ export default function AnalyticsPage() {
               border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
               gridColumn: '1 / -1',
             }}>
-              <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 20px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Globe size={16} color="#3079bd" />
-                Visitor Countries
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 20px' }}>
+                <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Globe size={16} color="#3079bd" />
+                  Visitor Countries
+                </h2>
+                {data?.topCountries.length ? (
+                  <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                    {data.topCountries.length} {data.topCountries.length === 1 ? 'country' : 'countries'}
+                  </span>
+                ) : null}
+              </div>
               {data?.topCountries.length ? (
                 (() => {
+                  const totalCountryVisitors = data.topCountries.reduce((sum, c) => sum + parseInt(c.visitors, 10), 0);
                   const maxV = Math.max(...data.topCountries.map(c => parseInt(c.visitors, 10)), 1);
                   return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
                       {data.topCountries.map((c, i) => {
-                        const flag = COUNTRY_FLAG[c.country] ?? '🌐';
+                        const rawCode = (c.country || '??').trim();
+                        const code = rawCode.toUpperCase();
+                        const fullName = getCountryName(code);
                         const v = parseInt(c.visitors, 10);
+                        const pct = totalCountryVisitors > 0 ? Math.round((v / totalCountryVisitors) * 100) : 0;
+                        const isTop = i === 0;
+
                         return (
-                          <div key={c.country} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', backgroundColor: i === 0 ? '#f0f7ff' : '#fafafa', border: `1px solid ${i === 0 ? '#bfdbfe' : '#f1f5f9'}` }}>
-                            <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{flag}</span>
+                          <div
+                            key={c.country}
+                            title={`${fullName} (${code}) — ${fmtNumber(v)} ${v === 1 ? 'visitor' : 'visitors'} (${pct}% of traffic)`}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '10px 14px',
+                              borderRadius: '8px',
+                              backgroundColor: isTop ? '#f0f7ff' : '#fafafa',
+                              border: `1px solid ${isTop ? '#bfdbfe' : '#f1f5f9'}`,
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            {/* Country Code Pill */}
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifySelf: 'center',
+                                justifyContent: 'center',
+                                minWidth: '34px',
+                                height: '24px',
+                                padding: '0 6px',
+                                borderRadius: '5px',
+                                backgroundColor: isTop ? '#dbeafe' : '#f1f5f9',
+                                color: isTop ? '#1e40af' : '#475569',
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                letterSpacing: '0.04em',
+                                border: `1px solid ${isTop ? '#bfdbfe' : '#e2e8f0'}`,
+                                flexShrink: 0,
+                              }}
+                            >
+                              {code}
+                            </span>
+
+                            {/* Country Name + Visitor Count */}
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-                                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>{c.country}</span>
-                                <span style={{ fontWeight: 800, fontSize: '0.88rem', color: i === 0 ? '#3079bd' : '#334155' }}>{fmtNumber(v)}</span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', gap: '8px' }}>
+                                <span
+                                  style={{
+                                    fontWeight: 700,
+                                    fontSize: '0.86rem',
+                                    color: '#0f172a',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                  title={`${fullName} (${code})`}
+                                >
+                                  {fullName}
+                                </span>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', flexShrink: 0 }}>
+                                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: isTop ? '#3079bd' : '#334155' }}>
+                                    {fmtNumber(v)}
+                                  </span>
+                                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 500 }}>
+                                    ({pct}%)
+                                  </span>
+                                </div>
                               </div>
-                              <MiniBar value={v} max={maxV} color={i === 0 ? '#3079bd' : '#94a3b8'} />
+                              <MiniBar value={v} max={maxV} color={isTop ? '#3079bd' : '#94a3b8'} />
                             </div>
                           </div>
                         );

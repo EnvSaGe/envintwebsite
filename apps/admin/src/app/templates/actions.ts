@@ -1,5 +1,21 @@
 'use server';
 
+/**
+ * ============================================================================
+ * CONTENT TEMPLATES SERVER ACTIONS (`/templates`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions managing reusable content templates in PostgreSQL (`content_templates`).
+ * 
+ * RESPONSIBILITIES:
+ * - Creates starter templates for articles, case studies, and taxonomies.
+ * - Saves template drafts (`draftBlocks`) and publishes them (`publishedBlocks`).
+ * - Tracks template revisions in `content_template_revisions` for version rollback.
+ * - Emits on-demand revalidation webhooks to purge cached public template routes.
+ * ============================================================================
+ */
+
 import {
   contentDependencies,
   contentTemplateRevisions,

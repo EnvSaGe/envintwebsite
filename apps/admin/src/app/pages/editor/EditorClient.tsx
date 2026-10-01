@@ -1,5 +1,23 @@
 'use client';
 
+/**
+ * ============================================================================
+ * EDITOR CLIENT LOADER (`/pages/editor`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Client-side loader component for the Visual Editor.
+ * 
+ * RESPONSIBILITIES:
+ * 1. Reads the `?slug=...` query parameter from the URL.
+ * 2. Fetches the page record and its block tree (`draftBlocks` or canonical tree)
+ *    from PostgreSQL using `fetchPageTreeAction`.
+ * 3. Shows a loading skeleton while database data is being fetched.
+ * 4. Mounts `VisualStudioEditor` (Schema v2 Visual Studio) passing the initial
+ *    tree, team members, SEO metadata, and dynamic module payloads.
+ * ============================================================================
+ */
+
 import React, { useState, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { fetchPageTreeAction, fetchPageBySlug } from '../actions';

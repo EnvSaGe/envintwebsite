@@ -1,5 +1,23 @@
 'use client';
 
+/**
+ * ============================================================================
+ * SCHEDULE PUBLISH MODAL (`/pages/editor/studio`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Dialog modal allowing editors to schedule an automated future publication date
+ * and time for the current page or dynamic template.
+ * 
+ * HOW IT WORKS:
+ * 1. Editor selects target date/time using `<input type="datetime-local">`.
+ * 2. Saves ISO timestamp to `pages.scheduledAt` and marks status as 'scheduled'.
+ * 3. A background cron runner (`apps/web/src/app/api/cron/publish-scheduled`) checks
+ *    the database every minute. When `scheduledAt <= NOW()`, it automatically flips
+ *    status to 'published' and invalidates the public site cache.
+ * ============================================================================
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarClock, Loader2, X } from 'lucide-react';
 

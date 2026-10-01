@@ -1,3 +1,27 @@
+/**
+ * ============================================================================
+ * STUDIO STATE MACHINE & REDUCER
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Contains the single source of truth for the Visual Builder.
+ * Operates like a Redux store / React reducer managing:
+ *   1. `tree`: The active hierarchical JSON tree of builder nodes (rootIds + nodes).
+ *   2. `selectedId`: The currently highlighted/inspected element on the canvas.
+ *   3. `history`: Past & future snapshots for full Undo / Redo capabilities.
+ *   4. `breakpoint`: Current preview mode ('desktop' | 'tablet' | 'mobile').
+ *   5. `draggedType` / `dropTargetId`: Drag-and-drop state between palette and canvas.
+ * 
+ * KEY ACTIONS:
+ * - ADD_NODE: Instantiates a new component node and attaches it to parent.
+ * - DELETE_NODE: Recursively removes a node and cleans up parent children arrays.
+ * - MOVE_NODE: Reorders or nests nodes within the tree hierarchy.
+ * - UPDATE_NODE_CONTENT: Updates text, links, or element props.
+ * - UPDATE_NODE_STYLES: Updates visual CSS attributes and responsive overrides.
+ * - UNDO / REDO: Traverses the past/future snapshot stacks.
+ * ============================================================================
+ */
+
 import {
   BuilderNode,
   PageBlockTree,

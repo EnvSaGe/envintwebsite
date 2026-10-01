@@ -1,5 +1,26 @@
 'use client';
 
+/**
+ * ============================================================================
+ * VISUAL STUDIO EDITOR (Master Shell Component)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * The primary entry point and orchestrator for the visual page builder (Schema v2).
+ * Assembles the three-panel visual workspace:
+ *   - Left Panel (PaletteSidebar): Component blocks catalog & document tree layers
+ *   - Center Panel (StudioCanvas): Interactive live canvas with viewport emulation
+ *   - Right Panel (InspectorSidebar): Dynamic styling, content, & responsive settings
+ *   - Top Bar (StudioTopbar): Viewport switchers, undo/redo, save draft, publish
+ * 
+ * KEY RESPONSIBILITIES:
+ * 1. Coordinates state with `studioReducer` (StudioState.ts) for undo/redo and tree edits.
+ * 2. Handles hotkeys: Ctrl+Z (Undo), Ctrl+Y (Redo), Delete (Remove Node), Esc (Deselect).
+ * 3. Handles publishing, draft persistence, scheduling, and revision rollback modals.
+ * 4. Manages multi-device preview resizing (Desktop 100%, Tablet 768px, Mobile 375px).
+ * ============================================================================
+ */
+
 import React, { useReducer, useEffect, useState, useRef, useCallback } from 'react';
 import { PageBlockTree, ElementType, createDefaultNode, ElementStyles, type StudioDynamicModules } from '@envint/shared';
 import { createInitialStudioState, studioReducer, StudioState } from './StudioState';

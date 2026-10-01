@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * ============================================================================
+ * GLOBAL IMPACT WARNING MODAL (`/pages/editor/studio`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Safety warning modal displayed when an editor attempts to publish a template
+ * or reusable component that affects multiple public routes simultaneously.
+ * 
+ * DETAILS:
+ * - Alerts the user to the exact count of affected public routes.
+ * - Prevents accidental global layout changes across the production site.
+ * ============================================================================
+ */
+
 export function GlobalImpactWarning({
   label,
   affectedRouteCount,

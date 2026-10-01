@@ -1,5 +1,27 @@
 'use client';
 
+/**
+ * ============================================================================
+ * SEO & SOCIAL SETTINGS MODAL (`/pages/editor/studio`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Interactive modal allowing editors to audit and configure search engine
+ * optimization (SEO) and social media sharing previews (OpenGraph / Twitter).
+ * 
+ * KEY CAPABILITIES:
+ * 1. SEO Title & Description: Real-time character count and length warnings
+ *    (60 chars for title, 160 chars for description).
+ * 2. Focus Keyphrase Scoring: Checks whether the primary keyword appears in title,
+ *    description, and URL slug.
+ * 3. Live Google Search Preview: Previews how the page will appear in Google desktop
+ *    and mobile search results.
+ * 4. Social Sharing Cards (OpenGraph / Twitter): Live Facebook/LinkedIn and Twitter
+ *    card previews with custom OG Image URL picker.
+ * 5. Advanced Controls: Canonical URL overrides and `noindex` robots directive.
+ * ============================================================================
+ */
+
 import React, { useState } from 'react';
 import {
   Search,

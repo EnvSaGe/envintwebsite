@@ -522,3 +522,57 @@ iframe#netlify-drawer,
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* ==========================================================================
+   Responsive Search Bar (Builder element)
+   ========================================================================== */
+.envint-search-bar-wrapper {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.envint-search-bar-form {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.envint-search-bar-form input {
+  min-width: 0 !important;
+}
+
+@media (max-width: 767px) {
+  .envint-search-bar-wrapper,
+  [data-builder-id*="search-bar"],
+  [data-builder-type="search-bar"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    align-self: stretch !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .envint-search-bar-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 5px 6px 5px 14px !important;
+  }
+
+  .envint-search-bar-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .envint-search-bar-form {
+    padding: 4px 5px 4px 10px !important;
+  }
+
+  .envint-search-bar-btn {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    letter-spacing: -0.01em;
+  }
+}
+

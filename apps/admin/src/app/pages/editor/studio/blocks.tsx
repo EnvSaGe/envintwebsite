@@ -1200,6 +1200,8 @@ export function SearchBarPrimitive({ node, isSelected }: { node: BuilderNode; is
           placeholder={placeholder}
           style={{
             flex: 1,
+            minWidth: 0,
+            width: '100%',
             border: 'none',
             outline: 'none',
             fontSize: '15px',
@@ -1223,6 +1225,7 @@ export function SearchBarPrimitive({ node, isSelected }: { node: BuilderNode; is
               fontWeight: 600,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {buttonText}

@@ -1,5 +1,28 @@
 'use client';
 
+/**
+ * ============================================================================
+ * STUDIO TOPBAR (`/pages/editor/studio`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Top persistent navigation and action bar of the Visual Studio Builder.
+ * 
+ * FEATURES & CONTROLS:
+ * 1. Navigation: Back button to `/pages`, page title, slug link, and live preview URL.
+ * 2. Device Breakpoint Toggles:
+ *    - Desktop mode (100% width)
+ *    - Tablet mode (768px frame)
+ *    - Mobile mode (375px frame)
+ * 3. History Actions: Undo (Ctrl+Z) and Redo (Ctrl+Y) buttons with disabled state checks.
+ * 4. Modals Triggers: Version History revision log, SEO Audit score & settings modal.
+ * 5. Primary Actions:
+ *    - Save Draft: Saves active tree to `draftBlocks` in database.
+ *    - Schedule: Opens scheduling modal to auto-publish at a future date/time.
+ *    - Publish: Immediately publishes `publishedBlocks` and invalidates public cache.
+ * ============================================================================
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';

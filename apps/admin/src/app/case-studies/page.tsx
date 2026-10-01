@@ -1,5 +1,23 @@
 'use client';
 
+/**
+ * ============================================================================
+ * CASE STUDIES MANAGEMENT DASHBOARD (`/case-studies`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Content management dashboard for all client impact case studies displayed
+ * on the public `/impact` hub page.
+ * 
+ * FEATURES:
+ * - Filterable table of case studies (Sustainability Integration, Responsible Investment,
+ *   Climate Action, Manufacturing, BFSI, Real Estate, etc.).
+ * - Modal editor: Title, client type, sector, theme, challenges, solutions, results HTML,
+ *   and cover image.
+ * - Actions: Create, Edit, Quick preview, Delete with automated cache purge.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '../../components/Sidebar';

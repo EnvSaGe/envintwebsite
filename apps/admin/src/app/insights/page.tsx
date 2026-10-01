@@ -1,5 +1,23 @@
 'use client';
 
+/**
+ * ============================================================================
+ * INSIGHTS & ARTICLES MANAGEMENT (`/insights`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Content management dashboard for all published and draft articles across
+ * the Enviki knowledge hub, Behind the Buzz, Glossary Zone, and How-to Articles.
+ * 
+ * CAPABILITIES:
+ * 1. Inventory table: Title, slug, author, categories, publication date, status.
+ * 2. Search & filter: Real-time filtering by keyword and category tag.
+ * 3. Rich Text Editing: WYSIWYG editor for body content, cover image S3 URL,
+ *    excerpt, and SEO metadata.
+ * 4. Actions: Create article, Edit, Direct preview, and Delete with instant cache purge.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '../../components/Sidebar';

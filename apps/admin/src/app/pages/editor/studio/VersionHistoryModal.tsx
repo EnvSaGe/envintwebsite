@@ -1,5 +1,21 @@
 'use client';
 
+/**
+ * ============================================================================
+ * VERSION HISTORY & AUDIT LOG MODAL (`/pages/editor/studio`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Audit trail modal allowing content managers to inspect previous saved revisions
+ * of a page and perform 1-click rollbacks to restore an earlier draft or published tree.
+ * 
+ * HOW IT WORKS:
+ * - Fetches revision entries from `page_revisions` table.
+ * - Displays timestamp, editor user name/email, and change summary.
+ * - Clicking "Restore" rolls back the active tree in `StudioState` to that snapshot.
+ * ============================================================================
+ */
+
 import React, { useEffect, useState } from 'react';
 import { X, History, RotateCcw, Loader2, CheckCircle2 } from 'lucide-react';
 import { fetchPageRevisionsAction } from '../../actions';

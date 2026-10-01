@@ -1,5 +1,22 @@
 'use server';
 
+/**
+ * ============================================================================
+ * TEAM SERVER ACTIONS (`/team`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions for managing leadership and team member profiles.
+ * 
+ * DATABASE TABLE:
+ * Modifies the `team_members` table in PostgreSQL.
+ * 
+ * CACHE REVALIDATION:
+ * Calls `dispatchRevalidation()` with tags `member:<slug>`, `team:list`, and `page:/about`
+ * to purge cached team rosters across the live website.
+ * ============================================================================
+ */
+
 import { db, teamMembers, eq } from '@envint/db';
 import { requireRole } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';

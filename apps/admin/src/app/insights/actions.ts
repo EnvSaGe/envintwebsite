@@ -1,5 +1,24 @@
 'use server';
 
+/**
+ * ============================================================================
+ * INSIGHTS SERVER ACTIONS (`/insights`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions for managing articles and knowledge hub posts.
+ * 
+ * DATABASE TABLES:
+ * - `insights`: Primary table for article title, slug, content HTML, summary, cover image.
+ * - `insight_categories` & `categories`: Many-to-many relationship for category taxonomy.
+ * - `insight_tags` & `tags`: Many-to-many relationship for keyword tags.
+ * 
+ * CACHE REVALIDATION:
+ * Calls `dispatchRevalidation()` with tags `insight:<slug>`, `insights:list`, and `global:all`
+ * so changes reflect on the public website (`apps/web`) immediately.
+ * ============================================================================
+ */
+
 import { db, insights, insightCategories, insightTags, categories, tags, eq, and } from '@envint/db';
 import { requireRole, getCurrentUserInfo } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';

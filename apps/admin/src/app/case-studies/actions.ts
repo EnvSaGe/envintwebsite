@@ -1,5 +1,22 @@
 'use server';
 
+/**
+ * ============================================================================
+ * CASE STUDIES SERVER ACTIONS (`/case-studies`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions for managing impact case studies.
+ * 
+ * DATABASE TABLE:
+ * Modifies the `impact_case_studies` table in PostgreSQL.
+ * 
+ * CACHE REVALIDATION:
+ * Calls `dispatchRevalidation()` with tags `impact:<slug>`, `impacts:list`, and `global:all`
+ * to immediately purge cached case studies on the public `/impact` page.
+ * ============================================================================
+ */
+
 import { db, impactCaseStudies, eq } from '@envint/db';
 import { requireRole } from '@/lib/clerk-rbac';
 import { dispatchRevalidation } from '@/lib/revalidate-dispatcher';

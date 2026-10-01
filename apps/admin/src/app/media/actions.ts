@@ -1,5 +1,16 @@
 'use server';
 
+/**
+ * ============================================================================
+ * MEDIA SERVER ACTIONS (`/media`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Server-side functions for managing S3 media asset records in PostgreSQL (`media_assets`).
+ * Provides listing, alt-text updating, and deletion functionality.
+ * ============================================================================
+ */
+
 import { db, mediaAssets, eq } from '@envint/db';
 import { requireRole } from '@/lib/clerk-rbac';
 

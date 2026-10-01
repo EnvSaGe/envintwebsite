@@ -1,5 +1,27 @@
 'use client';
 
+/**
+ * ============================================================================
+ * PAGES MANAGEMENT DASHBOARD (`/pages`)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * Displays the main inventory of all landing pages, practice hubs, and custom
+ * pages across the Envint website.
+ * 
+ * FEATURES:
+ * - Lists pages with status badges: Published (green), Draft (amber), Scheduled (purple).
+ * - Filter tabs: All, Core Pages, Practice Areas, Knowledge Hubs, Custom Pages.
+ * - Search bar to filter by page title or slug URL.
+ * - Actions per row: Open in Visual Studio Editor, Quick Preview, Duplicate Page,
+ *   Direct Publish / Unpublish, and Delete.
+ * - Modal for creating new custom pages from starter templates.
+ * 
+ * BACKEND ACTIONS:
+ * Connected to `apps/admin/src/app/pages/actions.ts` for database CRUD.
+ * ============================================================================
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Sidebar } from '../../components/Sidebar';
 import Link from 'next/link';
