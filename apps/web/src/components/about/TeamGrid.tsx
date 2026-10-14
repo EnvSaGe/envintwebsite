@@ -63,7 +63,7 @@ function avatarFor(member: TeamCardMember): string {
 
 export default function TeamGrid({
   members,
-  initialCount = 12,
+  initialCount = 24,
 }: {
   members: TeamCardMember[];
   initialCount?: number;

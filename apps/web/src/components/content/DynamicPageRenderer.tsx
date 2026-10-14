@@ -9,6 +9,7 @@ import JourneyCarousel, { JourneyMilestone } from '@/components/about/JourneyCar
 import TeamGrid, { TeamCardMember } from '@/components/about/TeamGrid';
 import { FaqAccordion } from './FaqAccordion';
 import { TemplateRenderer } from '../builder/TemplateRenderer';
+import { resolveCmsImage } from '@envint/shared';
 import styles from '@/app/about/about.module.css';
 
 interface DynamicPageRendererProps {
@@ -132,7 +133,7 @@ export async function DynamicPageRenderer({ page, teamCards: providedTeamCards }
         role: member.role,
         bioText: bioToText(member.bio),
         linkedinUrl: member.linkedinUrl,
-        imageUrl: member.image?.url || null,
+        imageUrl: resolveCmsImage(member.avatarUrl || member.avatar?.url || member.image?.url || null),
         hasStandaloneRoute: member.hasStandaloneRoute,
       }));
     }
@@ -163,7 +164,7 @@ export async function DynamicPageRenderer({ page, teamCards: providedTeamCards }
       role: member.role,
       bioText: bioToText(member.bio),
       linkedinUrl: member.linkedinUrl,
-      imageUrl: member.image?.url || null,
+      imageUrl: resolveCmsImage(member.avatarUrl || member.avatar?.url || member.image?.url || null),
       hasStandaloneRoute: member.hasStandaloneRoute,
     }));
   }

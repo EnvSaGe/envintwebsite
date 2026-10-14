@@ -430,7 +430,7 @@ export function createAboutPageTree(): PageBlockTree {
       'Team Members Grid',
       'cont_about_team',
       {},
-      { initialCount: 12 },
+      { initialCount: 24 },
     ),
   };
 

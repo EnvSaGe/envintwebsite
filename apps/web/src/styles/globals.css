@@ -576,3 +576,23 @@ iframe#netlify-drawer,
   }
 }
 
+/* About Page mobile layout stabilization */
+@media (max-width: 768px) {
+  [data-builder-id="grid_about_purpose"],
+  [data-builder-id="grid_about_founders"] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  [data-builder-id="sec_about_purpose"],
+  [data-builder-id="sec_about_founders"],
+  [data-builder-id="sec_about_journey"],
+  [data-builder-id="sec_about_team"] {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+}
+
+

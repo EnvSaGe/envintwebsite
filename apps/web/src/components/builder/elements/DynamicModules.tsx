@@ -36,7 +36,7 @@ export async function TeamGridElement({
     <div data-builder-id={node.id} style={{ width: '100%' }}>
       <TeamGrid
         members={members || []}
-        initialCount={Number(node.content.initialCount) || 12}
+        initialCount={Number(node.content.initialCount) || 24}
       />
     </div>
   );

@@ -29,7 +29,7 @@ export async function fetchTeam() {
     with: { avatar: true },
   });
 
-  return records.map((m) => ({
+  const mapped = records.map((m) => ({
     id: m.id,
     slug: m.slug,
     name: m.name,
@@ -48,6 +48,17 @@ export async function fetchTeam() {
     seoDescription: m.seoDescription,
     updatedAt: m.updatedAt ? new Date(m.updatedAt).toLocaleDateString() : 'Never',
   }));
+
+  return mapped.sort((a, b) => {
+    const orderA = a.orderIndex !== undefined && a.orderIndex !== null ? a.orderIndex : 999;
+    const orderB = b.orderIndex !== undefined && b.orderIndex !== null ? b.orderIndex : 999;
+    if (orderA !== orderB) return orderA - orderB;
+    const isPartnerA = /partner/i.test(a.roleTitle || '');
+    const isPartnerB = /partner/i.test(b.roleTitle || '');
+    if (isPartnerA && !isPartnerB) return -1;
+    if (!isPartnerA && isPartnerB) return 1;
+    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+  });
 }
 
 export async function fetchTeamMemberBySlug(slug: string) {
@@ -122,7 +133,7 @@ export async function saveTeamMemberAction(member: {
         email: member.email || null,
         isLeadership: member.isLeadership !== undefined ? member.isLeadership : true,
         hasStandaloneRoute: member.hasStandaloneRoute !== undefined ? member.hasStandaloneRoute : true,
-        orderIndex: member.orderIndex ?? 0,
+        orderIndex: member.orderIndex ?? (/partner/i.test(cleanRole) ? 10 : 100),
         status: member.status || 'PUBLISHED',
         seoTitle: member.seoTitle || `${cleanName} - ${cleanRole} at Envint`,
         seoDescription: member.seoDescription || member.shortBio || null,
@@ -141,7 +152,7 @@ export async function saveTeamMemberAction(member: {
           email: member.email || null,
           isLeadership: member.isLeadership !== undefined ? member.isLeadership : true,
           hasStandaloneRoute: member.hasStandaloneRoute !== undefined ? member.hasStandaloneRoute : true,
-          orderIndex: member.orderIndex ?? 0,
+          orderIndex: member.orderIndex ?? (/partner/i.test(cleanRole) ? 10 : 100),
           status: member.status || 'PUBLISHED',
           seoTitle: member.seoTitle || `${cleanName} - ${cleanRole} at Envint`,
           seoDescription: member.seoDescription || member.shortBio || null,
@@ -187,3 +198,34 @@ export async function deleteTeamMemberAction(slug: string): Promise<{ success: b
     return { success: false, error: err.message || 'Failed to delete team member.' };
   }
 }
+
+export async function reorderTeamMembersAction(
+  orderedSlugs: string[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireRole(['super_admin', 'editor']);
+
+    if (!Array.isArray(orderedSlugs) || orderedSlugs.length === 0) {
+      return { success: false, error: 'No team member slugs provided.' };
+    }
+
+    for (let index = 0; index < orderedSlugs.length; index++) {
+      const slug = orderedSlugs[index];
+      await db
+        .update(teamMembers)
+        .set({ orderIndex: index, updatedAt: new Date() })
+        .where(eq(teamMembers.slug, slug));
+    }
+
+    await dispatchRevalidation({
+      tags: ['team:list', 'archive:team'],
+      paths: ['/about/'],
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('reorderTeamMembersAction error:', err);
+    return { success: false, error: err.message || 'Failed to reorder team members.' };
+  }
+}
+

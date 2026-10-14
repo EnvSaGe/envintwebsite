@@ -103,7 +103,7 @@ export function makeContainer(
     children = arg3;
     styles = safeStyles(arg4);
     name = typeof arg5 === 'string' ? arg5 : id;
-    responsiveStyles = safeResponsiveStyles(arg5);
+    responsiveStyles = safeResponsiveStyles(typeof arg5 === 'object' ? arg5 : arg6);
   } else {
     name = typeof arg2 === 'string' ? arg2 : id;
     parentId = typeof arg3 === 'string' ? arg3 : '';
@@ -152,7 +152,7 @@ export function makeGrid(
     children = arg3;
     styles = safeStyles(arg4);
     name = typeof arg5 === 'string' ? arg5 : id;
-    responsiveStyles = safeResponsiveStyles(arg5);
+    responsiveStyles = safeResponsiveStyles(typeof arg5 === 'object' ? arg5 : arg6);
   } else if (Array.isArray(arg4)) {
     // makeGrid(id, name, parentId, children, styles, responsiveStyles)
     name = typeof arg2 === 'string' ? arg2 : id;
@@ -227,7 +227,7 @@ export function makeFlex(
     children = arg3;
     styles = safeStyles(arg4);
     name = typeof arg5 === 'string' ? arg5 : id;
-    responsiveStyles = safeResponsiveStyles(arg5);
+    responsiveStyles = safeResponsiveStyles(typeof arg5 === 'object' ? arg5 : arg6);
   } else {
     name = typeof arg2 === 'string' ? arg2 : id;
     parentId = typeof arg3 === 'string' ? arg3 : '';
@@ -279,7 +279,7 @@ export function makeHeading(
     tag = arg4.toLowerCase() as any;
     styles = safeStyles(arg5);
     name = typeof arg6 === 'string' ? arg6 : id;
-    responsiveStyles = safeResponsiveStyles(arg6);
+    responsiveStyles = safeResponsiveStyles(typeof arg6 === 'object' ? arg6 : arg7);
   } else {
     // makeHeading(id, name, parentId, text, tag, styles, responsiveStyles)
     name = typeof arg2 === 'string' ? arg2 : id;
@@ -335,7 +335,7 @@ export function makeParagraph(
     text = String(arg3 ?? '');
     styles = safeStyles(arg4);
     name = typeof arg5 === 'string' ? arg5 : id;
-    responsiveStyles = safeResponsiveStyles(arg5);
+    responsiveStyles = safeResponsiveStyles(typeof arg5 === 'object' ? arg5 : arg6);
   } else {
     // makeParagraph(id, name, parentId, text, styles, responsiveStyles)
     name = typeof arg2 === 'string' ? arg2 : id;
@@ -392,7 +392,7 @@ export function makeImage(
     alt = typeof arg4 === 'string' ? arg4 : '';
     styles = safeStyles(arg5);
     name = typeof arg6 === 'string' ? arg6 : id;
-    responsiveStyles = safeResponsiveStyles(arg6);
+    responsiveStyles = safeResponsiveStyles(typeof arg6 === 'object' ? arg6 : arg7);
   } else {
     // makeImage(id, name, parentId, src, alt, styles, responsiveStyles)
     name = typeof arg2 === 'string' ? arg2 : id;
