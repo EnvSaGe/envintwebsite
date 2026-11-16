@@ -13,9 +13,9 @@
 [functions]
   directory = "apps/web/netlify/functions"
 
-# Hourly scheduler for published/scheduled content
+# Daily scheduler for published/scheduled content (reduced from @hourly to preserve Neon DB free compute)
 [functions."publish-scheduled"]
-  schedule = "@hourly"
+  schedule = "@daily"
 
 # Security headers
 [[headers]]

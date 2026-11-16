@@ -23,4 +23,4 @@ export default async function publishScheduled(): Promise<Response> {
   return new Response(null, { status: 204 });
 }
 
-export const config = { schedule: '@hourly' };
+export const config = { schedule: '@daily' };
