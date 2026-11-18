@@ -76,27 +76,28 @@ export function createMapSensePageTree(): PageBlockTree {
   ];
 
   const nodes: Record<string, BuilderNode> = {
-    // ─── 1. Hero: full background section (live: 52vh bg, 48% overlay, content bottom) ──
+    // ─── 1. Hero: full-viewport banner matching Impact & Careers ───────────────
     sec_map_hero: makeSection(
       'sec_map_hero',
       ['cont_map_hero'],
       {
-        minHeight: '52vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        paddingTop: '120px',
-        paddingBottom: '48px',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        backgroundImage: resolveCmsImage('/images/mapsense-hero.webp'),
+        paddingTop: '160px',
+        paddingBottom: '80px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        backgroundImage: resolveCmsImage('/images/pexels-radoslaw-sikorski-36097686-27568070-1.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundOverlay: 'rgba(0, 0, 0, 0.48)',
+        backgroundOverlay:
+          'linear-gradient(to top, rgba(0, 20, 15, 0.65) 0%, rgba(0, 20, 15, 0.18) 55%, transparent 100%)',
       },
       {
-        tablet: { minHeight: '80vh' },
-        mobile: { minHeight: '65vh' },
+        tablet: { minHeight: '80vh', paddingBottom: '56px' },
+        mobile: { minHeight: '65vh', paddingBottom: '40px' },
       },
       'MapSense Hero Section'
     ),
@@ -113,16 +114,17 @@ export function createMapSensePageTree(): PageBlockTree {
       'Ecosystem Screening made Quick | Scalable | Bespoke',
       'h1',
       {
-        fontSize: '40px',
-        fontWeight: 500,
+        fontSize: '56px',
+        fontWeight: 400,
         textColor: '#FFFFFF',
-        lineHeight: '1.25',
+        lineHeight: '1.15',
         fontFamily: 'Neue Montreal, sans-serif',
         textShadow: '0 2px 12px rgba(0, 0, 0, 0.45)',
         marginBottom: '16px',
       },
       {
-        mobile: { fontSize: '21px' },
+        tablet: { fontSize: '42px' },
+        mobile: { fontSize: '28px' },
       },
       'Hero Headline'
     ),
@@ -631,7 +633,16 @@ export function createMapSensePageTree(): PageBlockTree {
       'grid_map_reports',
       resolveCmsImage(img.src),
       img.alt,
-      { width: '100%', aspectRatio: '4/3', borderRadius: '14px', objectFit: 'contain', backgroundColor: '#FFFFFF' },
+      {
+        width: '100%',
+        aspectRatio: '400 / 150',
+        borderRadius: '14px',
+        objectFit: 'cover',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: '#e2e8f0',
+        backgroundColor: '#FFFFFF',
+      },
       `Report Sample ${idx + 1}`
     );
   });

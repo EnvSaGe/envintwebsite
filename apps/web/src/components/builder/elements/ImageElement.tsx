@@ -37,6 +37,7 @@ export function ImageElement({ node }: { node: BuilderNode }) {
   const containerStyles = imageContainerStyles(node.styles);
 
   const isSvg = src.endsWith('.svg') || src.startsWith('data:image/svg');
+  const resolvedHeight = inlineStyles.height || (inlineStyles.aspectRatio ? '100%' : 'auto');
 
   return (
     <div data-builder-id={node.id} style={containerStyles}>
@@ -49,6 +50,7 @@ export function ImageElement({ node }: { node: BuilderNode }) {
           style={{
             width: '100%',
             height: inlineStyles.height || 'auto',
+            height: resolvedHeight,
             objectFit,
             objectPosition,
             display: 'block',
@@ -64,6 +66,7 @@ export function ImageElement({ node }: { node: BuilderNode }) {
           style={{
             width: '100%',
             height: inlineStyles.height || 'auto',
+            height: resolvedHeight,
             objectFit,
             objectPosition,
             display: 'block',
