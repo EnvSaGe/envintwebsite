@@ -86,11 +86,16 @@ function extractGeo(req: NextRequest): { country: string | null; city: string | 
 // Anonymized daily hash — rotates at midnight UTC, no PII ever stored
 function buildVisitorHash(ip: string, ua: string): string {
   const today = new Date().toISOString().slice(0, 10); // "2026-09-19"
-  const salt = process.env.ANALYTICS_SALT || 'envint-analytics-salt-2026';
+  const salt =
+    process.env.ANALYTICS_SALT ||
+    process.env.REVALIDATION_SECRET_TOKEN ||
+    process.env.DRAFT_PREVIEW_SECRET ||
+    'envint-analytics-salt-2026';
   return createHash('sha256').update(`${ip}|${ua}|${today}|${salt}`).digest('hex').slice(0, 64);
 }
 
 import { db, pageviews, sql } from '@envint/db';
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/security/rate-limit';
 
 let isTableInitialized = false;
 
@@ -124,22 +129,29 @@ async function ensureTableExists() {
   }
 }
 
+function sanitizeTelemetryPath(rawPath: unknown): string {
+  if (typeof rawPath !== 'string') return '/';
+  const cleaned = rawPath.replace(/[\u0000-\u001F\u007F]/g, '').trim();
+  if (!cleaned.startsWith('/')) return '/';
+  return cleaned.slice(0, 500);
+}
+
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
-    await ensureTableExists();
-    const body = await req.json() as { path?: string; title?: string; referrer?: string };
-    const path = body.path || '/';
-    const pageTitle = body.title || null;
-    const referrerUrl = body.referrer || null;
+    const ip = getClientIp(req);
+    const rate = checkRateLimit('telemetry:post', ip, 60, 60 * 1000);
+    if (rate.limited) {
+      return rateLimitExceededResponse(rate.resetSeconds);
+    }
 
-    // Gather request metadata from Netlify / edge headers
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      req.headers.get('x-real-ip') ||
-      'unknown';
-    const ua = req.headers.get('user-agent') || '';
+    const body = (await req.json()) as { path?: string; title?: string; referrer?: string };
+    const path = sanitizeTelemetryPath(body?.path);
+    const pageTitle = typeof body?.title === 'string' ? body.title.slice(0, 255) : null;
+    const referrerUrl = typeof body?.referrer === 'string' ? body.referrer.slice(0, 1000) : null;
+
+    const ua = (req.headers.get('user-agent') || '').slice(0, 500);
     const { country, city } = extractGeo(req);
 
     const visitorHash = buildVisitorHash(ip, ua);
@@ -147,7 +159,7 @@ export async function POST(req: NextRequest) {
     const deviceType = detectDevice(ua);
     const botAgent = detectBotAgent(ua);
 
-    await db.insert(pageviews).values({
+    const row = {
       visitorHash,
       path,
       referrerSource,
@@ -157,7 +169,18 @@ export async function POST(req: NextRequest) {
       deviceType,
       botAgent,
       pageTitle,
-    });
+    };
+
+    try {
+      await db.insert(pageviews).values(row);
+    } catch (insertErr: any) {
+      if (insertErr?.code === '42P01') {
+        await ensureTableExists();
+        await db.insert(pageviews).values(row);
+      } else {
+        throw insertErr;
+      }
+    }
 
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (err) {
@@ -169,9 +192,14 @@ export async function POST(req: NextRequest) {
 
 // Handle AI bot crawls via GET (when bots fetch the page, not POST)
 export async function GET(req: NextRequest) {
-  const path = new URL(req.url).searchParams.get('path') || '/';
-  const ua = req.headers.get('user-agent') || '';
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = getClientIp(req);
+  const rate = checkRateLimit('telemetry:get', ip, 30, 60 * 1000);
+  if (rate.limited) {
+    return rateLimitExceededResponse(rate.resetSeconds);
+  }
+
+  const path = sanitizeTelemetryPath(new URL(req.url).searchParams.get('path') || '/');
+  const ua = (req.headers.get('user-agent') || '').slice(0, 500);
   const { country, city } = extractGeo(req);
 
   const botAgent = detectBotAgent(ua);

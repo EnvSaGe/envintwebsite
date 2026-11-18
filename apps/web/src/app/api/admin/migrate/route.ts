@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
 import { db } from '@envint/db';
+import crypto from 'crypto';
+
+function timingSafeMatch(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, 'utf-8');
+  const bufB = Buffer.from(b, 'utf-8');
+  return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+}
 
 /**
  * One-shot migration endpoint — run this ONCE after deployment.
@@ -11,9 +18,9 @@ import { db } from '@envint/db';
  */
 export async function POST(req: Request) {
   const secret = process.env.MIGRATION_SECRET;
-  const auth = req.headers.get('Authorization');
+  const auth = req.headers.get('Authorization') || '';
 
-  if (!secret || auth !== `Bearer ${secret}`) {
+  if (!secret || !timingSafeMatch(auth, `Bearer ${secret}`)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

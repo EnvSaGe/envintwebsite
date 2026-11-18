@@ -45,6 +45,7 @@ export function ParagraphElement({ node }: { node: BuilderNode }) {
     allowedStyles: {
       '*': ALLOWED_STYLES_MAP,
     },
+    allowedSchemes: ['http', 'https', 'mailto', 'tel'],
     disallowedTagsMode: 'discard',
   });
 

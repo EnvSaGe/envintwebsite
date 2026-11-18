@@ -1,32 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ContactFormSchema } from '@envint/shared';
 import { db, leadSubmissions } from '@envint/db';
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/security/rate-limit';
 
-// In-memory rate limiting map (IP -> timestamp array)
-const rateLimitMap = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const MAX_REQUESTS_PER_WINDOW = 5;
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(ip) || [];
-  const validTimestamps = timestamps.filter(ts => now - ts < RATE_LIMIT_WINDOW_MS);
-  
-  if (validTimestamps.length >= MAX_REQUESTS_PER_WINDOW) {
-    return true;
-  }
-
-  validTimestamps.push(now);
-  rateLimitMap.set(ip, validTimestamps);
-  return false;
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    const ip = getClientIp(request);
+    const rate = checkRateLimit('form:contact', ip, MAX_REQUESTS_PER_WINDOW, RATE_LIMIT_WINDOW_MS);
 
-    if (isRateLimited(ip)) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    if (rate.limited) {
+      return rateLimitExceededResponse(rate.resetSeconds);
     }
 
     let formData: any;

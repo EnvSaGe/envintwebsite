@@ -6,8 +6,12 @@ import { JsonLd, organizationSchema, webSiteSchema } from '@/components/seo/Json
 import { getNavigationItems } from '@/lib/data/navigation';
 import { buildHeaderNavigation } from '@/lib/data/layout-content';
 import { AnalyticsBeacon } from '@/components/AnalyticsBeacon';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { CookieConsentBanner } from '@/components/CookieConsentBanner';
 
 const SITE_URL = 'https://envintglobal.com';
+const RAW_GA_ID = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-TKLJM6K1R4').trim();
+const GA_MEASUREMENT_ID = /^G-[A-Z0-9]+$/i.test(RAW_GA_ID) ? RAW_GA_ID : '';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -87,12 +91,27 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      {GA_MEASUREMENT_ID && (
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} var _ec = null; try { _ec = localStorage.getItem('envint_cookie_consent'); } catch (e) {} gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: _ec === 'granted' ? 'granted' : 'denied', functionality_storage: 'granted', security_storage: 'granted' }); gtag('js', new Date()); gtag('config', '${GA_MEASUREMENT_ID}');`,
+            }}
+          />
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtm.js?id=${GA_MEASUREMENT_ID}`}
+          />
+        </head>
+      )}
       <body>
         <JsonLd data={[organizationSchema(), webSiteSchema()]} />
         <AnalyticsBeacon />
+        {GA_MEASUREMENT_ID && <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />}
         <Header navigation={editableHeaderNavigation} />
         <main>{children}</main>
         <Footer />
+        {GA_MEASUREMENT_ID && <CookieConsentBanner />}
       </body>
     </html>
   );

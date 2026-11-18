@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizeInternalRedirectPath } from '@/lib/security/rate-limit';
 
 /**
  * GET /api/view-mode?mode=static&redirect=/
@@ -11,15 +12,16 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mode = searchParams.get('mode') || 'cms';
-  const targetRedirect = searchParams.get('redirect') || '/';
+  const safeRedirectPath = sanitizeInternalRedirectPath(searchParams.get('redirect'), '/');
 
-  const res = NextResponse.redirect(new URL(targetRedirect, req.url));
+  const res = NextResponse.redirect(new URL(safeRedirectPath, req.url));
 
   if (mode === 'static') {
     res.cookies.set('force_static', 'true', {
       path: '/',
       maxAge: 60 * 60 * 24 * 30, // 30 days
-      httpOnly: false,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
     });
   } else {

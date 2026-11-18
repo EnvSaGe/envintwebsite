@@ -9,21 +9,25 @@
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "24"
   SECRETS_SCAN_ENABLED = "false"
+  NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TKLJM6K1R4"
 
 [functions]
   directory = "apps/web/netlify/functions"
 
-# Daily scheduler for published/scheduled content (reduced from @hourly to preserve Neon DB free compute)
-[functions."publish-scheduled"]
-  schedule = "@daily"
+# Scheduled auto-publishing disabled for now to avoid unnecessary Neon DB wakeups
+# [functions."publish-scheduled"]
+#   schedule = "@daily"
 
 # Security headers
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.amazonaws.com https://envintglobal.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self' data:; connect-src 'self' https://*.amazonaws.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.googletagmanager.com https://stats.g.doubleclick.net; frame-src 'self' https://envintsq.com https://*.envintsq.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
 
 # Cache Next.js immutable static assets
 [[headers]]

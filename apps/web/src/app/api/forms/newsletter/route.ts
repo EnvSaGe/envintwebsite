@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NewsletterFormSchema } from '@envint/shared';
 import { db, leadSubmissions } from '@envint/db';
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/security/rate-limit';
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS_PER_WINDOW = 5;
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const rate = checkRateLimit('form:newsletter', ip, MAX_REQUESTS_PER_WINDOW, RATE_LIMIT_WINDOW_MS);
+
+    if (rate.limited) {
+      return rateLimitExceededResponse(rate.resetSeconds);
+    }
+
     let formData: any;
     const contentType = request.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
@@ -27,7 +38,7 @@ export async function POST(request: NextRequest) {
       await db.insert(leadSubmissions).values({
         formType: 'NEWSLETTER_ESQ',
         email,
-        ipAddress: request.headers.get('x-forwarded-for') || '',
+        ipAddress: ip,
         userAgent: request.headers.get('user-agent') || '',
       });
     } catch {

@@ -44,6 +44,7 @@ const RECEPTORS = [
       'Notified Eco-Sensitive Zone',
       'Important Bird Areas, Ramsar Sites',
       'Reserve / Protected Forest',
+      'Open Forest / Social Forests',
       'Schedule Areas & Wildlife Corridors',
     ],
   },
@@ -65,6 +66,7 @@ const SECTORS = [
 export function createMapSensePageTree(): PageBlockTree {
   const rootIds: string[] = [
     'sec_map_hero',
+    'sec_map_features',
     'sec_map_steps',
     'sec_map_reports',
     'sec_map_receptors',
@@ -87,7 +89,7 @@ export function createMapSensePageTree(): PageBlockTree {
         paddingBottom: '48px',
         paddingLeft: '20px',
         paddingRight: '20px',
-        backgroundImage: 'https://envintglobal.com/wp-content/uploads/2026/05/pexels-radoslaw-sikorski-36097686-27568070-1.webp',
+        backgroundImage: resolveCmsImage('/images/mapsense-hero.webp'),
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundOverlay: 'rgba(0, 0, 0, 0.48)',
@@ -109,7 +111,7 @@ export function createMapSensePageTree(): PageBlockTree {
       'h2_map_headline',
       'cont_map_hero',
       'Ecosystem Screening made Quick | Scalable | Bespoke',
-      'h2',
+      'h1',
       {
         fontSize: '40px',
         fontWeight: 500,

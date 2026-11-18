@@ -23,4 +23,5 @@ export default async function publishScheduled(): Promise<Response> {
   return new Response(null, { status: 204 });
 }
 
-export const config = { schedule: '@daily' };
+// Scheduled auto-publishing disabled for now to avoid unnecessary Neon DB wakeups
+// export const config = { schedule: '@daily' };

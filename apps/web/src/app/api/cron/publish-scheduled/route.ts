@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { db, pages, pageRevisions, insights, impactCaseStudies, eq, and, sql } from '@envint/db';
+import crypto from 'crypto';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
+
+function timingSafeMatch(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, 'utf-8');
+  const bufB = Buffer.from(b, 'utf-8');
+  return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+}
 
 /**
  * GET /api/cron/publish-scheduled
@@ -22,9 +29,9 @@ export const maxDuration = 30;
  */
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
-  const providedSecret = req.headers.get('x-cron-secret');
+  const providedSecret = req.headers.get('x-cron-secret') || '';
 
-  if (!cronSecret || providedSecret !== cronSecret) {
+  if (!cronSecret || !timingSafeMatch(providedSecret, cronSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

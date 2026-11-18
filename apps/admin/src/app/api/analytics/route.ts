@@ -38,7 +38,8 @@ async function ensureTableExists() {
 }
 
 function dateRangeFilter(days: number) {
-  return sql`"created_at" >= NOW() - INTERVAL '${sql.raw(String(days))} days'`;
+  const safeDays = Number.isFinite(days) ? Math.max(1, Math.min(Math.floor(days), 365)) : 30;
+  return sql`"created_at" >= NOW() - INTERVAL '${sql.raw(String(safeDays))} days'`;
 }
 
 export async function GET(req: NextRequest) {
@@ -49,10 +50,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  await ensureTableExists();
-
   const { searchParams } = new URL(req.url);
-  const days = Math.min(parseInt(searchParams.get('days') || '30', 10), 365);
+  const parsedDays = parseInt(searchParams.get('days') || '30', 10);
+  const days = Number.isFinite(parsedDays) ? Math.max(1, Math.min(parsedDays, 365)) : 30;
 
 
   try {

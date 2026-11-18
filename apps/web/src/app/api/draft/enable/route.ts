@@ -24,7 +24,9 @@ export async function POST(request: NextRequest) {
       .update(dataToSign)
       .digest('base64url');
 
-    if (signatureB64 !== expectedSig) {
+    const sigBuf = Buffer.from(signatureB64, 'utf-8');
+    const expBuf = Buffer.from(expectedSig, 'utf-8');
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
       return NextResponse.json({ error: 'Invalid token signature' }, { status: 401 });
     }
 
