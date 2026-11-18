@@ -49,7 +49,6 @@ export function ImageElement({ node }: { node: BuilderNode }) {
           decoding="async"
           style={{
             width: '100%',
-            height: inlineStyles.height || 'auto',
             height: resolvedHeight,
             objectFit,
             objectPosition,
@@ -65,7 +64,6 @@ export function ImageElement({ node }: { node: BuilderNode }) {
           loading="lazy"
           style={{
             width: '100%',
-            height: inlineStyles.height || 'auto',
             height: resolvedHeight,
             objectFit,
             objectPosition,
